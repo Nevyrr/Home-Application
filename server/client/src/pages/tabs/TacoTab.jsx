@@ -3,7 +3,7 @@ import { getPosts } from "../../controllers/postsController";
 import { PostContext } from "../../contexts/PostContext";
 import Post from "../../components/Post";
 
-const Home = () => {
+const TacoTab = () => {
   // Use post context
   const { posts, setPosts } = useContext(PostContext);
 
@@ -24,7 +24,7 @@ const Home = () => {
 
   return (
     <section className="card">
-      <h1 className="title">Latest posts</h1>
+      <h1 className="title">Shopping Cart</h1>
 
       {loading && (
         <i className="fa-solid fa-spinner animate-spin text-3xl text-center block"></i>
@@ -40,4 +40,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default TacoTab;

@@ -18,8 +18,8 @@ const Layout = () => {
       // Remove the items from local storage
       localStorage.removeItem("email");
       localStorage.removeItem("token");
-      // Navigate to Home page
-      navigate("/");
+      // Navigate to ShoppingTab page
+      navigate("/shopping");
     }
   };
 
@@ -28,10 +28,30 @@ const Layout = () => {
       <header className="bg-indigo-500 text-white">
         <nav className="flex items-center justify-between p-4 max-w-screen-lg mx-auto">
           <Link
-            title="Home"
-            to="/"
-            className="fa-solid fa-house-chimney nav-link"
+            title="Shopping"
+            to="/shopping"
+            className="fa-solid fa-cart-shopping nav-link"
           ></Link>
+
+          <Link
+            title="Calendar"
+            to="/calendar"
+            className="fa-solid fa-calendar-days nav-link"
+          ></Link>
+
+          <Link
+            title="Reminder"
+            to="/reminder"
+            className="fa-solid fa-bell nav-link"
+          ></Link>
+
+
+          <Link
+            title="Taco"
+            to="/taco"
+            className="fa-solid fa-dog nav-link"
+          ></Link>
+
 
           {user.email ? (
             <div className="flex items-center gap-2">
