@@ -13,9 +13,8 @@ const Post = ({ post, children }) => {
         <div>{children}</div>
       </div>
 
-        <p className="text-sm mt-4">{post.body}</p>
-
-    <div className="h-px w-full bg-gradient-to-r from-indigo-50 via-indigo-500/70 to-indigo-50 mt-6"></div>
+      <p className="text-sm mt-4">{post.body}</p>
+      <div className="h-px w-full bg-gradient-to-r from-indigo-50 via-indigo-500/70 to-indigo-50 mt-6"></div>
     </div>
   );
 };
