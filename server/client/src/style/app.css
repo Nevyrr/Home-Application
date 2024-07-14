@@ -18,8 +18,10 @@
     .btn {
         @apply block w-full bg-indigo-500 text-white rounded-md p-2 active:bg-indigo-600
     }
-}
 
-@layer pages {
-    
+    /* ----- CALENDAR ----- */
+    .dot {
+        @apply bg-green-400 w-2 h-2 rounded-md m-auto
+    }
+    /* ----- CALENDAR ----- */
 }
