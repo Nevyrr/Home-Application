@@ -24,7 +24,7 @@
         @apply bg-green-400 w-2 h-2 rounded-md m-auto
     }
     .add-event-calendar {
-        @apply text-3xl absolute top-0 right-8
+        @apply text-3xl absolute top-0 right-0
     }
     /* ----- CALENDAR ----- */
 }

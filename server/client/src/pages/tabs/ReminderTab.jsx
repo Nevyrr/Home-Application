@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from "react";
-import { getPosts } from "../../controllers/postsController";
+import { getPosts } from "../../controllers/ShoppingPostsController";
 import { PostContext } from "../../contexts/PostContext";
-import Post from "../../components/Post";
+import ShoppingPost from "../../components/ShoppingPost";
 
 const ReminderTab = () => {
   // Use post context
@@ -33,7 +33,7 @@ const ReminderTab = () => {
       {posts &&
         posts.map((post) => (
           <div key={post._id}>
-            <Post post={post} />
+            <ShoppingPost post={post} />
           </div>
         ))}
     </section>

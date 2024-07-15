@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-const Post = ({ post, children }) => {
+const ShoppingPost = ({ post, children }) => {
   return (
     <div className="mb-6">
 
@@ -19,4 +19,4 @@ const Post = ({ post, children }) => {
   );
 };
 
-export default Post;
+export default ShoppingPost;

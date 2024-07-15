@@ -1,38 +1,32 @@
 import { useContext, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
-import { updatePost } from "../../controllers/postsController";
-import { PostContext } from "../../contexts/PostContext";
-import Alert from "../../components/Alert";
+import { createPost } from "../../../controllers/ShoppingPostsController";
+import { PostContext } from "../../../contexts/PostContext";
+import Alert from "../../../components/Alert";
 
-const Update = () => {
+const Create = () => {
   // Use post context
   const { posts, setPosts } = useContext(PostContext);
 
   // Use navigate hook
   const navigate = useNavigate();
 
-  // Use location hook to receive data from Dashboard 
-  const { state } = useLocation();
-
   // Error state
   const [error, setError] = useState(null);
 
   // Form data state
-  const [title, setTitle] = useState(state.title);
-  const [body, setBody] = useState(state.body);
+  const [title, setTitle] = useState("");
+  const [body, setBody] = useState("");
 
-  const handleUpdate = async (e) => {
+  const handleCreate = async (e) => {
     e.preventDefault();
 
     try {
-      // Update a post
-      const data = await updatePost(state._id, title, body);
-      // Exclude the old version of updated post from post context
-      // So that there is no duplication of post with same _id
-      const updatedPosts = posts.filter((post) => post._id !== state._id);
+      // Create a new post
+      const data = await createPost(title, body);
       // Update the posts state
-      setPosts([...updatedPosts, data.post]);
+      setPosts([...posts, data.post]);
       // Navigate to dashboard
       navigate("/dashboard");
     } catch (error) {
@@ -42,9 +36,9 @@ const Update = () => {
 
   return (
     <section className="card">
-      <h1 className="title">Update your post</h1>
+      <h1 className="title">Create a new post</h1>
 
-      <form onSubmit={handleUpdate}>
+      <form onSubmit={handleCreate}>
         <input
           type="text"
           placeholder="Post Title"
@@ -60,7 +54,7 @@ const Update = () => {
           value={body}
           onChange={(e) => setBody(e.target.value)}
         ></textarea>
-        <button className="btn">Update</button>
+        <button className="btn">Create</button>
       </form>
 
       {error && <Alert msg={error} />}
@@ -68,4 +62,4 @@ const Update = () => {
   );
 };
 
-export default Update;
+export default Create;

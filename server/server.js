@@ -1,7 +1,7 @@
 import express from "express";
 import mongoose from "mongoose";
-import { postsRoutes } from "./routes/postsRoutes.js";
-import { usersRoutes } from "./routes/usersRoutes.js";
+import { ShoppingPostsRoutes } from "./routes/ShoppingPostsRoutes.js";
+import { UsersRoutes } from "./routes/usersRoutes.js";
 import path from 'path'
 import { fileURLToPath } from "url";
 
@@ -15,8 +15,8 @@ const app = express();
 app.use(express.json());
 
 // Adding the API end-points and the route handlers
-app.use("/api/posts", postsRoutes);
-app.use("/api/users", usersRoutes);
+app.use("/api/shopping-posts", ShoppingPostsRoutes);
+app.use("/api/users", UsersRoutes);
 
 // Use the client app
 app.use(express.static(path.join(dirname, '/client/dist')));

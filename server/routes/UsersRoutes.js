@@ -1,5 +1,5 @@
 import express from 'express'
-import { registerUser, loginUser } from '../controllers/usersController.js'
+import { registerUser, loginUser } from '../controllers/UsersController.js'
 
 // Creating an instance of Express router
 const router = express.Router()
@@ -10,4 +10,4 @@ router.post('/', registerUser)
 // Login user route
 router.post('/login', loginUser)
 
-export { router as usersRoutes }
+export { router as UsersRoutes }

@@ -29,18 +29,18 @@ const EditableCalendar = () => {
 
     return (
         <div className="page-calendar flex flex-row">
-            <div className="editable-calendar w-1/5 relative">
+            <div className="editable-calendar w-1/3 relative">
                 <div className="tools-calendar">
                     <h1 className='title'>{date.toDateString()}</h1>
                     <button className="fa-solid fa-circle-plus add-event-calendar" onClick={handleAddAction}></button>
                 </div>
-                <Calendar
+                <Calendar className="leading-[3rem] w-full"
                     onChange={handleDateChange}
                     value={date}
                     tileContent={tileContent}
                 />
             </div>
-            <div className="events-calendar w-4/5 text-center">
+            <div className="events-calendar w-2/3 text-center">
                 {events[date.toDateString()] && (
                     <div className="events-list">
                         <h1 className="title">Events :</h1>

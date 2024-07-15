@@ -2,8 +2,8 @@ import { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 import { UserContext } from "../../contexts/UserContext";
-import { deletePost, getUserPosts } from "../../controllers/postsController";
-import Post from "../../components/Post";
+import { deletePost, getUserPosts } from "../../controllers/ShoppingPostsController";
+import ShoppingPost from "../../components/ShoppingPost";
 import Alert from "../../components/Alert";
 import Success from "../../components/Success";
 
@@ -62,7 +62,7 @@ const Dashboard = () => {
       {user.posts &&
         user.posts.map((post) => (
           <div key={post._id}>
-            <Post post={post}>
+            <ShoppingPost post={post}>
               <div className="flex items-center gap-2">
                 <Link
                   className="fa-solid fa-pen-to-square nav-link text-green-500 hover:bg-green-200"
@@ -76,7 +76,7 @@ const Dashboard = () => {
                   onClick={() => handleDelete(post._id)}
                 ></button>
               </div>
-            </Post>
+            </ShoppingPost>
           </div>
         ))}
     </section>

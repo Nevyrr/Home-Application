@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 // Creating post schema using Mongoose Schema class
-const PostSchema = new mongoose.Schema({
+const ShoppingPostSchema = new mongoose.Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
@@ -23,6 +23,6 @@ const PostSchema = new mongoose.Schema({
 
 
 // Creating a model from schema
-const Post = mongoose.model("Post", PostSchema)
+const ShoppingPost = mongoose.model("ShoppingPost", ShoppingPostSchema)
 
-export default Post
+export default ShoppingPost

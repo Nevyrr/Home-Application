@@ -1,7 +1,7 @@
 import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { loginUser } from "../../controllers/usersController";
+import { loginUser } from "../../controllers/UsersController";
 import { UserContext } from "../../contexts/UserContext";
 import Alert from "../../components/Alert";
 

@@ -5,7 +5,7 @@ import {
   addPost,
   deletePost,
   updatePost,
-} from "../controllers/postsController.js";
+} from "../controllers/ShoppingPostsController.js";
 import auth from "../middlewares/auth.js";
 
 // Creating an instance of Express router
@@ -26,4 +26,4 @@ router.delete("/:id", auth, deletePost);
 // Update post route
 router.put("/:id", auth, updatePost);
 
-export { router as postsRoutes };
+export { router as ShoppingPostsRoutes };
