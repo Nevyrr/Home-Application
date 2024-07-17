@@ -40,8 +40,8 @@ const Layout = () => {
           ></Link>
 
           <Link
-            title="Reminder"
-            to="/reminder"
+            title="Reminders"
+            to="/reminders"
             className="fa-solid fa-bell nav-link"
           ></Link>
 
