@@ -1,7 +1,8 @@
 import { useContext, useEffect, useState } from "react";
+import { Alert, Success, ShoppingPost } from "../../components";
 import { getPosts } from "../../controllers/ShoppingPostsController";
+import { deletePost } from "../../controllers/ShoppingPostsController";
 import { PostContext } from "../../contexts/PostContext";
-import ShoppingPost from "../../components/ShoppingPost";
 
 const ShoppingTab = () => {
   // Use post context
@@ -9,6 +10,10 @@ const ShoppingTab = () => {
 
   // Loading state
   const [loading, setLoading] = useState(true);
+  // Error state
+  const [error, setError] = useState(null);
+  // Success state
+  const [success, setSuccess] = useState(null);
 
   // Grab all the posts on page load
   useEffect(() => {
@@ -22,6 +27,23 @@ const ShoppingTab = () => {
     }, 1000);
   }, []);
 
+  // Handle delete post
+  const handleDelete = async (_id) => {
+    if (confirm("Confirm delete?")) {
+      try {
+        // Delete the post
+        const msg = await deletePost(_id);
+        // Update posts state
+        const data = await getPosts();
+        setPosts(data.posts);
+        // Set the success message
+        setSuccess(msg.success);
+      } catch (error) {
+        setError(error.message);
+      }
+    }
+  };
+
   return (
     <section className="card">
       <h1 className="title">Shopping Cart</h1>
@@ -30,10 +52,16 @@ const ShoppingTab = () => {
         <i className="fa-solid fa-spinner animate-spin text-3xl text-center block"></i>
       )}
 
+      {success && <Success msg={success} />}
+      {error && <Alert msg={error} />}
+
       {posts &&
         posts.map((post) => (
           <div key={post._id}>
-            <ShoppingPost post={post} />
+            <ShoppingPost
+              post={post}
+              onDelete={handleDelete}
+            />
           </div>
         ))}
     </section>

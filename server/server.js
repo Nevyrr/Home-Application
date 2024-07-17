@@ -1,6 +1,7 @@
 import express from "express";
 import mongoose from "mongoose";
 import { ShoppingPostsRoutes } from "./routes/ShoppingPostsRoutes.js";
+import { CalendarEventsRoutes } from "./routes/CalendarEventsRoutes.js";
 import { UsersRoutes } from "./routes/usersRoutes.js";
 import path from 'path'
 import { fileURLToPath } from "url";
@@ -16,6 +17,7 @@ app.use(express.json());
 
 // Adding the API end-points and the route handlers
 app.use("/api/shopping-posts", ShoppingPostsRoutes);
+app.use("/api/calendar-events", CalendarEventsRoutes);
 app.use("/api/users", UsersRoutes);
 
 // Use the client app

@@ -5,11 +5,12 @@ import { createContext, useState } from "react";
 export const UserContext = createContext();
 
 const UserProvider = ({ children }) => {
+  
   // User global state
   const [user, setUser] = useState({
+    id: localStorage.getItem("id"),
     name: localStorage.getItem("name"),
-    email: localStorage.getItem("email"),
-    posts: [],
+    email: localStorage.getItem("email")
   });
 
   // Return a custom component to expose User state to the children components

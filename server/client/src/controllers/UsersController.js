@@ -1,3 +1,5 @@
+import { jwtDecode } from "jwt-decode";
+
 /**************************** Login User  **********************************/
 const loginUser = async (email, password) => {
   if (!email || !password) {
@@ -17,8 +19,9 @@ const loginUser = async (email, password) => {
   if (!res.ok) {
     throw Error(data.error);
   }
-
+ 
   localStorage.setItem("token", data.token);
+  localStorage.setItem("id",  (jwtDecode(data.token))._id);
   localStorage.setItem("name", data.name);
   localStorage.setItem("email", data.email);
 
@@ -50,6 +53,8 @@ const registerUser = async (name, email, password, passwordConfirm) => {
   }
 
   localStorage.setItem("token", data.token);
+  localStorage.setItem("id",  (jwtDecode(data.token))._id);
+  localStorage.setItem("token", data.name);
   localStorage.setItem("email", data.email);
 
   return data;

@@ -40,8 +40,8 @@ const Layout = () => {
           ></Link>
 
           <Link
-            title="Reminder"
-            to="/reminder"
+            title="Reminders"
+            to="/reminders"
             className="fa-solid fa-bell nav-link"
           ></Link>
 
@@ -55,11 +55,6 @@ const Layout = () => {
 
           {user.email ? (
             <div className="flex items-center gap-2">
-              <Link
-                title="Create Post"
-                to="/create"
-                className="fa-solid fa-circle-plus nav-link"
-              ></Link>
               <Link
                 title="Dashboard"
                 to="/dashboard"
