@@ -1,13 +1,13 @@
 import express from "express";
 import mongoose from "mongoose";
-import { ShoppingPostsRoutes } from "./routes/ShoppingPostsRoutes.js";
-import { CalendarEventsRoutes } from "./routes/CalendarEventsRoutes.js";
-import { UsersRoutes } from "./routes/usersRoutes.js";
+import { ShoppingPostsRoutes } from "./routes/ShoppingPostsRoutes";
+import { CalendarEventsRoutes } from "./routes/CalendarEventsRoutes";
+import { UsersRoutes } from "./routes/UsersRoutes";
 import path from 'path'
 import { fileURLToPath } from "url";
 
-const filename = fileURLToPath(import.meta.url);
-const dirname = path.dirname(filename);
+const filename: string = fileURLToPath(import.meta.url);
+const dirname: string = path.dirname(filename);
 
 // Initializing Express app
 const app = express();
@@ -26,7 +26,7 @@ app.get('*', (_req, res) => res.sendFile(path.join(dirname, '/client/dist/index.
 
 // Connecting to MongoDB using Mongoose
 mongoose
-  .connect(process.env.DB_URI, { dbName: "home_app" })
+  .connect(process.env.DB_URI ?? "", { dbName: "home_app" })
   .then(() => {
     console.log("connected to DB successfully");
     

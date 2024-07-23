@@ -1,7 +1,14 @@
 import mongoose from "mongoose";
 
+export interface IUser extends mongoose.Document {
+  _id: mongoose.Types.ObjectId;
+  name: string;
+  email: string;
+  password: string;
+}
+
 // Creating post schema using Mongoose Schema class
-const UserSchema = new mongoose.Schema(
+const UserSchema: mongoose.Schema = new mongoose.Schema<IUser>(
   {
     name: {
       type: String,

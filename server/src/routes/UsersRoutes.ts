@@ -1,8 +1,8 @@
-import express from 'express'
+import express, { Router } from 'express'
 import { registerUser, loginUser } from '../controllers/UsersController.js'
 
 // Creating an instance of Express router
-const router = express.Router()
+const router: Router = express.Router()
 
 // Register user route
 router.post('/', registerUser)

@@ -1,7 +1,13 @@
 import mongoose from "mongoose";
 
+export interface IShoppingPost extends Document {
+    user: mongoose.Types.ObjectId;
+    username: string;
+    title: string;
+    bodyText: string;
+}
 // Creating post schema using Mongoose Schema class
-const ShoppingPostSchema = new mongoose.Schema({
+const ShoppingPostSchema: mongoose.Schema = new mongoose.Schema<IShoppingPost>({
     user: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
@@ -23,6 +29,6 @@ const ShoppingPostSchema = new mongoose.Schema({
 
 
 // Creating a model from schema
-const ShoppingPost = mongoose.model("ShoppingPost", ShoppingPostSchema)
+const ShoppingPost = mongoose.model("ShoppingPost", ShoppingPostSchema);
 
-export default ShoppingPost
+export default ShoppingPost;

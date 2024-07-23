@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Router } from "express";
 import {
   getEvents,
   addEvent,
@@ -8,7 +8,7 @@ import {
 import auth from "../middlewares/auth.js";
 
 // Creating an instance of Express router
-const router = express.Router();
+const router: Router = express.Router();
 
 // Get all posts route
 router.get("/", getEvents);

@@ -10,12 +10,14 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@types/node": "^20.14.11",
     "backend": "file:..",
     "jwt-decode": "^4.0.0",
     "react": "^18.2.0",
     "react-calendar": "^5.0.0",
     "react-dom": "^18.2.0",
-    "react-router-dom": "^6.22.0"
+    "react-router-dom": "^6.22.0",
+    "typescript": "^5.5.4"
   },
   "devDependencies": {
     "@types/react": "^18.2.43",

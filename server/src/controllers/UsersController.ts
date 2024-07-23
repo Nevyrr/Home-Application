@@ -2,15 +2,20 @@ import User from "../models/UserModel.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import "dotenv/config.js";
+import { Request, Response } from "express";
 
 /************************************ Creating JWT token ************************************/
-const createToken = (_id) => {
+const createToken = (_id: unknown) => {
   // Creating a new signature
-  return jwt.sign({ _id }, process.env.SECRET, { expiresIn: "10d" });
+  if (process.env.SECRET === undefined) {
+    return;
+  } else {
+    return jwt.sign({ _id }, process.env.SECRET, { expiresIn: "10d" });
+  }
 };
 
 /************************************ Register User ************************************/
-const registerUser = async (req, res) => {
+const registerUser = async (req: Request, res: Response) => {
   // Grab data from request body
   const { name, email, password } = req.body;
 
@@ -42,13 +47,13 @@ const registerUser = async (req, res) => {
     const token = createToken(user._id)
     // Send the response
     res.status(200).json({ name, email, token });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
   }
 };
 
 /************************************ Login User ************************************/
-const loginUser = async (req, res) => {
+const loginUser = async (req: Request, res: Response) => {
   // Grab data from request body
   const { email, password } = req.body;
 
@@ -64,19 +69,19 @@ const loginUser = async (req, res) => {
   }
 
   // Check password
-  const match = await bcrypt.compare(password, user.password);
+  const match = bcrypt.compare(password, <string>user.password);
   if (!match) {
     return res.status(400).json({ error: "Incorrect password." });
   }
 
   try {
     // Create the JsonWebToken
-    const token = createToken(user._id)
-    const name = user.name
+    const token = createToken(user._id);
+    const name = user.name;
 
     res.status(200).json({name, email, token });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
   }
 };
 
