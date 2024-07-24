@@ -1,12 +1,12 @@
 import mongoose from "mongoose";
-import ShoppingPost from "../models/ShoppingPostModel.js";
+import ReminderPost from "../models/ReminderPostModel.js";
 import User from "../models/UserModel.js";
 
 /************************************ Get All Posts ************************************/
 const getPosts = async (req, res) => {
   try {
     // Grab all the posts from DB
-    const posts = await ShoppingPost.find().sort({ createdAt: "desc" });
+    const posts = await ReminderPost.find().sort({ createdAt: "desc" });
     res.status(200).json({ posts });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -20,20 +20,20 @@ const getUserPosts = async (req, res) => {
 
   try {
     // Grab user's posts from DB
-    const userPosts = await ShoppingPost.find({ user: user._id }).sort({ createdAt: "desc" });
+    const userPosts = await ReminderPost.find({ user: user._id }).sort({ createdAt: "desc" });
     res.status(200).json({ name: user.name, email: user.email, userPosts });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-/************************************ Create New ShoppingPost ************************************/
+/************************************ Create New ReminderPost ************************************/
 const addPost = async (req, res) => {
   // Grab the data from request body
-  const { title, count, priorityColor } = req.body;
+  const { title, body, priorityColor } = req.body;
 
   // Check the fields are not empty
-  if (!title || !count || priorityColor === undefined) {
+  if (!title || !body) {
     return res.status(400).json({ error: "All fields are required" });
   }
 
@@ -42,7 +42,7 @@ const addPost = async (req, res) => {
 
   try {
     // Create a new post and save in DB
-    const post = await ShoppingPost.create({ user: user._id, username: user.name, title: title, count: count, priorityColor: priorityColor });
+    const post = await ReminderPost.create({ user: user._id, username: user.name, title, body, priorityColor });
 
     res.status(200).json({ success: "Post created.", post });
   } catch (error) {
@@ -50,7 +50,7 @@ const addPost = async (req, res) => {
   }
 };
 
-/************************************ Delete ShoppingPost ************************************/
+/************************************ Delete ReminderPost ************************************/
 const deletePost = async (req, res) => {
   // Check the ID is valid type
   if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
@@ -58,9 +58,9 @@ const deletePost = async (req, res) => {
   }
 
   // Check the post exists
-  const post = await ShoppingPost.findById(req.params.id);
+  const post = await ReminderPost.findById(req.params.id);
   if (!post) {
-    return res.status(400).json({ error: "ShoppingPost not found" });
+    return res.status(400).json({ error: "ReminderPost not found" });
   }
 
   // Check the user owns the post
@@ -71,29 +71,19 @@ const deletePost = async (req, res) => {
 
   try {
     await post.deleteOne();
-    res.status(200).json({ success: "ShoppingPost was deleted." });
+    res.status(200).json({ success: "ReminderPost was deleted." });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-/************************************ Delete all ShoppingPost ************************************/
-const deletePosts = async (_, res) => {
-  try {
-    await ShoppingPost.deleteMany({});
-    res.status(200).json({ success: "ShoppingPosts were deleted." });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
-/************************************ Update ShoppingPost ************************************/
+/************************************ Update ReminderPost ************************************/
 const updatePost = async (req, res) => {
   // Grab the data from request body
-  const { title, count, priorityColor } = req.body;
+  const { title, body, priorityColor } = req.body;
 
   // Check the fields are not empty
-  if (!title || !count || priorityColor === undefined) {
+  if (!title || !body) {
     return res.status(400).json({ error: "All fields are required" });
   }
 
@@ -103,9 +93,9 @@ const updatePost = async (req, res) => {
   }
 
   // Check the post exists
-  const post = await ShoppingPost.findById(req.params.id);
+  const post = await ReminderPost.findById(req.params.id);
   if (!post) {
-    return res.status(400).json({ error: "ShoppingPost not found" });
+    return res.status(400).json({ error: "ReminderPost not found" });
   }
 
   // Check the user owns the post
@@ -115,11 +105,11 @@ const updatePost = async (req, res) => {
   }
 
   try {
-    await post.updateOne({ title, count, priorityColor });
-    res.status(200).json({ success: "ShoppingPost was updated.", post });
+    await post.updateOne({ title, body, priorityColor });
+    res.status(200).json({ success: "ReminderPost was updated.", post });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-export { getPosts, getUserPosts, addPost, deletePost, deletePosts, updatePost };
+export { getPosts, getUserPosts, addPost, deletePost, updatePost };

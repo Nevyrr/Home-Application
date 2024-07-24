@@ -21,8 +21,18 @@
 
     /* ------ Buttons ------- */
 
+    .button,
+    .validate-button,
+    .delete-button {
+        @apply bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-full shadow-lg transform hover:scale-105 transition-transform duration-200
+    }
+
     .validate-button {
-        @apply bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-full shadow-lg transform hover:scale-105 transition-transform duration-200
+        @apply bg-green-500 hover:bg-green-600
+    }
+
+    .delete-button {
+        @apply bg-red-500 hover:bg-red-600
     }
 
     .close-button {
@@ -37,6 +47,10 @@
 
     .post-title-input {
         @apply font-bold text-lg text-indigo-600 first-letter:uppercase overflow-auto
+    }
+
+    .post .priority-flag {
+        @apply cursor-auto absolute top-1/2 left-0 -translate-y-1/2 text-xl
     }
 
     .calendar-post .priority-flag {
@@ -57,6 +71,24 @@
         @apply relative flex justify-evenly mt-8
     }
 
+    .xpopup .priority-flag {
+        @apply absolute top-1/2 -right-6 -translate-y-1/2
+    }
+
+    /* ----- SHOPPING ---- */
+
+    .shopping-tab .post-body {
+        @apply absolute top-1/2 right-1/4 -translate-y-1/2 rounded-full w-8 h-8 bg-black
+    }
+    
+    .shopping-post-body-count {
+        @apply text-center text-white text-xl
+    }
+
+    .shopping-total-bar {
+        @apply flex place-content-evenly
+    }
+
     /* ----- CALENDAR ----- */
     .add-event-calendar {
         @apply text-3xl
@@ -70,10 +102,10 @@
     .calendar-dot-list {
         @apply flex absolute left-1/2 -translate-x-1/2 -translate-y-1/2 top-3/4 
     }
-    .page-calendar {
+    .calendar-tab {
         @apply h-65vh
     }
     .calendar-list-event {
-        @apply overflow-auto h-4/5
+        @apply h-full
     }
 }

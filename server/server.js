@@ -5,6 +5,7 @@ import { CalendarEventsRoutes } from "./routes/CalendarEventsRoutes.js";
 import { UsersRoutes } from "./routes/usersRoutes.js";
 import path from 'path'
 import { fileURLToPath } from "url";
+import { ReminderPostsRoutes } from "./routes/ReminderPostsRoutes.js";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -18,6 +19,7 @@ app.use(express.json());
 // Adding the API end-points and the route handlers
 app.use("/api/shopping-posts", ShoppingPostsRoutes);
 app.use("/api/calendar-events", CalendarEventsRoutes);
+app.use("/api/reminder-posts", ReminderPostsRoutes);
 app.use("/api/users", UsersRoutes);
 
 // Use the client app

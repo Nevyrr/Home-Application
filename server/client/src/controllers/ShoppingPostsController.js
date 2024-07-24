@@ -28,8 +28,8 @@ const getUserPosts = async () => {
 };
 
 /**************************** Create shopping-posts  ******************************/
-const createPost = async (title, body) => {
-  if (!title || !body) {
+const createPost = async (title, count, priorityColor) => {
+  if (!title || !count || priorityColor === undefined) {
     throw Error("All fields are required");
   }
 
@@ -39,7 +39,7 @@ const createPost = async (title, body) => {
       "Content-Type": "application/json",
       Authorization: `Bearer ${localStorage.getItem("token")}`,
     },
-    body: JSON.stringify({ title, body }),
+    body: JSON.stringify({ title, count, priorityColor }),
   });
 
   const data = await res.json();
@@ -69,19 +69,13 @@ const deletePost = async (_id) => {
   return data;
 };
 
-/**************************** Update shopping-posts  ******************************/
-const updatePost = async (_id, title, body) => {
-  if (!title || !body) {
-    throw Error("All fields are required");
-  }
-
-  const res = await fetch(`/api/shopping-posts/${_id}`, {
-    method: "PUT",
+/**************************** Delete all shopping-posts  ******************************/
+const deletePosts = async () => {
+  const res = await fetch(`/api/shopping-posts/`, {
+    method: "DELETE",
     headers: {
-      "Content-Type": "application/json",
       Authorization: `Bearer ${localStorage.getItem("token")}`,
     },
-    body: JSON.stringify({ title, body }),
   });
 
   const data = await res.json();
@@ -93,4 +87,28 @@ const updatePost = async (_id, title, body) => {
   return data;
 };
 
-export { getPosts, getUserPosts, createPost, deletePost, updatePost };
+/**************************** Update shopping-posts  ******************************/
+const updatePost = async (_id, title, count, priorityColor) => {
+  if (!title || !count || priorityColor === undefined) {
+    throw Error("All fields are required");
+  }
+
+  const res = await fetch(`/api/shopping-posts/${_id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
+    body: JSON.stringify({ title, count, priorityColor }),
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw Error(data.error);
+  }
+
+  return data;
+};
+
+export { getPosts, getUserPosts, createPost, deletePost, deletePosts, updatePost };

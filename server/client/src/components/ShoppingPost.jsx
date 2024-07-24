@@ -1,13 +1,14 @@
 import Post from "./Post";
 
 /* eslint-disable react/prop-types */
-const ShoppingPost = ({ post, onDelete }) => {
+const ShoppingPost = ({ post, onUpdate, onDelete }) => {
   return (
 
     <Post
       post={post}
+      onUpdate={onUpdate}
       onDelete={onDelete}
-      body={<p className="text-sm mt-4">{post.body}</p>}
+      children={<p className="shopping-post-body-count">{post.count}</p>}
     />
   );
 };

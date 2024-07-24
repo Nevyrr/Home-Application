@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 // Creating post schema using Mongoose Schema class
-const ShoppingPostSchema = new mongoose.Schema({
+const ReminderPostSchema = new mongoose.Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
@@ -15,18 +15,18 @@ const ShoppingPostSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    count: {
-        type: Number,
+    body: {
+        type: String,
         required: true,
     },
     priorityColor: {
         type: Number,
-        required: true,
+        required: true
     }
 }, { timestamps: true })
 
 
 // Creating a model from schema
-const ShoppingPost = mongoose.model("ShoppingPost", ShoppingPostSchema)
+const ReminderPost = mongoose.model("ReminderPost", ReminderPostSchema)
 
-export default ShoppingPost
+export default ReminderPost

@@ -4,9 +4,8 @@ import {
   getUserPosts,
   addPost,
   deletePost,
-  deletePosts,
-  updatePost
-} from "../controllers/ShoppingPostsController.js";
+  updatePost,
+} from "../controllers/ReminderPostsController.js";
 import auth from "../middlewares/auth.js";
 
 // Creating an instance of Express router
@@ -24,10 +23,7 @@ router.post("/", auth, addPost);
 // Delete post route
 router.delete("/:id", auth, deletePost);
 
-// Delete posts route
-router.delete("/", auth, deletePosts);
-
 // Update post route
 router.put("/:id", auth, updatePost);
 
-export { router as ShoppingPostsRoutes };
+export { router as ReminderPostsRoutes };

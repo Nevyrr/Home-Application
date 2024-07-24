@@ -6,8 +6,8 @@ import User from "../models/UserModel.js";
 const getEvents = async (_req, res) => {
   try {
     // Grab all the events from DB
-    const events = await CalendarEvent.find().sort({ createdAt: "desc" });
-    res.status(200).json({ events });
+    const posts = await CalendarEvent.find().sort({ createdAt: "desc" });
+    res.status(200).json({ posts });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
