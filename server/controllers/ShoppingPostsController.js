@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import ShoppingPost from "../models/ShoppingPostModel.js";
 import User from "../models/UserModel.js";
+import axios from "axios";
 
 /************************************ Get All Posts ************************************/
 const getPosts = async (req, res) => {
@@ -41,9 +42,18 @@ const addPost = async (req, res) => {
   const user = await User.findById(req.user._id);
 
   try {
+    const response = await axios.get('https://www.googleapis.com/customsearch/v1', {
+      params: {
+        key: process.env.GG_API_KEY,
+        cx: process.env.GG_CX,
+        q: title + " leclerc produits",
+        searchType: 'image',
+        num: 1,
+      },
+    });
+    const imageUrl = response.data.items[0]?.link || '';
     // Create a new post and save in DB
-    const post = await ShoppingPost.create({ user: user._id, username: user.name, title: title, count: count, priorityColor: priorityColor });
-
+    const post = await ShoppingPost.create({ user: user._id, username: user.name, title: title, count: count, priorityColor: priorityColor, imageURL: imageUrl });
     res.status(200).json({ success: "Post created.", post });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -115,7 +125,7 @@ const updatePost = async (req, res) => {
   }
 
   try {
-    await post.updateOne({ title, count, priorityColor });
+    await post.updateOne({ title: title, count: count, priorityColor: priorityColor });
     res.status(200).json({ success: "ShoppingPost was updated.", post });
   } catch (error) {
     res.status(500).json({ error: error.message });

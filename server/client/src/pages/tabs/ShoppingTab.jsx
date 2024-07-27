@@ -151,7 +151,7 @@ const ShoppingTab = () => {
       {shoppingPosts.length !== 0 && (
         <div className="shopping-total-bar">
           <button className="delete-button shopping-delete-all-button" onClick={handleDeleteAll}>Clear the cart</button>
-          <p>Total Items: {shoppingPosts.length}</p>
+          <p className="shopping-total-text">Total Items: {shoppingPosts.length}</p>
         </div>
       )}
     </section>

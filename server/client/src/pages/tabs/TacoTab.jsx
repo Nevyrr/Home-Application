@@ -3,7 +3,7 @@ const TacoTab = () => {
     <section className="card">
       <h1 className="title">Pour mon boubou TACO</h1>
 
-      <p>In Coming </p>
+      <p>Coming Soon</p>
 
     </section>
   );

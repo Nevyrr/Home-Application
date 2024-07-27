@@ -105,7 +105,7 @@ const updatePost = async (req, res) => {
   }
 
   try {
-    await post.updateOne({ title, body, priorityColor });
+    await post.updateOne({ title: title, body: body, priorityColor: priorityColor });
     res.status(200).json({ success: "ReminderPost was updated.", post });
   } catch (error) {
     res.status(500).json({ error: error.message });

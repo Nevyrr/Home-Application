@@ -22,6 +22,10 @@ const ShoppingPostSchema = new mongoose.Schema({
     priorityColor: {
         type: Number,
         required: true,
+    },
+    imageURL: {
+        type: String,
+        required: false,
     }
 }, { timestamps: true })
 

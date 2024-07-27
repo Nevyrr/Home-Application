@@ -8,7 +8,10 @@ const ShoppingPost = ({ post, onUpdate, onDelete }) => {
       post={post}
       onUpdate={onUpdate}
       onDelete={onDelete}
-      children={<p className="shopping-post-body-count">{post.count}</p>}
+      children={<div>
+        <img src={post.imageURL} />
+        <p className="shopping-post-body-count">{post.count}</p>
+      </div>}
     />
   );
 };

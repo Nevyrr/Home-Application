@@ -89,6 +89,10 @@
         @apply flex place-content-evenly
     }
 
+    .shopping-total-text {
+        @apply content-center border-solid border-2 border-black px-2 font-bold
+    }
+
     /* ----- CALENDAR ----- */
     .add-event-calendar {
         @apply text-3xl
