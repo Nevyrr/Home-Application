@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 import ShoppingPost from "../models/ShoppingPostModel.js";
 import User from "../models/UserModel.js";
-import axios from "axios";
 
 /************************************ Get All Posts ************************************/
 const getPosts = async (req, res) => {
@@ -42,19 +41,9 @@ const addPost = async (req, res) => {
   const user = await User.findById(req.user._id);
 
   try {
-    const response = await axios.get('https://www.googleapis.com/customsearch/v1', {
-      params: {
-        key: process.env.GG_API_KEY,
-        cx: process.env.GG_CX,
-        q: title + " leclerc produits",
-        searchType: 'image',
-        num: 1,
-      },
-    });
-    const imageUrl = response.data.items[0]?.link || '';
     // Create a new post and save in DB
-    const post = await ShoppingPost.create({ user: user._id, username: user.name, title: title, count: count, priorityColor: priorityColor, imageURL: imageUrl });
-    res.status(200).json({ success: "Post created.", post });
+    const post = await ShoppingPost.create({ user: user._id, username: user.name, title: title, count: count, priorityColor: priorityColor });
+    res.status(200).json({ success: title + " shopping post created.", post });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -70,7 +59,7 @@ const deletePost = async (req, res) => {
   // Check the post exists
   const post = await ShoppingPost.findById(req.params.id);
   if (!post) {
-    return res.status(400).json({ error: "ShoppingPost not found" });
+    return res.status(400).json({ error: "shopping post not found" });
   }
 
   // Check the user owns the post
@@ -81,7 +70,7 @@ const deletePost = async (req, res) => {
 
   try {
     await post.deleteOne();
-    res.status(200).json({ success: "ShoppingPost was deleted." });
+    res.status(200).json({ success: post.title + " shopping post was deleted." });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -91,7 +80,7 @@ const deletePost = async (req, res) => {
 const deletePosts = async (_, res) => {
   try {
     await ShoppingPost.deleteMany({});
-    res.status(200).json({ success: "ShoppingPosts were deleted." });
+    res.status(200).json({ success: "All shopping posts were deleted." });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -126,7 +115,7 @@ const updatePost = async (req, res) => {
 
   try {
     await post.updateOne({ title: title, count: count, priorityColor: priorityColor });
-    res.status(200).json({ success: "ShoppingPost was updated.", post });
+    res.status(200).json({ success: title + " shopping post was updated.", post });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

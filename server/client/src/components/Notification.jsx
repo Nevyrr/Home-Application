@@ -1,9 +1,21 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const Notification = ({ msg, icon, color, timer }) => {
   const [show, setShow] = useState(true);
 
-  setTimeout(() => setShow(false), timer);
+  useEffect(() => {
+    if (msg) {
+      setShow(true); // Afficher la notification
+  
+      // Réglage du délai pour masquer la notification
+      const timeout = setTimeout(() => {
+        setShow(false);
+      }, timer);
+  
+      // Nettoyage de l'effet lorsque le message change ou le composant se démonte
+      return () => clearTimeout(timeout);
+    }
+  }, [msg, timer]); // Dépendances : réexécuter lorsque msg ou timer change
 
   return (
     <div>

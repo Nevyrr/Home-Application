@@ -35,7 +35,7 @@ const addEvent = async (req, res) => {
     // Create a new Event and save in DB
     const event = await CalendarEvent.create({ user: user._id, username: user.name, title: title, selectedDate: selectedDate, priorityColor: priorityColor });
 
-    res.status(200).json({ success: "Event created.", event });
+    res.status(200).json({ success: title + " event created.", event });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -51,7 +51,7 @@ const deleteEvent = async (req, res) => {
   // Check the post exists
   const event = await CalendarEvent.findById(req.params.id);
   if (!event) {
-    return res.status(400).json({ error: "CalendarEvent not found" });
+    return res.status(400).json({ error: "calendar event not found" });
   }
 
   // Check the user owns the post
@@ -62,7 +62,7 @@ const deleteEvent = async (req, res) => {
 
   try {
     await event.deleteOne();
-    res.status(200).json({ success: "Calendar event was deleted." });
+    res.status(200).json({ success: event.title + " calendar event was deleted." });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -91,7 +91,7 @@ const updateEvent = async (req, res) => {
   // Check the post exists
   const event = await CalendarEvent.findById(req.params.id);
   if (!event) {
-    return res.status(400).json({ error: "CalendarEvent not found" });
+    return res.status(400).json({ error: "calendar event not found" });
   }
 
   // Check the user owns the post
@@ -102,7 +102,7 @@ const updateEvent = async (req, res) => {
 
   try {
     await event.updateOne({ title: title, priorityColor: priorityColor });
-    res.status(200).json({ success: "CalendarEvent was updated.", event });
+    res.status(200).json({ success: title + " calendar event was updated.", event });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
