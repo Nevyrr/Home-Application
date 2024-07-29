@@ -1,5 +1,6 @@
 import { useContext } from "react";
 import { Link, Outlet, useNavigate } from "react-router-dom";
+import Icon from "../components/Icon";
 
 import { UserContext } from "../contexts/UserContext";
 
@@ -80,6 +81,10 @@ const Layout = () => {
               ></Link>
             </div>
           )}
+
+          <div className="max-w-20">
+            <Icon imageName={"DavinIcon.png"} />
+          </div>
         </nav>
       </header>
 

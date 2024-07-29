@@ -7,7 +7,8 @@ export default {
   theme: {
     extend: {
       height: {
-        '65vh': '65vh',
+        '55vh': '55vh',
+        '90': '90%',
       },
     },
   },

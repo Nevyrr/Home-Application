@@ -99,6 +99,24 @@ const CalendarTab = () => {
     }
   };
 
+    // Handle delete post
+    const handleClearDay = async (_id) => {
+      if (confirm("Confirm delete?")) {
+        try {
+          // Delete the post
+          for (const event of eventsOnDate) {
+            await deleteEvent(event._id);
+          }
+          // Update posts state
+          filterEventsWithSelectedDate(selectedDate);
+          // Set the success message
+          setSuccess("All tasks are done for today congrats !");
+        } catch (error) {
+          setError(error.message);
+        }
+      }
+    };
+
   return (
     <section className="card">
       {success && <Success msg={success} />}
@@ -124,6 +142,7 @@ const CalendarTab = () => {
               setAllFields={setAllFields}
               resetAllFields={resetAllFields}
             />
+            <button className="validate-button" onClick={handleClearDay}>Clear Day</button>
           </div>
         </div>
       </div>

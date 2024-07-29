@@ -97,6 +97,9 @@
     .add-event-calendar {
         @apply text-3xl
     }
+    .editable-calendar {
+        @apply w-2/5 relative content-center
+    }
     .editable-calendar button {
         @apply relative
     }
@@ -107,9 +110,9 @@
         @apply flex absolute left-1/2 -translate-x-1/2 -translate-y-1/2 top-3/4 
     }
     .calendar-tab {
-        @apply h-65vh
+        @apply h-55vh
     }
     .calendar-list-event {
-        @apply h-full
+        @apply h-90
     }
 }

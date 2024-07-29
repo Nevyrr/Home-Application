@@ -17,15 +17,15 @@ const EditableCalendar = ({ allEvents, handleDateChange }) => {
         const priorityCounts = eventsSelected.reduce((groupedEvents, event) => {
             groupedEvents[event.priorityColor]++;
             return groupedEvents;
-        }, [0,0,0,0]);
+        }, [0, 0, 0, 0]);
 
         if (view === 'month') {
             return <div className="calendar-dot-list">
-                { priorityCounts.map((item, index) => (
+                {priorityCounts.map((item, index) => (
                     item !== 0 && (
-                    <div key={index} className={getCssColor(index) + " dot text-white text-xs"}>
-                        {item}
-                    </div>
+                        <div key={index} className={getCssColor(index) + " dot text-white text-xs"}>
+                            {item}
+                        </div>
                     )
                 ))}
             </div>;
@@ -35,7 +35,7 @@ const EditableCalendar = ({ allEvents, handleDateChange }) => {
     };
 
     return (
-        <div className="editable-calendar w-2/5 relative">
+        <div className="editable-calendar">
             <Calendar className="leading-[3rem] w-full relative"
                 onChange={changeDate}
                 value={date}

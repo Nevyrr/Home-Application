@@ -11,3 +11,5 @@ export { default as ValidationPopup } from './ValidationPopup';
 
 export { default as PriorityFlag } from './PriorityFlag';
 export { default as EditableCalendar } from './EditableCalendar';
+
+export { default as Icon } from './Icon';
