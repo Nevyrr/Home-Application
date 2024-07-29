@@ -74,7 +74,7 @@ const PostList = ({ title, posts, PostComposant = Post, sortPosts, popupPost, ha
 
 
   return (
-    <section className="h-full">
+    <section className="h-full place-content-evenly">
       <div className="flex justify-evenly mb-8 text-3xl h-1/10">
         <h1 className="font-bold text-2xl">{title + " Board"}</h1>
         <button className="fa-solid fa-circle-plus" onClick={toggleCreationPopup}></button>
@@ -87,7 +87,7 @@ const PostList = ({ title, posts, PostComposant = Post, sortPosts, popupPost, ha
 
       {/* Popup for post update */}
       {renderUpdatePopup()}
-      <div className="overflow-auto h-4/5">
+      <div className="overflow-auto h-4/6">
         {posts &&
           posts.map((post) => (
             <div key={post._id}>

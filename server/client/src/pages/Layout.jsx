@@ -15,7 +15,7 @@ const Layout = () => {
   const handleLogout = () => {
     if (confirm("Confirm Logout?")) {
       // Reset the User state
-      setUser({ email: null, posts: [] });
+      setUser({ email: null });
       // Remove the items from local storage
       localStorage.removeItem("email");
       localStorage.removeItem("token");

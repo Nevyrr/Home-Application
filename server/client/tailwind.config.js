@@ -7,9 +7,11 @@ export default {
   theme: {
     extend: {
       height: {
-        '55vh': '55vh',
         '90': '90%',
       },
+      inset: {
+        '15p': '15%',
+      }
     },
   },
   plugins: [],

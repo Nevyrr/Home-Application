@@ -8,10 +8,8 @@ const Dashboard = () => {
 
   useEffect(() => {
     setTimeout(async () => {
-      // Grab user's posts
-      const { name, email, userPosts } = await getUserPosts();
       // Update user state
-      setUser({ name, email, posts: userPosts });
+      setUser({ name, email });
       // Remove the loading
       setLoading(false);
     }, 500);

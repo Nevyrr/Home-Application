@@ -25,6 +25,11 @@ const CalendarTab = () => {
   const filterEventsWithSelectedDate = async (date) => {
     const data = await getEvents();
     setEvents(data.posts);
+
+    if (date === undefined) {
+      date = selectedDate;
+    }
+    
     const selectedDateEvents = data.posts.filter((event) => event.selectedDate === date);
     selectedDateEvents.sort((a, b) => b.priorityColor - a.priorityColor);
     // Update posts state
@@ -99,35 +104,36 @@ const CalendarTab = () => {
     }
   };
 
-    // Handle delete post
-    const handleClearDay = async (_id) => {
-      if (confirm("Confirm delete?")) {
-        try {
-          // Delete the post
-          for (const event of eventsOnDate) {
-            await deleteEvent(event._id);
-          }
-          // Update posts state
-          filterEventsWithSelectedDate(selectedDate);
-          // Set the success message
-          setSuccess("All tasks are done for today congrats !");
-        } catch (error) {
-          setError(error.message);
+  // Handle delete post
+  const handleClearDay = async (_id) => {
+    if (confirm("Confirm delete?")) {
+      try {
+        // Delete the post
+        for (const event of eventsOnDate) {
+          await deleteEvent(event._id);
         }
+        // Update posts state
+        filterEventsWithSelectedDate(selectedDate);
+        // Set the success message
+        setSuccess("All tasks are done for today congrats !");
+      } catch (error) {
+        setError(error.message);
       }
-    };
+    }
+  };
 
   return (
     <section className="card">
       {success && <Success msg={success} />}
       {error && <Alert msg={error} />}
 
-      <div className="calendar-tab flex flex-row justify-evenly">
+      <div className="calendar-tab">
+        <h1 className="title absolute text-4xl underline top-0">Shared Calendar</h1>
         <EditableCalendar
           allEvents={events}
           handleDateChange={handleDateChange}
         />
-        <div className="events-calendar w-2/5 text-center">
+        <div className="events-calendar text-center">
           <div className="calendar-list-event">
             <PostList
               title={selectedDate}

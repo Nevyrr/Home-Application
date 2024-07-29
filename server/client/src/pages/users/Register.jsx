@@ -37,7 +37,7 @@ const Register = () => {
         formData.passwordConfirm
       );
       // Update the user state
-      setUser({name: formData.name, email: formData.email, posts: []})
+      setUser({name: formData.name, email: formData.email})
       // Navigate to dashboard
       navigate('/dashboard')
     } catch (error) {

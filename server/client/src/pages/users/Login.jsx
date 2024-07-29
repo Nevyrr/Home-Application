@@ -10,7 +10,7 @@ const Login = () => {
   const { setUser } = useContext(UserContext)
 
   // Use navigate hook
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   // Error state
   const [error, setError] = useState(null);
@@ -27,7 +27,7 @@ const Login = () => {
       // Login the user
       await loginUser(email, password);
       // Update the user state
-      setUser({email, posts: []})
+      setUser({id: localStorage.getItem("id"), name: localStorage.getItem("name"), email:localStorage.getItem("email")});
       // Navigate to dashboard
       navigate('/dashboard')
     } catch (error) {

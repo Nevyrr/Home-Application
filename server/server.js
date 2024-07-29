@@ -2,7 +2,7 @@ import express from "express";
 import mongoose from "mongoose";
 import { ShoppingPostsRoutes } from "./routes/ShoppingPostsRoutes.js";
 import { CalendarEventsRoutes } from "./routes/CalendarEventsRoutes.js";
-import { UsersRoutes } from "./routes/usersRoutes.js";
+import { UsersRoutes } from "./routes/UsersRoutes.js";
 import path from 'path'
 import { fileURLToPath } from "url";
 import { ReminderPostsRoutes } from "./routes/ReminderPostsRoutes.js";

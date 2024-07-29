@@ -78,7 +78,7 @@
     /* ----- SHOPPING ---- */
 
     .shopping-tab .post-body {
-        @apply absolute top-1/2 right-1/4 -translate-y-1/2 rounded-full w-8 h-8 bg-black
+        @apply absolute top-1/2 -translate-y-1/2 rounded-full w-8 h-8 bg-black
     }
     
     .shopping-post-body-count {
@@ -98,7 +98,7 @@
         @apply text-3xl
     }
     .editable-calendar {
-        @apply w-2/5 relative content-center
+        @apply relative h-fit mb-10 mt-20
     }
     .editable-calendar button {
         @apply relative
@@ -110,9 +110,40 @@
         @apply flex absolute left-1/2 -translate-x-1/2 -translate-y-1/2 top-3/4 
     }
     .calendar-tab {
-        @apply h-55vh
+        @apply flex justify-evenly relative
     }
     .calendar-list-event {
         @apply h-90
+    }
+
+    /* ----- SREEN ----- */
+    @media only screen and (max-width: 600px) {
+        .shopping-tab .post-body {
+            @apply right-15p
+        }
+        .calendar-tab {
+            @apply flex-col
+        }
+        .editable-calendar {
+            @apply w-full
+        }
+        .events-calendar {
+            @apply w-full
+        }
+    }
+
+    @media only screen and (min-width: 1025px) {
+        .shopping-tab .post-body {
+            @apply right-1/4
+        }
+        .calendar-tab {
+            @apply flex-row 
+        }
+        .editable-calendar {
+            @apply w-2/5 content-center
+        }
+        .events-calendar {
+            @apply w-2/5
+        }
     }
 }
