@@ -7,7 +7,7 @@ import Alert from "../../components/Alert";
 
 const Login = () => {
   // Use user context
-  const { setUser } = useContext(UserContext)
+  const { setUser } = useContext(UserContext);
 
   // Use navigate hook
   const navigate = useNavigate();
@@ -27,7 +27,7 @@ const Login = () => {
       // Login the user
       await loginUser(email, password);
       // Update the user state
-      setUser({id: localStorage.getItem("id"), name: localStorage.getItem("name"), email:localStorage.getItem("email")});
+      setUser({id: localStorage.getItem("id"), name: localStorage.getItem("name"), email:localStorage.getItem("email"), receiveEmail:localStorage.getItem("receiveEmail")});
       // Navigate to dashboard
       navigate('/dashboard')
     } catch (error) {

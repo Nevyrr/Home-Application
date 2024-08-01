@@ -37,7 +37,7 @@ const registerUser = async (req, res) => {
 
   try {
     // Register the user
-    const user = await User.create({ name, email, password: hashed });
+    const user = await User.create({ name, email, password: hashed, receiveEmail: false });
     // Create the JsonWebToken
     const token = createToken(user._id)
     // Send the response
@@ -70,14 +70,42 @@ const loginUser = async (req, res) => {
   }
 
   try {
-    // Create the JsonWebToken
-    const token = createToken(user._id)
-    const name = user.name
-
-    res.status(200).json({name, email, token });
+    res.status(200).json({ name: user.name, email, token: createToken(user._id), receiveEmail: user.receiveEmail });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-export { registerUser, loginUser };
+/************************************ Update User ************************************/
+const updateUser = async (req, res) => {
+  // Grab data from request body
+  const { name, email, password, receiveEmail } = req.body;
+
+  const updateFields = {};
+
+  if (name) {
+    updateFields.name = name;
+  }
+  if (email) {
+    updateFields.email = email;
+  }
+  if (password) {
+    updateFields.password = password;
+  }
+  if (receiveEmail !== undefined) {
+    updateFields.receiveEmail = receiveEmail;
+  }
+
+  try {
+    await User.updateOne(
+      { _id: req.params.id },
+      { $set: updateFields }
+    );
+    res.status(200).json();
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
+export { registerUser, loginUser, updateUser };

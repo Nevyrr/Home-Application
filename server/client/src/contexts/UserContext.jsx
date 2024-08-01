@@ -10,7 +10,8 @@ const UserProvider = ({ children }) => {
   const [user, setUser] = useState({
     id: localStorage.getItem("id"),
     name: localStorage.getItem("name"),
-    email: localStorage.getItem("email")
+    email: localStorage.getItem("email"),
+    receiveEmail: localStorage.getItem("receiveEmail")
   });
 
   // Return a custom component to expose User state to the children components

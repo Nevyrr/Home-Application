@@ -36,12 +36,20 @@ const CalendarTab = () => {
     setEventsOnDate(selectedDateEvents);
   };
 
+  const updatePopup = (key, value) => {
+    setPopupEvent(prevState => ({
+      ...prevState,
+      [key]: value
+    }));
+  };
+
+
   const setTitle = (title) => {
-    setPopupEvent((event) => ({ eventId: event.eventId, title: title, priorityColor: event.priorityColor }))
+    updatePopup("title", title);
   }
 
   const setPriorityColor = (priorityColor) => {
-    setPopupEvent((event) => ({ eventId: event.eventId, title: event.title, priorityColor: priorityColor }))
+    updatePopup("priorityColor", priorityColor);
   }
 
   const handleDateChange = (newDate) => {
@@ -68,8 +76,6 @@ const CalendarTab = () => {
     } catch (error) {
       setError(error.message);
     }
-    // Close Popup
-    toggleCreationPopup();
   };
 
   // Handle delete post
@@ -84,8 +90,6 @@ const CalendarTab = () => {
     } catch (error) {
       setError(error.message);
     }
-    // Close Popup
-    toggleUpdatePopup();
   };
 
   // Handle delete post
@@ -148,7 +152,7 @@ const CalendarTab = () => {
               setAllFields={setAllFields}
               resetAllFields={resetAllFields}
             />
-            <button className="validate-button" onClick={handleClearDay}>Clear Day</button>
+            <button className="delete-button" onClick={handleClearDay}>Clear Day</button>
           </div>
         </div>
       </div>

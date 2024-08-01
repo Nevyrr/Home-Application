@@ -15,20 +15,29 @@ const ShoppingTab = () => {
     count: 1,
     priorityColor: 0
   });
+  const [isCountValid, setIsCountValid] = useState(true);
 
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
 
+  const updatePopup = (key, value) => {
+    setPopupShopping(prevState => ({
+      ...prevState,
+      [key]: value
+    }));
+  };
+
+
   const setTitle = (title) => {
-    setPopupShopping((shopping) => ({ shoppingId: shopping.shoppingId, title: title, count: shopping.count, priorityColor: shopping.priorityColor }))
+    updatePopup("title", title);
   }
 
   const setCount = (count) => {
-    setPopupShopping((shopping) => ({ shoppingId: shopping.shoppingId, title: shopping.title, count: count, priorityColor: shopping.priorityColor }))
+    updatePopup("count", count);
   }
 
   const setPriorityColor = (priorityColor) => {
-    setPopupShopping((shopping) => ({ shoppingId: shopping.shoppingId, title: shopping.title, count: shopping.count, priorityColor: priorityColor }))
+    updatePopup("priorityColor", priorityColor);
   }
 
   const resetAllFields = () => {
@@ -106,10 +115,8 @@ const ShoppingTab = () => {
 
   const handleCountChange = (e) => {
     const newValue = e.target.value;
-    // Vérifie si la valeur est un nombre et est inférieure ou égale à 99
-    if (/^\d*$/.test(newValue) && (newValue !== '' && parseInt(newValue) > 0 && parseInt(newValue) <= 99)) {
-      setCount(newValue);
-    }
+    setIsCountValid(/^\d*$/.test(newValue) && (parseInt(newValue) > 0 && parseInt(newValue) <= 99));
+    setCount(newValue);
   };
 
   const countInput = () => {
@@ -122,6 +129,7 @@ const ShoppingTab = () => {
       className="input"
       value={popupShopping.count}
       onChange={handleCountChange}
+      title="Enter a number between 0 and 99"
     />;
   }
 
@@ -145,6 +153,7 @@ const ShoppingTab = () => {
           setAllFields={setAllFields}
           resetAllFields={resetAllFields}
           popupInputs={countInput()}
+          isFieldValid={isCountValid}
         />
       </div>
 

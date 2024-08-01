@@ -9,6 +9,9 @@ export default {
       height: {
         '90': '90%',
       },
+      width: {
+        '85': '85%',
+      },
       inset: {
         '15p': '15%',
       }

@@ -19,16 +19,24 @@ const ReminderTab = () => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
 
+  const updatePopup = (key, value) => {
+    setPopupReminder(prevState => ({
+      ...prevState,
+      [key]: value
+    }));
+  };
+
+
   const setTitle = (title) => {
-    setPopupReminder((reminder) => ({ reminderId: reminder.reminderId, title: title, body: reminder.body, priorityColor: reminder.priorityColor }))
+    updatePopup("title", title);
   }
 
   const setBody = (body) => {
-    setPopupReminder((reminder) => ({ reminderId: reminder.reminderId, title: reminder.title, body: body, priorityColor: reminder.priorityColor }))
+    updatePopup("body", body);
   }
 
   const setPriorityColor = (priorityColor) => {
-    setPopupReminder((reminder) => ({ reminderId: reminder.reminderId, title: reminder.title, body: reminder.body, priorityColor: priorityColor }))
+    updatePopup("priorityColor", priorityColor);
   }
 
   const resetAllFields = () => {
@@ -96,7 +104,7 @@ const ReminderTab = () => {
       className="input resize-none"
       value={popupReminder.body}
       onChange={(e) => setBody(e.target.value)}
-      autoFocus />;
+    />;
   }
 
   return (

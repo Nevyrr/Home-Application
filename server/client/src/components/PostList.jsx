@@ -2,7 +2,7 @@ import { Post } from "../components";
 import { useEffect, useState } from "react";
 import PostValidationPopup from "./PostValidationPopup";
 
-const PostList = ({ title, posts, PostComposant = Post, sortPosts, popupPost, handleCreate, handleUpdate, handleDelete, setTitle, setPriorityColor, setAllFields, resetAllFields, popupInputs }) => {
+const PostList = ({ title, posts, PostComposant = Post, sortPosts, popupPost, handleCreate, handleUpdate, handleDelete, setTitle, setPriorityColor, setAllFields, resetAllFields, popupInputs, isFieldValid=true }) => {
 
   const [showCreatePopup, setShowCreatePopup] = useState(false);
   const [showUpdatePopup, setShowUpdatePopup] = useState(false);
@@ -55,6 +55,7 @@ const PostList = ({ title, posts, PostComposant = Post, sortPosts, popupPost, ha
       setPopupPost={setTitle}
       setPriorityColor={setPriorityColor}
       inputs={popupInputs}
+      isFieldValid={isFieldValid}
     />;
   }
 
@@ -69,6 +70,7 @@ const PostList = ({ title, posts, PostComposant = Post, sortPosts, popupPost, ha
       setPopupPost={setTitle}
       setPriorityColor={setPriorityColor}
       inputs={popupInputs}
+      isFieldValid={isFieldValid}
     />;
   }
 
@@ -76,7 +78,7 @@ const PostList = ({ title, posts, PostComposant = Post, sortPosts, popupPost, ha
   return (
     <section className="h-full place-content-evenly">
       <div className="flex justify-evenly mb-8 text-3xl h-1/10">
-        <h1 className="font-bold text-2xl">{title + " Board"}</h1>
+        <h1 className="font-bold text-2xl underline">{title + " Board"}</h1>
         <button className="fa-solid fa-circle-plus" onClick={toggleCreationPopup}></button>
       </div>
 

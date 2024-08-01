@@ -26,19 +26,18 @@
     .delete-button {
         @apply bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-full shadow-lg transform hover:scale-105 transition-transform duration-200
     }
-
     .validate-button {
         @apply bg-green-500 hover:bg-green-600
     }
-
+    .validate-button:disabled {
+        @apply bg-red-500 opacity-50 cursor-not-allowed
+    }
     .delete-button {
         @apply bg-red-500 hover:bg-red-600
     }
-
     .close-button {
         @apply absolute top-2 right-2 text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-400 rounded-full p-2 transition-colors duration-200
     }
-
     .dot {
         @apply w-4 h-4 rounded-full leading-5
     }
@@ -48,11 +47,9 @@
     .post-title-input {
         @apply font-bold text-lg text-indigo-600 first-letter:uppercase overflow-auto
     }
-
     .post .priority-flag {
         @apply cursor-auto absolute top-1/2 left-0 -translate-y-1/2 text-xl
     }
-
     .calendar-post .priority-flag {
         @apply cursor-auto absolute top-1/2 left-1 -translate-y-1/2 text-xl
     }
@@ -62,15 +59,12 @@
     .xpopup-overlay {
         @apply fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-10;
     }
-
     .xpopup {
         @apply bg-white p-8 rounded-lg shadow-lg relative
     }
-
     .xpopup-panel-buttons {
         @apply relative flex justify-evenly mt-8
     }
-
     .xpopup .priority-flag {
         @apply absolute top-1/2 -right-6 -translate-y-1/2
     }
@@ -78,17 +72,14 @@
     /* ----- SHOPPING ---- */
 
     .shopping-tab .post-body {
-        @apply absolute top-1/2 -translate-y-1/2 rounded-full w-8 h-8 bg-black
+        @apply absolute top-1/2 -translate-y-1/2 right-1/4
     }
-    
     .shopping-post-body-count {
-        @apply text-center text-white text-xl
+        @apply inline-block px-4 py-2 font-bold text-green-600 bg-gray-100 rounded shadow-lg transition-transform transform hover:scale-110
     }
-
     .shopping-total-bar {
         @apply flex place-content-evenly
     }
-
     .shopping-total-text {
         @apply content-center border-solid border-2 border-black px-2 font-bold
     }
@@ -116,9 +107,11 @@
         @apply h-90
     }
 
-    /* ----- SREEN ----- */
-    @media only screen and (max-width: 600px) {
-        .shopping-tab .post-body {
+    /* ----- SCREEN ----- */
+    
+    /* Phones */
+    @media only screen and (max-width: 1000px) {
+        div.shopping-tab div.post-body {
             @apply right-15p
         }
         .calendar-tab {
@@ -132,10 +125,8 @@
         }
     }
 
-    @media only screen and (min-width: 1025px) {
-        .shopping-tab .post-body {
-            @apply right-1/4
-        }
+    /* NotePad && Computer Screen */
+    @media only screen and (min-width: 1024px) {
         .calendar-tab {
             @apply flex-row 
         }

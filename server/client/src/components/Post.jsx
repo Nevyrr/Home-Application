@@ -9,7 +9,7 @@ const Post = ({ post, onUpdate, onDelete, children }) => {
   return (
     <div className="my-2 relative post">
 
-      <div className="flex items-start justify-between w-4/5 mx-8 post-title">
+      <div className="flex items-start justify-between w-85 mx-8 post-title">
         <div className="w-4/5 text-center">
           <h2 className="post-title-input">{post.title}</h2>
           <p className="text-[10px] text-slate-500">{post.username}</p>
