@@ -10,23 +10,6 @@ const getPosts = async () => {
   return data;
 };
 
-/**************************** Get user shopping-posts  ******************************/
-const getUserPosts = async () => {
-  const res = await fetch("/api/shopping-posts/user", {
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
-    },
-  });
-
-  const data = await res.json();
-
-  if (!res.ok) {
-    throw Error(data.error);
-  }
-
-  return data;
-};
-
 /**************************** Create shopping-posts  ******************************/
 const createPost = async (title, count, priorityColor) => {
   if (!title || !count || priorityColor === undefined) {
@@ -111,4 +94,4 @@ const updatePost = async (_id, title, count, priorityColor) => {
   return data;
 };
 
-export { getPosts, getUserPosts, createPost, deletePost, deletePosts, updatePost };
+export { getPosts, createPost, deletePost, deletePosts, updatePost };

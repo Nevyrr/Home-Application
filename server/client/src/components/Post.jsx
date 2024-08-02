@@ -13,7 +13,7 @@ const Post = ({ post, onUpdate, onDelete, children }) => {
         <div className="w-4/5 text-center">
           <h2 className="post-title-input">{post.title}</h2>
           <p className="text-[10px] text-slate-500">{post.username}</p>
-          <p className="text-[10px] text-slate-500">{"Created: " + new Date(post.createdAt).toLocaleDateString()}</p>
+          <p className="text-[10px] text-slate-500">{new Date(post.createdAt).toLocaleDateString()}</p>
           <PriorityFlag className="text-sm mt-4" priorityColor={post.priorityColor} isCreated={true}></PriorityFlag>
         </div>
 

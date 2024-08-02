@@ -6,22 +6,8 @@ import User from "../models/UserModel.js";
 const getPosts = async (req, res) => {
   try {
     // Grab all the posts from DB
-    const posts = await ReminderPost.find().sort({ createdAt: "desc" });
+    const posts = await ReminderPost.find().sort({ priorityColor: "desc" });
     res.status(200).json({ posts });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
-/************************************ Get User's Posts ************************************/
-const getUserPosts = async (req, res) => {
-  // Grab the authenticated user from request object
-  const user = await User.findById(req.user._id);
-
-  try {
-    // Grab user's posts from DB
-    const userPosts = await ReminderPost.find({ user: user._id }).sort({ createdAt: "desc" });
-    res.status(200).json({ name: user.name, email: user.email, userPosts });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -112,4 +98,4 @@ const updatePost = async (req, res) => {
   }
 };
 
-export { getPosts, getUserPosts, addPost, deletePost, updatePost };
+export { getPosts, addPost, deletePost, updatePost };

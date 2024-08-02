@@ -10,23 +10,6 @@ const getPosts = async () => {
   return data;
 };
 
-/**************************** Get user reminder-posts  ******************************/
-const getUserPosts = async () => {
-  const res = await fetch("/api/reminder-posts/user", {
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
-    },
-  });
-
-  const data = await res.json();
-
-  if (!res.ok) {
-    throw Error(data.error);
-  }
-
-  return data;
-};
-
 /**************************** Create reminder-posts  ******************************/
 const createPost = async (title, body, priorityColor) => {
   if (!title || !body || priorityColor === undefined) {
@@ -93,4 +76,4 @@ const updatePost = async (_id, title, body, priorityColor) => {
   return data;
 };
 
-export { getPosts, getUserPosts, createPost, deletePost, updatePost };
+export { getPosts, createPost, deletePost, updatePost };
