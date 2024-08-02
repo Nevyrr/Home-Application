@@ -107,13 +107,26 @@
         @apply h-90
     }
 
-    /* ----- SCREEN ----- */
-    
+    /* ----- SCREEN ----- *
+
     /* Phones */
-    @media only screen and (max-width: 1000px) {
+    @media only screen and (max-width: 500px)  {
         div.shopping-tab div.post-body {
-            @apply right-15p
+            @apply right-10p
         }
+        .calendar-tab {
+            @apply flex-col
+        }
+        .editable-calendar {
+            @apply w-full
+        }
+        .events-calendar {
+            @apply w-full
+        }
+    }
+    
+    /* IPad */
+    @media only screen and (min-width: 500px) and (max-width: 1000px) {
         .calendar-tab {
             @apply flex-col
         }
