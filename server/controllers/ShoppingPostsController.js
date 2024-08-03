@@ -6,22 +6,8 @@ import User from "../models/UserModel.js";
 const getPosts = async (req, res) => {
   try {
     // Grab all the posts from DB
-    const posts = await ShoppingPost.find().sort({ createdAt: "desc" });
+    const posts = await ShoppingPost.find().sort({ priorityColor: "desc" });
     res.status(200).json({ posts });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
-/************************************ Get User's Posts ************************************/
-const getUserPosts = async (req, res) => {
-  // Grab the authenticated user from request object
-  const user = await User.findById(req.user._id);
-
-  try {
-    // Grab user's posts from DB
-    const userPosts = await ShoppingPost.find({ user: user._id }).sort({ createdAt: "desc" });
-    res.status(200).json({ name: user.name, email: user.email, userPosts });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -30,10 +16,10 @@ const getUserPosts = async (req, res) => {
 /************************************ Create New ShoppingPost ************************************/
 const addPost = async (req, res) => {
   // Grab the data from request body
-  const { title, count, priorityColor } = req.body;
+  const { title, count, date, priorityColor } = req.body;
 
   // Check the fields are not empty
-  if (!title || !count || priorityColor === undefined) {
+  if (!title || !count || !date || priorityColor === undefined) {
     return res.status(400).json({ error: "All fields are required" });
   }
 
@@ -41,6 +27,8 @@ const addPost = async (req, res) => {
   const user = await User.findById(req.user._id);
 
   try {
+    // find shoppingDayList
+    const shoppingDayList = await ShoppingPost.find({date: date});
     // Create a new post and save in DB
     const post = await ShoppingPost.create({ user: user._id, username: user.name, title: title, count: count, priorityColor: priorityColor });
     res.status(200).json({ success: title + " shopping post created.", post });
@@ -121,4 +109,4 @@ const updatePost = async (req, res) => {
   }
 };
 
-export { getPosts, getUserPosts, addPost, deletePost, deletePosts, updatePost };
+export { getPosts, addPost, deletePost, deletePosts, updatePost };
