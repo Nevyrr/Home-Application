@@ -7,10 +7,13 @@ export default {
   theme: {
     extend: {
       height: {
+        '10': '10%',
         '90': '90%',
+        '750px': '750px',
       },
-      width: {
-        '85': '85%',
+      maxHeight: {
+        '10': '10%',
+        '90': '90%',
       },
       inset: {
         '10p': '10%',

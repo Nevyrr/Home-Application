@@ -46,7 +46,7 @@ const PostList = ({ title, posts, PostComposant = Post, sortPosts, popupPost, ha
 
   const renderCreatePopup = () => {
     return <PostValidationPopup
-      postName={title}
+      postName={"item"}
       actionType={"Add"}
       showPopup={showCreatePopup}
       togglePopup={toggleCreationPopup}
@@ -61,7 +61,7 @@ const PostList = ({ title, posts, PostComposant = Post, sortPosts, popupPost, ha
 
   const renderUpdatePopup = () => {
     return <PostValidationPopup
-      postName={title}
+      postName={"item"}
       actionType={"Update"}
       showPopup={showUpdatePopup}
       togglePopup={toggleUpdatePopup}
@@ -76,9 +76,9 @@ const PostList = ({ title, posts, PostComposant = Post, sortPosts, popupPost, ha
 
 
   return (
-    <section className="h-full place-content-evenly">
-      <div className="flex justify-evenly mb-8 text-3xl h-1/10">
-        <h1 className="font-bold text-2xl underline">{title + " Board"}</h1>
+    <section className="post-list-section">
+      <div className="post-list-header">
+        {title}
         <button className="fa-solid fa-circle-plus" onClick={toggleCreationPopup}></button>
       </div>
 
@@ -89,7 +89,7 @@ const PostList = ({ title, posts, PostComposant = Post, sortPosts, popupPost, ha
 
       {/* Popup for post update */}
       {renderUpdatePopup()}
-      <div className="overflow-auto h-4/6">
+      <div className="post-info-panel">
         {posts &&
           posts.map((post) => (
             <div key={post._id}>

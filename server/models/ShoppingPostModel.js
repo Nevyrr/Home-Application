@@ -2,10 +2,6 @@ import mongoose from "mongoose";
 
 // Creating post schema using Mongoose Schema class
 const ShoppingPostSchema = new mongoose.Schema({
-    id: {
-        type: mongoose.Schema.Types.ObjectId,
-        required: true,
-    },
     user: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
@@ -34,6 +30,10 @@ const ShoppingListDaySchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    name: {
+        type: String,
+        required: true
+    },
     shoppingList: {
         type: [ShoppingPostSchema],
         required: true,
@@ -43,6 +43,6 @@ const ShoppingListDaySchema = new mongoose.Schema({
 
 
 // Creating a model from schema
-const ShoppingPost = mongoose.model("ShoppingPost", ShoppingListDaySchema)
+const ShoppingDay = mongoose.model("ShoppingDay", ShoppingListDaySchema)
 
-export default ShoppingPost
+export default ShoppingDay

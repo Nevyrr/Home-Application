@@ -9,12 +9,15 @@ const Post = ({ post, onUpdate, onDelete, children }) => {
   return (
     <div className="my-2 relative post">
 
-      <div className="flex items-start justify-between w-85 mx-8 post-title">
-        <div className="w-4/5 text-center">
+      <div className="flex items-start justify-evenly post-title items-center">
+        <PriorityFlag className="text-sm mt-4" priorityColor={post.priorityColor} isCreated={true}></PriorityFlag>
+        <div className="w-1/2 text-center">
           <h2 className="post-title-input">{post.title}</h2>
           <p className="text-[10px] text-slate-500">{post.username}</p>
           <p className="text-[10px] text-slate-500">{new Date(post.createdAt).toLocaleDateString()}</p>
-          <PriorityFlag className="text-sm mt-4" priorityColor={post.priorityColor} isCreated={true}></PriorityFlag>
+        </div>
+        <div className="mx-8 post-body">
+          {children}
         </div>
 
         <div className="flex items-center gap-2 post-buttons">
@@ -33,9 +36,6 @@ const Post = ({ post, onUpdate, onDelete, children }) => {
             </div>
           )}
         </div>
-      </div>
-      <div className="mx-8 post-body">
-        {children}
       </div>
       <div className="h-px w-full bg-gradient-to-r from-indigo-50 via-indigo-500/70 to-indigo-50 my-3.5"></div>
     </div>

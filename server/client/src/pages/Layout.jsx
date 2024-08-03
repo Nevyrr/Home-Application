@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import Icon from "../components/Icon";
 
@@ -10,6 +10,11 @@ const Layout = () => {
 
   // Grab the User global state
   const { user, setUser } = useContext(UserContext);
+  const [selectedLink, setSelectedLink] = useState(null);
+
+  const handleLinkClick = (link) => {
+    setSelectedLink(link);
+  };
 
   // Handle logout
   const handleLogout = () => {
@@ -31,26 +36,30 @@ const Layout = () => {
           <Link
             title="Shopping"
             to="/shopping"
-            className="fa-solid fa-cart-shopping nav-link"
+            className={`fa-solid fa-cart-shopping nav-link ${selectedLink === 'shopping' ? 'selected' : ''}`}
+            onClick={() => handleLinkClick('shopping')}
           ></Link>
 
           <Link
             title="Calendar"
             to="/calendar"
-            className="fa-solid fa-calendar-days nav-link"
+            className={`fa-solid fa-calendar-days nav-link ${selectedLink === 'calendar' ? 'selected' : ''}`}
+            onClick={() => handleLinkClick('calendar')}
           ></Link>
 
           <Link
             title="Reminders"
             to="/reminders"
-            className="fa-solid fa-bell nav-link"
+            className={`fa-solid fa-bell nav-link ${selectedLink === 'reminders' ? 'selected' : ''}`}
+            onClick={() => handleLinkClick('reminders')}
           ></Link>
 
 
           <Link
             title="Taco"
             to="/taco"
-            className="fa-solid fa-dog nav-link"
+            className={`fa-solid fa-dog nav-link ${selectedLink === 'taco' ? 'selected' : ''}`}
+            onClick={() => handleLinkClick('taco')}
           ></Link>
 
 
@@ -59,7 +68,8 @@ const Layout = () => {
               <Link
                 title="Dashboard"
                 to="/dashboard"
-                className="fa-solid fa-circle-user nav-link"
+                className={`fa-solid fa-circle-user nav-link ${selectedLink === 'dashboard' ? 'selected' : ''}`}
+                onClick={() => handleLinkClick('dashboard')}
               ></Link>
               <button
                 title="Logout"
