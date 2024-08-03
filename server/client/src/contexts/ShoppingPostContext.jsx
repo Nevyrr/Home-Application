@@ -4,16 +4,16 @@ import { createContext, useState } from "react";
 // Post context to be used in useContext hook
 export const ShoppingPostContext = createContext();
 
-const ShoppingPostProvider = ({ children }) => {
+const ShoppingItemProvider = ({ children }) => {
   // Posts global state
-  const [shoppingPosts, setShoppingPosts] = useState([]);
+  const [shoppingItems, setShoppingItems] = useState([]);
 
   // Return a custom component to expose Post state to the children components
   return (
-    <ShoppingPostContext.Provider value={{ shoppingPosts, setShoppingPosts }}>
+    <ShoppingPostContext.Provider value={{ shoppingItems: shoppingItems, setShoppingItems }}>
       {children}
     </ShoppingPostContext.Provider>
   );
 };
 
-export default ShoppingPostProvider;
+export default ShoppingItemProvider;

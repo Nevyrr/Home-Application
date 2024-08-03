@@ -114,7 +114,7 @@ const ReminderTab = () => {
 
       <div className="reminder-tab">
         <PostList
-          title={"Reminder"}
+         title={<h1 className="font-bold text-2xl underline">{"Reminder Board"}</h1>}
           posts={reminderPosts}
           PostComposant={ReminderPost}
           sortPosts={sortReminderPosts}

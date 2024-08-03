@@ -27,7 +27,7 @@ const PostValidationPopup = ({ postName, actionType, showPopup, togglePopup, han
       children={<div className="relative">
         <input
           type="text"
-          placeholder={`${postName} title`}
+          placeholder={`title`}
           className="input"
           value={popupPost.title}
           onChange={onTitleChange}

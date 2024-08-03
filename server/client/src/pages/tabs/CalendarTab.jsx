@@ -140,7 +140,7 @@ const CalendarTab = () => {
         <div className="events-calendar text-center">
           <div className="calendar-list-event">
             <PostList
-              title={selectedDate}
+              title={<h1 className="font-bold text-2xl underline">{selectedDate}</h1>}
               posts={eventsOnDate}
               sortPosts={filterEventsWithSelectedDate}
               popupPost={popupEvent}

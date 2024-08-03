@@ -1,12 +1,14 @@
-import { useContext, useState } from "react";
-import { Alert, ShoppingPost, Success } from "../../components";
-import { getPosts, deletePost, deletePosts, createPost, updatePost } from "../../controllers/ShoppingPostsController";
+import { useContext, useEffect, useState } from "react";
+import { Alert, ShoppingPost, Success, PostList } from "../../components";
+import { getPosts, createDate, updateDateItem, deletePost, deletePosts, createPost, updatePost } from "../../controllers/ShoppingPostsController";
 import { ShoppingPostContext } from "../../contexts/ShoppingPostContext";
-import PostList from "../../components/PostList";
+import DatePicker, { registerLocale } from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import fr from 'date-fns/locale/fr';
 
 const ShoppingTab = () => {
   // Use post context
-  const { shoppingPosts, setShoppingPosts } = useContext(ShoppingPostContext);
+  const { shoppingItems, setShoppingItems } = useContext(ShoppingPostContext);
 
   // Post being updated or created
   const [popupShopping, setPopupShopping] = useState({
@@ -16,9 +18,29 @@ const ShoppingTab = () => {
     priorityColor: 0
   });
   const [isCountValid, setIsCountValid] = useState(true);
+  registerLocale('fr', fr);
 
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
+
+  useEffect(() => {
+    setTimeout(async () => {
+      // Grab all posts
+      sortShoppingPosts();
+    }, 1000);
+  }, []);
+
+  const unrollPanel = (event) => {
+    const panel = event.currentTarget;
+    panel.classList.toggle('rolled');
+    if (panel.classList.contains('rolled')) {
+      panel.classList.remove('fa-chevron-down');
+      panel.classList.add('fa-chevron-right');
+    } else {
+      panel.classList.remove('fa-chevron-right');
+      panel.classList.add('fa-chevron-down');
+    }
+  };
 
   const updatePopup = (key, value) => {
     setPopupShopping(prevState => ({
@@ -26,7 +48,6 @@ const ShoppingTab = () => {
       [key]: value
     }));
   };
-
 
   const setTitle = (title) => {
     updatePopup("title", title);
@@ -50,14 +71,42 @@ const ShoppingTab = () => {
 
   const sortShoppingPosts = async () => {
     const data = await getPosts();
-    data.posts.sort((a, b) => b.priorityColor - a.priorityColor);
-    setShoppingPosts(data.posts);
+    for (const shoppingDay of data.posts) {
+      shoppingDay.shoppingList.sort((a, b) => b.priorityColor - a.priorityColor);
+    }
+    setShoppingItems(data.posts);
   };
 
-  const handleCreate = async () => {
+  const handleCreateDate = async () => {
     try {
       // Create a new post
-      const msg = await createPost(popupShopping.title, popupShopping.count, popupShopping.priorityColor);
+      const msg = await createDate(new Date().toLocaleDateString(), "Shopping Title");
+      // Update posts state
+      sortShoppingPosts();
+      // Set the success message
+      setSuccess(msg.success);
+    } catch (error) {
+      setError(error.message);
+    }
+  };
+
+  const handleUpdateDateItem = async (shoppingListId, name, date) => {
+    try {
+      // Create a new post
+      const msg = await updateDateItem(shoppingListId, name, date);
+      // Update posts state
+      sortShoppingPosts();
+      // Set the success message
+      setSuccess(msg.success);
+    } catch (error) {
+      setError(error.message);
+    }
+  };
+
+  const handleCreatePost = async (id) => {
+    try {
+      // Create a new post
+      const msg = await createPost(id, popupShopping.title, popupShopping.count, popupShopping.priorityColor);
       // Update posts state
       sortShoppingPosts();
       // Set the success message
@@ -97,12 +146,12 @@ const ShoppingTab = () => {
     }
   };
 
-  // Handle delete all posts
-  const handleDeleteAll = async (_id) => {
+  // Handle clean all shopping posts of a date
+  const handleCleanDate = async (shoppingListId) => {
     if (confirm("Confirm delete?")) {
       try {
         // Delete the post
-        const msg = await deletePosts();
+        const msg = await deletePosts(shoppingListId);
         // Update posts state
         sortShoppingPosts();
         // Set the success message
@@ -113,10 +162,29 @@ const ShoppingTab = () => {
     }
   };
 
+
   const handleCountChange = (e) => {
     const newValue = e.target.value;
     setIsCountValid(/^\d*$/.test(newValue) && (parseInt(newValue) > 0 && parseInt(newValue) <= 99));
     setCount(newValue);
+  };
+
+  const nameInput = (shoppingItem) => {
+    return <input
+      type="string"
+      className="input-field"
+      value={shoppingItem.name}
+      onChange={(e) => handleNameChange(shoppingItem._id, e.target.value)}
+      onBlur={() => handleUpdateDateItem(shoppingItem._id, shoppingItem.name, shoppingItem.date)}
+    />;
+  }
+
+  const handleNameChange = (shoppingItemId, name) => {
+    setShoppingItems((oldShoppingItems) =>
+      oldShoppingItems.map((shoppingItem) =>
+        shoppingItem._id === shoppingItemId ? { ...shoppingItem, name: name } : shoppingItem
+      )
+    );
   };
 
   const countInput = () => {
@@ -133,37 +201,62 @@ const ShoppingTab = () => {
     />;
   }
 
+  // Fonction pour convertir la chaîne de caractères en objet Date
+  const convertStringToDate = (dateString) => {
+    const [day, month, year] = dateString.split('/');
+    return new Date(`${year}-${month}-${day}`);
+  };
+
   return (
     <section className="card">
       {success && <Success msg={success} />}
       {error && <Alert msg={error} />}
 
-      <div className="shopping-tab">
-        <PostList
-          title={"Shopping"}
-          posts={shoppingPosts}
-          PostComposant={ShoppingPost}
-          sortPosts={sortShoppingPosts}
-          popupPost={popupShopping}
-          handleCreate={handleCreate}
-          handleUpdate={handleUpdate}
-          handleDelete={handleDelete}
-          setTitle={setTitle}
-          setPriorityColor={setPriorityColor}
-          setAllFields={setAllFields}
-          resetAllFields={resetAllFields}
-          popupInputs={countInput()}
-          isFieldValid={isCountValid}
-        />
+      <div className="flex justify-evenly mb-8 text-3xl h-&1/10">
+        <h1 className="font-bold text-2xl underline">Shopping Board</h1>
+        <button className="fa-solid fa-circle-plus" onClick={handleCreateDate}></button>
       </div>
 
-      {shoppingPosts.length !== 0 && (
-        <div className="shopping-total-bar">
-          <button className="delete-button shopping-delete-all-button" onClick={handleDeleteAll}>Clear the cart</button>
-          <p className="shopping-total-text">Total Items: {shoppingPosts.length}</p>
-        </div>
-      )}
-    </section>
+      <div className="shopping-tab">
+        {shoppingItems && shoppingItems.map(shoppingItem => (
+          <div className="shopping-day-list" key={shoppingItem._id}>
+            <div className="shopping-chevron-icon fa-solid fa-chevron-down" onClick={unrollPanel}></div>
+            <PostList
+              title={<div className="flex text-sm w-4/5 ml-8">
+                {nameInput(shoppingItem)}
+                <DatePicker
+                  selected={new Date(convertStringToDate(shoppingItem.date))}
+                  onChange={(date) => handleUpdateDateItem(shoppingItem._id, shoppingItem.name, date.toLocaleDateString())}
+                  locale="fr"
+                  dateFormat="P"
+                  className="shopping-datepicker-input"
+                />
+              </div>}
+              posts={shoppingItem.shoppingList}
+              PostComposant={ShoppingPost}
+              sortPosts={() => { }}
+              popupPost={popupShopping}
+              handleCreate={() => { handleCreatePost(shoppingItem._id) }}
+              handleUpdate={handleUpdate}
+              handleDelete={handleDelete}
+              setTitle={setTitle}
+              setPriorityColor={setPriorityColor}
+              setAllFields={setAllFields}
+              resetAllFields={resetAllFields}
+              popupInputs={countInput()}
+              isFieldValid={isCountValid} />
+            {
+              shoppingItems.length !== 0 && (
+                <div className="shopping-total-bar">
+                  <button className="delete-button shopping-delete-all-button" onClick={() => { handleCleanDate(shoppingItem._id) }}>Clear the cart</button>
+                  <p className="shopping-total-text">Total Items: {shoppingItem.shoppingList.length}</p>
+                </div>
+              )
+            }
+          </div>
+        ))}
+      </div>
+    </section >
   );
 };
 

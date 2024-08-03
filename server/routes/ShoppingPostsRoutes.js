@@ -1,6 +1,8 @@
 import express from "express";
 import {
   getPosts,
+  addDate,
+  updateDateItem,
   addPost,
   deletePost,
   deletePosts,
@@ -17,11 +19,17 @@ router.get("/", getPosts);
 // Add new post route
 router.post("/", auth, addPost);
 
+// Add new date route
+router.post("/date", auth, addDate);
+
+// Add update date route
+router.put("/date", auth, updateDateItem);
+
 // Delete post route
 router.delete("/:id", auth, deletePost);
 
 // Delete posts route
-router.delete("/", auth, deletePosts);
+router.delete("/list/:id", auth, deletePosts);
 
 // Update post route
 router.put("/:id", auth, updatePost);

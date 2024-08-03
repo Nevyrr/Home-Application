@@ -3,6 +3,7 @@ export { default as Alert } from './Alert';
 export { default as Success } from './Success';
 
 export { default as Post } from './Post';
+export { default as PostList } from './PostList';
 export { default as ShoppingPost } from './ShoppingPost';
 export { default as ReminderPost } from './ReminderPost';
 
