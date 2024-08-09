@@ -6,6 +6,7 @@ import { UsersRoutes } from "./routes/UsersRoutes.js";
 import path from 'path'
 import { fileURLToPath } from "url";
 import { ReminderPostsRoutes } from "./routes/ReminderPostsRoutes.js";
+import { TacoRoutes } from "./routes/TacoRoutes.js";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -20,6 +21,7 @@ app.use(express.json());
 app.use("/api/shopping-posts", ShoppingPostsRoutes);
 app.use("/api/calendar-events", CalendarEventsRoutes);
 app.use("/api/reminder-posts", ReminderPostsRoutes);
+app.use("/api/taco", TacoRoutes);
 app.use("/api/users", UsersRoutes);
 
 // Use the client app
