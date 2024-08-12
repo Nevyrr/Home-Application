@@ -5,6 +5,7 @@ import { ShoppingPostContext } from "../../contexts/ShoppingPostContext";
 import DatePicker, { registerLocale } from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import fr from 'date-fns/locale/fr';
+import QuantityInput from "../../components/QuantityInput";
 
 const ShoppingTab = () => {
   // Use post context
@@ -15,6 +16,7 @@ const ShoppingTab = () => {
     shoppingId: "",
     title: "",
     count: 1,
+    unit: '',
     priorityColor: 0
   });
   const [isCountValid, setIsCountValid] = useState(true);
@@ -57,16 +59,20 @@ const ShoppingTab = () => {
     updatePopup("count", count);
   }
 
+  const setUnit = (unit) => {
+    updatePopup("unit", unit);
+  }
+
   const setPriorityColor = (priorityColor) => {
     updatePopup("priorityColor", priorityColor);
   }
 
   const resetAllFields = () => {
-    setPopupShopping({ shoppingId: "", title: "", count: 1, priorityColor: 0 });
+    setPopupShopping({ shoppingId: "", title: "", count: 1, unit: "", priorityColor: 0 });
   }
 
   const setAllFields = (post) => {
-    setPopupShopping({ shoppingId: post._id, title: post.title, count: post.count, priorityColor: post.priorityColor });
+    setPopupShopping({ shoppingId: post._id, title: post.title, count: post.count, unit: post.unit, priorityColor: post.priorityColor });
   }
 
   const sortShoppingPosts = async () => {
@@ -106,7 +112,7 @@ const ShoppingTab = () => {
   const handleCreatePost = async (id) => {
     try {
       // Create a new post
-      const msg = await createPost(id, popupShopping.title, popupShopping.count, popupShopping.priorityColor);
+      const msg = await createPost(id, popupShopping.title, popupShopping.count, popupShopping.unit, popupShopping.priorityColor);
       // Update posts state
       sortShoppingPosts();
       // Set the success message
@@ -120,7 +126,7 @@ const ShoppingTab = () => {
   const handleUpdate = async () => {
     try {
       // Create a new post
-      const msg = await updatePost(popupShopping.shoppingId, popupShopping.title, popupShopping.count, popupShopping.priorityColor);
+      const msg = await updatePost(popupShopping.shoppingId, popupShopping.title, popupShopping.count, popupShopping.unit, popupShopping.priorityColor);
       // Update posts state
       sortShoppingPosts();
       // Set the success message
@@ -163,10 +169,10 @@ const ShoppingTab = () => {
   };
 
 
-  const handleCountChange = (e) => {
-    const newValue = e.target.value;
-    setIsCountValid(/^\d*$/.test(newValue) && (parseInt(newValue) > 0 && parseInt(newValue) <= 99));
-    setCount(newValue);
+  const handleCountChange = (quantity) => {
+    setIsCountValid(/^\d*$/.test(quantity.count) && (parseInt(quantity.count) > 0 && parseInt(quantity.count) <= 999));
+    setCount(quantity.count);
+    setUnit(quantity.unit);
   };
 
   const nameInput = (shoppingItem) => {
@@ -188,16 +194,10 @@ const ShoppingTab = () => {
   };
 
   const countInput = () => {
-    return <input
-      type="number"
-      min="0"
-      max="99"
-      step="1"
-      placeholder={`shopping count`}
-      className="input"
-      value={popupShopping.count}
+    return <QuantityInput
+      count={popupShopping.count}
+      unit={popupShopping.unit}
       onChange={handleCountChange}
-      title="Enter a number between 0 and 99"
     />;
   }
 

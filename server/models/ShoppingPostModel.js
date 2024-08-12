@@ -19,6 +19,10 @@ const ShoppingPostSchema = new mongoose.Schema({
         type: Number,
         required: true,
     },
+    unit: {
+        type: String,
+        required: false
+    },
     priorityColor: {
         type: Number,
         required: true,

@@ -80,7 +80,7 @@ const updateDateItem = async (req, res) => {
 /************************************ Create New ShoppingDay ************************************/
 const addPost = async (req, res) => {
   // Grab the data from request body
-  const { title, count, shoppingListId, priorityColor } = req.body;
+  const { shoppingListId, title, count, unit, priorityColor } = req.body;
 
   // Check the fields are not empty
   if (!title || !count || !shoppingListId || priorityColor === undefined) {
@@ -104,6 +104,7 @@ const addPost = async (req, res) => {
       username: user.name,
       title: title,
       count: count,
+      unit: unit,
       priorityColor: priorityColor
     }
 
@@ -164,7 +165,7 @@ const deletePosts = async (req, res) => {
 /************************************ Update ShoppingDay ************************************/
 const updatePost = async (req, res) => {
   // Grab the data from request body
-  const { title, count, priorityColor } = req.body;
+  const { title, count, unit, priorityColor } = req.body;
 
   // Check the fields are not empty
   if (!title || !count || priorityColor === undefined) {
@@ -199,6 +200,7 @@ const updatePost = async (req, res) => {
     username: user.name,
     title: title,
     count: count,
+    unit: unit,
     priorityColor: priorityColor
   }
 

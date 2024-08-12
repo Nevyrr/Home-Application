@@ -60,7 +60,7 @@ const updateDateItem = async (shoppingListId, name, date) => {
 
 
 /**************************** Create shopping-posts  ******************************/
-const createPost = async (shoppingListId, title, count, priorityColor) => {
+const createPost = async (shoppingListId, title, count, unit, priorityColor) => {
   if (!shoppingListId || !title || !count || priorityColor === undefined) {
     throw Error("All fields are required");
   }
@@ -71,7 +71,7 @@ const createPost = async (shoppingListId, title, count, priorityColor) => {
       "Content-Type": "application/json",
       Authorization: `Bearer ${localStorage.getItem("token")}`,
     },
-    body: JSON.stringify({ shoppingListId, title, count, priorityColor }),
+    body: JSON.stringify({ shoppingListId, title, count, unit, priorityColor }),
   });
 
   const data = await res.json();
@@ -120,7 +120,7 @@ const deletePosts = async (shoppingListId) => {
 };
 
 /**************************** Update shopping-posts  ******************************/
-const updatePost = async (_id, title, count, priorityColor) => {
+const updatePost = async (_id, title, count, unit, priorityColor) => {
   if (!title || !count || priorityColor === undefined) {
     throw Error("All fields are required");
   }
@@ -131,7 +131,7 @@ const updatePost = async (_id, title, count, priorityColor) => {
       "Content-Type": "application/json",
       Authorization: `Bearer ${localStorage.getItem("token")}`,
     },
-    body: JSON.stringify({ title, count, priorityColor }),
+    body: JSON.stringify({ title, count, unit, priorityColor }),
   });
 
   const data = await res.json();
