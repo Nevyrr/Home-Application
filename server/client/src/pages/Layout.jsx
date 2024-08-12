@@ -36,21 +36,21 @@ const Layout = () => {
           <Link
             title="Shopping"
             to="/shopping"
-            className={`fa-solid fa-cart-shopping nav-link ${selectedLink === 'shopping' ? 'selected' : ''}`}
+            className={`fa-solid shopping fa-cart-shopping nav-link ${selectedLink === 'shopping' ? 'selected' : ''}`}
             onClick={() => handleLinkClick('shopping')}
           ></Link>
 
           <Link
             title="Calendar"
             to="/calendar"
-            className={`fa-solid fa-calendar-days nav-link ${selectedLink === 'calendar' ? 'selected' : ''}`}
+            className={`fa-solid calendar fa-calendar-days nav-link ${selectedLink === 'calendar' ? 'selected' : ''}`}
             onClick={() => handleLinkClick('calendar')}
           ></Link>
 
           <Link
             title="Reminders"
             to="/reminders"
-            className={`fa-solid fa-bell nav-link ${selectedLink === 'reminders' ? 'selected' : ''}`}
+            className={`fa-solid bell fa-bell nav-link ${selectedLink === 'reminders' ? 'selected' : ''}`}
             onClick={() => handleLinkClick('reminders')}
           ></Link>
 
@@ -58,7 +58,7 @@ const Layout = () => {
           <Link
             title="Taco"
             to="/taco"
-            className={`fa-solid fa-dog nav-link ${selectedLink === 'taco' ? 'selected' : ''}`}
+            className={`fa-solid taco fa-dog nav-link ${selectedLink === 'taco' ? 'selected' : ''}`}
             onClick={() => handleLinkClick('taco')}
           ></Link>
 

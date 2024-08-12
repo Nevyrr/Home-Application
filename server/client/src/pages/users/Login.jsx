@@ -61,7 +61,7 @@ const Login = () => {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
-        <button className="btn">Login</button>
+        <button className="btn w-1/4 mx-auto">Login</button>
       </form>
 
       <button className="btn w-1/4 mt-2 mx-auto" onClick={handleRegister}>New ? Create an Account</button>

@@ -8,7 +8,7 @@
     }
 
     .nav-link.selected {
-        @apply bg-indigo-600 text-[#f795d6];
+        @apply bg-indigo-600 text-[#ffa93b];
     }
 
     .card {
@@ -59,6 +59,12 @@
         @apply mr-4 text-indigo-600 content-center w-full px-3 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm
     }
 
+    /* ----- DASHBOARD ----- */
+
+    .highlight {
+        @apply animation: highlight-animation 1s ease-in-out;
+    }
+
     /* ------- POST -------- */
 
     .post-title-input {
@@ -107,11 +113,7 @@
     }
 
     .shopping-day-list {
-        @apply bg-[#f1eff5] rounded-xl p-2 m-2 relative max-h-90 duration-1000 transition-all;
-    }
-
-    .shopping-day-list:has(.rolled) {
-        @apply max-h-10;
+        @apply bg-[#f1eff5] rounded-xl p-2 m-2 relative;
     }
 
     .shopping-chevron-icon {
@@ -124,11 +126,7 @@
     }
 
     .shopping-day-list section.post-list-section {
-        @apply max-h-90 h-fit;
-    }
-
-    .shopping-day-list div.post-info-panel {
-        @apply h-90;
+        @apply h-fit;
     }
 
     .shopping-day-list .post-list-header {
@@ -136,7 +134,7 @@
     }
 
     .shopping-day-list .post-list-header .fa-circle-plus {
-        @apply text-xl;
+        @apply text-xl ml-2;
     }
 
     .shopping-post-body-count {
