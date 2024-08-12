@@ -34,6 +34,13 @@ const Login = () => {
       setError(error.message);
     }
   };
+  
+  // Handle navigate to register
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    navigate('/register')
+  };
+
   return (
     <section className="card">
       <h1 className="title">Login to your account</h1>
@@ -56,6 +63,8 @@ const Login = () => {
         />
         <button className="btn">Login</button>
       </form>
+
+      <button className="btn w-1/4 mt-2 mx-auto" onClick={handleRegister}>New ? Create an Account</button>
 
       {error && <Alert msg={error} />}
     </section>
