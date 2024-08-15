@@ -186,6 +186,14 @@
         @apply h-90;
     }
 
+    .calendar-datepicker-input {
+        @apply w-full p-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500;
+    }
+
+    .calendar-tab .react-datepicker {
+        @apply flex
+    }
+
     /* ----- SCREEN ----- *
 
     /* Phones */

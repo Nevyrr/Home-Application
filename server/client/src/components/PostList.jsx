@@ -2,7 +2,7 @@ import { Post } from "../components";
 import { useEffect, useState } from "react";
 import PostValidationPopup from "./PostValidationPopup";
 
-const PostList = ({ title, posts, PostComposant = Post, sortPosts, popupPost, handleCreate, handleUpdate, handleDelete, setTitle, setPriorityColor, setAllFields, resetAllFields, popupInputs, isFieldValid=true }) => {
+const PostList = ({ title, posts, PostComposant = Post, sortPosts, popupPost, handleCreate, handleUpdate, handleDelete, setTitle, setPriorityColor, setAllFields, resetAllFields, popupInputs, isFieldValid = true }) => {
 
   const [showCreatePopup, setShowCreatePopup] = useState(false);
   const [showUpdatePopup, setShowUpdatePopup] = useState(false);

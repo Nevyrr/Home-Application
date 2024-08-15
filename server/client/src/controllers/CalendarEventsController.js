@@ -12,11 +12,11 @@ const getEvents = async () => {
 
 
 /**************************** Create shopping-posts  ******************************/
-const createEvent = async (title, selectedDate, priorityColor) => {
+const createEvent = async (title, date, priorityColor) => {
   if (!title) {
     throw Error("A Title is required");
   }
-  if (!selectedDate) {
+  if (!date) {
     throw Error("A Date is required");
   }
   if (priorityColor === undefined) {
@@ -29,7 +29,7 @@ const createEvent = async (title, selectedDate, priorityColor) => {
       "Content-Type": "application/json",
       Authorization: `Bearer ${localStorage.getItem("token")}`,
     },
-    body: JSON.stringify({ title, selectedDate, priorityColor }),
+    body: JSON.stringify({ title, date, priorityColor }),
   });
 
   const data = await res.json();
@@ -60,7 +60,7 @@ const deleteEvent = async (_id) => {
 };
 
 /**************************** Update shopping-posts  ******************************/
-const updateEvent = async (_id, title, priorityColor) => {
+const updateEvent = async (_id, title, date, priorityColor) => {
   if (!_id) {
     throw Error("EventId is required");
   }
@@ -77,7 +77,7 @@ const updateEvent = async (_id, title, priorityColor) => {
       "Content-Type": "application/json",
       Authorization: `Bearer ${localStorage.getItem("token")}`,
     },
-    body: JSON.stringify({ title, priorityColor }),
+    body: JSON.stringify({ title, date, priorityColor }),
   });
 
   const data = await res.json();

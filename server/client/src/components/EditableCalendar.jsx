@@ -2,18 +2,19 @@ import React, { useState } from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import { getCssColor } from './PriorityFlag';
+import { isSameDate } from '../helpers/dateHelper';
 
 const EditableCalendar = ({ allEvents, handleDateChange }) => {
 
-    const [date, setDate] = useState(new Date().toDateString());
+    const [date, setDate] = useState(new Date());
 
     const changeDate = (newDate) => {
-        setDate(newDate.toDateString());
-        handleDateChange(newDate.toDateString());
+        setDate(newDate);
+        handleDateChange(newDate);
     };
 
     const tileContent = ({ date, view }) => {
-        const eventsSelected = allEvents.filter((event) => event.selectedDate === date.toDateString());
+        const eventsSelected = allEvents.filter((event) => isSameDate(event.date, date));
         const priorityCounts = eventsSelected.reduce((groupedEvents, event) => {
             groupedEvents[event.priorityColor]++;
             return groupedEvents;
@@ -38,7 +39,7 @@ const EditableCalendar = ({ allEvents, handleDateChange }) => {
         <div className="editable-calendar">
             <Calendar className="leading-[3rem] w-full relative"
                 onChange={changeDate}
-                value={date}
+                value={date.toDateString()}
                 tileContent={tileContent}
             />
         </div>

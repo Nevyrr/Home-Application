@@ -1,8 +1,13 @@
 import { Alert, Success, EditableCalendar } from "../../components";
 import { CalendarEventContext } from "../../contexts/CalendarEventContext";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import { getEvents, deleteEvent, createEvent, updateEvent } from "../../controllers/CalendarEventsController";
 import PostList from "../../components/PostList";
+import { fr } from 'date-fns/locale'; // Importer la locale française
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import { isSameDate } from "../../helpers/dateHelper";
+import CalendarPost from "../../components/CalendarPost";
 
 const CalendarTab = () => {
 
@@ -12,26 +17,48 @@ const CalendarTab = () => {
   // Event being updated or created
   const [popupEvent, setPopupEvent] = useState({
     eventId: "",
+    date: new Date(),
     title: "",
     priorityColor: 0
   });
 
-  const [selectedDate, setSelectedDate] = useState(new Date().toDateString());
+  const [selectedDate, setSelectedDate] = useState(new Date());
   const [eventsOnDate, setEventsOnDate] = useState([]);
 
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
 
+
+  /* Use to sort date using hour and minutes by adding hour and minutes of an event */
+  const getMinutes = (event) => {
+    return event.date.getHours() * 60 + event.date.getMinutes();
+  }
+
   const filterEventsWithSelectedDate = async (date) => {
     const data = await getEvents();
-    setEvents(data.posts);
+
+    // Convert string date to real date
+
+    const events = data.posts.map(event => {
+      return {
+        ...event, // keep event properties
+        date: new Date(event.date) // Convert Date in real Date
+      };
+    });
+
+    setEvents(events);
 
     if (date === undefined) {
       date = selectedDate;
     }
-    
-    const selectedDateEvents = data.posts.filter((event) => event.selectedDate === date);
-    selectedDateEvents.sort((a, b) => b.priorityColor - a.priorityColor);
+
+    const selectedDateEvents = events.filter((event) => isSameDate(event.date, date));
+    selectedDateEvents.sort((a, b) => {
+      //sort by hour then priority
+      const minutesDiff = getMinutes(a) - getMinutes(b);
+      if (minutesDiff !== 0) { return minutesDiff };
+      return b.priorityColor - a.priorityColor;
+    });
     // Update posts state
     setEventsOnDate(selectedDateEvents);
   };
@@ -58,17 +85,17 @@ const CalendarTab = () => {
   };
 
   const resetAllFields = () => {
-    setPopupEvent({ eventId: "", title: "", priorityColor: 0 });
+    setPopupEvent({ eventId: "", title: "", date: new Date(), priorityColor: 0 });
   }
 
   const setAllFields = (post) => {
-    setPopupEvent({ eventId: post._id, title: post.title, priorityColor: post.priorityColor });
+    setPopupEvent({ eventId: post._id, title: post.title, date: post.date, priorityColor: post.priorityColor });
   }
 
   const handleCreate = async () => {
     try {
       // Create a new event
-      const msg = await createEvent(popupEvent.title, selectedDate, popupEvent.priorityColor);
+      const msg = await createEvent(popupEvent.title, popupEvent.date, popupEvent.priorityColor);
       // Update posts state
       filterEventsWithSelectedDate(selectedDate);
       // Set the success message
@@ -82,7 +109,7 @@ const CalendarTab = () => {
   const handleUpdate = async () => {
     try {
       // Create a new event
-      const msg = await updateEvent(popupEvent.eventId, popupEvent.title, popupEvent.priorityColor);
+      const msg = await updateEvent(popupEvent.eventId, popupEvent.title, popupEvent.date, popupEvent.priorityColor);
       // Update posts state
       filterEventsWithSelectedDate(selectedDate);
       // Set the success message
@@ -126,6 +153,18 @@ const CalendarTab = () => {
     }
   };
 
+  const dateInput = () => {
+    return <DatePicker
+      selected={popupEvent.date}
+      onChange={(date) => updatePopup("date", date)}
+      showTimeSelect
+      dateFormat="Pp" // Format date et heure
+      locale={fr}
+      className="calendar-datepicker-input text-center date-picker-reports"
+      placeholderText="Choose a date"
+    />;
+  }
+
   return (
     <section className="card">
       {success && <Success msg={success} />}
@@ -140,7 +179,8 @@ const CalendarTab = () => {
         <div className="events-calendar text-center">
           <div className="calendar-list-event">
             <PostList
-              title={<h1 className="font-bold text-2xl underline">{selectedDate}</h1>}
+              PostComposant={CalendarPost}
+              title={<h1 className="font-bold text-2xl content-center">{selectedDate.toLocaleDateString()}</h1>}
               posts={eventsOnDate}
               sortPosts={filterEventsWithSelectedDate}
               popupPost={popupEvent}
@@ -151,6 +191,7 @@ const CalendarTab = () => {
               setPriorityColor={setPriorityColor}
               setAllFields={setAllFields}
               resetAllFields={resetAllFields}
+              popupInputs={dateInput()}
             />
             <button className="delete-button" onClick={handleClearDay}>Clear Day</button>
           </div>

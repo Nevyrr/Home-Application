@@ -15,8 +15,8 @@ const CalendarEventSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    selectedDate: {
-        type: String,
+    date: {
+        type: Date,
         required: true
     },
     priorityColor: {

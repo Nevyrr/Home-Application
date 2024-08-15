@@ -11,6 +11,8 @@ const ShoppingTab = () => {
   // Use post context
   const { shoppingItems, setShoppingItems } = useContext(ShoppingPostContext);
 
+  const countRegex = /^[1-9]([0-9]{0,2})([.,][0-9]+)?$/;
+
   // Post being updated or created
   const [popupShopping, setPopupShopping] = useState({
     shoppingId: "",
@@ -170,7 +172,7 @@ const ShoppingTab = () => {
 
 
   const handleCountChange = (quantity) => {
-    setIsCountValid(/^\d*$/.test(quantity.count) && (parseInt(quantity.count) > 0 && parseInt(quantity.count) <= 999));
+    setIsCountValid(countRegex.test(quantity.count));
     setCount(quantity.count);
     setUnit(quantity.unit);
   };
@@ -213,8 +215,8 @@ const ShoppingTab = () => {
       {error && <Alert msg={error} />}
 
       <div className="flex justify-evenly mb-8 text-3xl h-&1/10">
-        <h1 className="font-bold text-2xl underline">Shopping Board</h1>
-        <button className="fa-solid fa-circle-plus" onClick={handleCreateDate}></button>
+        <h1 className="font-bold text-xl underline">Shopping Board</h1>
+        <span className="text-xs inline-block px-2 py-2 text-indigo-500 font-semibold rounded-lg shadow-xl hover:text-indigo-800 cursor-pointer" onClick={handleCreateDate}>New Shopping List</span>
       </div>
 
       <div className="shopping-tab">
@@ -256,7 +258,7 @@ const ShoppingTab = () => {
           </div>
         ))}
       </div>
-    </section >
+    </section>
   );
 };
 

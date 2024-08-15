@@ -17,23 +17,23 @@ const getEvents = async (_req, res) => {
 /************************************ Create New Calendar Event ************************************/
 const addEvent = async (req, res) => {
   // Grab the data from request body
-  const { title, selectedDate, priorityColor } = req.body;
+  const { title, date, priorityColor } = req.body;
 
   // Check the fields are not empty
   if (!title) {
     return res.status(400).json({ error: "Title is required" });
-  } else if (!selectedDate) {
+  } else if (!date) {
     return res.status(400).json({ error: "Date need to be selected" })
   } else if (priorityColor === undefined) {
     return res.status(400).json({ error: "Priority Color need to be selected" })
   }
- 
+
   // Find the authenticated user using the user id provided by request object
   const user = await User.findById(req.user._id);
 
   try {
     // Create a new Event and save in DB
-    const event = await CalendarEvent.create({ user: user._id, username: user.name, title: title, selectedDate: selectedDate, priorityColor: priorityColor });
+    const event = await CalendarEvent.create({ user: user._id, username: user.name, title: title, date: date, priorityColor: priorityColor });
 
     res.status(200).json({ success: title + " event created.", event });
   } catch (error) {
@@ -71,13 +71,18 @@ const deleteEvent = async (req, res) => {
 /************************************ Update Calendar Events ************************************/
 const updateEvent = async (req, res) => {
   // Grab the data from request body
-  const { title, priorityColor } = req.body;
+  const { title, date, priorityColor } = req.body;
 
   // Check the fields are not empty
   if (!title) {
     return res.status(400).json({ error: "Title is required" });
   }
-  
+
+  // Check the fields are not empty
+  if (date === undefined) {
+    return res.status(400).json({ error: "Date is required" });
+  }
+
   // Check the fields are not empty
   if (priorityColor === undefined) {
     return res.status(400).json({ error: "Priority Color is required" });
@@ -101,7 +106,7 @@ const updateEvent = async (req, res) => {
   }
 
   try {
-    await event.updateOne({ title: title, priorityColor: priorityColor });
+    await event.updateOne({ title: title, date: date, priorityColor: priorityColor });
     res.status(200).json({ success: title + " calendar event was updated.", event });
   } catch (error) {
     res.status(500).json({ error: error.message });
