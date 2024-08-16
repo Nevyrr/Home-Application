@@ -31,7 +31,7 @@ const Layout = () => {
 
   return (
     <>
-      <header className="bg-indigo-500 text-white">
+      <header className="bg-indigo-600 text-white">
         <nav className="flex items-center justify-between p-4 max-w-screen-lg mx-auto">
           <Link
             title="Shopping"

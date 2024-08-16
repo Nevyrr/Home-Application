@@ -85,7 +85,7 @@ const CalendarTab = () => {
   };
 
   const resetAllFields = () => {
-    setPopupEvent({ eventId: "", title: "", date: new Date(), priorityColor: 0 });
+    setPopupEvent({ eventId: "", title: "", date: selectedDate, priorityColor: 0 });
   }
 
   const setAllFields = (post) => {

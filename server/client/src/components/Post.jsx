@@ -16,7 +16,7 @@ const Post = ({ post, onUpdate, onDelete, children }) => {
           <p className="text-[10px] text-slate-500">{post.username}</p>
           <p className="text-[10px] text-slate-500">{new Date(post.createdAt).toLocaleDateString()}</p>
         </div>
-        <div className="mx-8 post-body">
+        <div className="mx-2 post-body">
           {children}
         </div>
 
@@ -37,7 +37,7 @@ const Post = ({ post, onUpdate, onDelete, children }) => {
           )}
         </div>
       </div>
-      <div className="h-px w-full bg-gradient-to-r from-indigo-50 via-indigo-500/70 to-indigo-50 my-3.5"></div>
+      <div className="h-px w-full bg-gradient-to-r from-indigo-50 via-indigo-600/70 to-indigo-50 my-3.5"></div>
     </div>
   );
 };
