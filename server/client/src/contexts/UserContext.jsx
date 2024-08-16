@@ -11,7 +11,8 @@ const UserProvider = ({ children }) => {
     id: localStorage.getItem("id"),
     name: localStorage.getItem("name"),
     email: localStorage.getItem("email"),
-    receiveEmail: localStorage.getItem("receiveEmail")
+    receiveEmail: localStorage.getItem("receiveEmail"),
+    isAdmin: localStorage.getItem("isAdmin")
   });
 
   // Return a custom component to expose User state to the children components

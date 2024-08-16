@@ -51,7 +51,7 @@ const deletePost = async (req, res) => {
 
   // Check the user owns the post
   const user = await User.findById(req.user._id);
-  if (!post.user.equals(user._id)) {
+  if (!post.user.equals(user._id) && !user.isAdmin) {
     return res.status(401).json({ error: "Not authorized" });
   }
 
@@ -86,7 +86,7 @@ const updatePost = async (req, res) => {
 
   // Check the user owns the post
   const user = await User.findById(req.user._id);
-  if (!post.user.equals(user._id)) {
+  if (!post.user.equals(user._id) && !user.isAdmin) {
     return res.status(401).json({ error: "Not authorized" });
   }
 

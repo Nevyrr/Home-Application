@@ -6,7 +6,7 @@ import "dotenv/config.js";
 /************************************ Creating JWT token ************************************/
 const createToken = (_id) => {
   // Creating a new signature
-  return jwt.sign({ _id }, process.env.SECRET, { expiresIn: "10d" });
+  return jwt.sign({ _id }, process.env.SECRET, { expiresIn: "20d" });
 };
 
 /************************************ Register User ************************************/
@@ -37,7 +37,7 @@ const registerUser = async (req, res) => {
 
   try {
     // Register the user
-    const user = await User.create({ name, email, password: hashed, receiveEmail: false });
+    const user = await User.create({ name, email, password: hashed, receiveEmail: false, isAdmin: false });
     // Create the JsonWebToken
     const token = createToken(user._id)
     // Send the response
@@ -70,7 +70,7 @@ const loginUser = async (req, res) => {
   }
 
   try {
-    res.status(200).json({ name: user.name, email, token: createToken(user._id), receiveEmail: user.receiveEmail });
+    res.status(200).json({ name: user.name, email, token: createToken(user._id), receiveEmail: user.receiveEmail, isAdmin: user.isAdmin });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

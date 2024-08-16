@@ -25,6 +25,7 @@ const loginUser = async (email, password) => {
   localStorage.setItem("name", data.name);
   localStorage.setItem("email", data.email);
   localStorage.setItem("receiveEmail", data.receiveEmail);
+  localStorage.setItem("isAdmin", data.isAdmin);
 
   return data;
 };
@@ -84,6 +85,7 @@ const registerUser = async (name, email, password, passwordConfirm) => {
   localStorage.setItem("name", data.name);
   localStorage.setItem("email", data.email);
   localStorage.setItem("receiveEmail", false);
+  localStorage.setItem("isAdmin", false);
 
   return data;
 };

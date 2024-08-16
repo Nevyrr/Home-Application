@@ -27,14 +27,14 @@ const Login = () => {
       // Login the user
       await loginUser(email, password);
       // Update the user state
-      setUser({id: localStorage.getItem("id"), name: localStorage.getItem("name"), email:localStorage.getItem("email"), receiveEmail:localStorage.getItem("receiveEmail")});
+      setUser({ id: localStorage.getItem("id"), name: localStorage.getItem("name"), email: localStorage.getItem("email"), receiveEmail: localStorage.getItem("receiveEmail"), isAdmin: localStorage.getItem("isAdmin") });
       // Navigate to dashboard
       navigate('/dashboard')
     } catch (error) {
       setError(error.message);
     }
   };
-  
+
   // Handle navigate to register
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -61,10 +61,10 @@ const Login = () => {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
-        <button className="btn w-1/4 mx-auto">Login</button>
+        <button className="btn mx-auto">Login</button>
       </form>
 
-      <button className="btn w-1/4 mt-2 mx-auto" onClick={handleRegister}>New ? Create an Account</button>
+      <button className="btn mt-2 mx-auto" onClick={handleRegister}>New ? Create an Account</button>
 
       {error && <Alert msg={error} />}
     </section>

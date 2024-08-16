@@ -18,7 +18,11 @@ const UserSchema = new mongoose.Schema(
     },
     receiveEmail: {
       type: Boolean,
-      default: false,
+      default: false
+    },
+    isAdmin: {
+      type: Boolean,
+      default: false
     }
   },
   { timestamps: true }

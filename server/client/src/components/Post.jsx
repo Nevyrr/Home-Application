@@ -21,7 +21,7 @@ const Post = ({ post, onUpdate, onDelete, children }) => {
         </div>
 
         <div className="flex items-center gap-2 post-buttons">
-          {/*user.id === post.user && */ (
+          {(user.id === post.user || user.isAdmin === "true") && (
             <div>
               <button
                 className="fa-solid fa-pen-to-square nav-link text-green-500 hover:bg-green-200"
