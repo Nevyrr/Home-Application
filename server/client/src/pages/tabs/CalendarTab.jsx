@@ -5,9 +5,11 @@ import { getEvents, deleteEvent, createEvent, updateEvent } from "../../controll
 import PostList from "../../components/PostList";
 import { fr } from 'date-fns/locale'; // Importer la locale française
 import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
+import TimePicker from 'react-time-picker';;
 import { isSameDate } from "../../helpers/dateHelper";
 import CalendarPost from "../../components/CalendarPost";
+import 'react-datepicker/dist/react-datepicker.css';
+import 'react-time-picker/dist/TimePicker.css';
 
 const CalendarTab = () => {
 
@@ -18,6 +20,7 @@ const CalendarTab = () => {
   const [popupEvent, setPopupEvent] = useState({
     eventId: "",
     date: new Date(),
+    duration: "",
     title: "",
     priorityColor: 0
   });
@@ -85,17 +88,17 @@ const CalendarTab = () => {
   };
 
   const resetAllFields = () => {
-    setPopupEvent({ eventId: "", title: "", date: selectedDate, priorityColor: 0 });
+    setPopupEvent({ eventId: "", title: "", date: selectedDate, duration: "", priorityColor: 0 });
   }
 
   const setAllFields = (post) => {
-    setPopupEvent({ eventId: post._id, title: post.title, date: post.date, priorityColor: post.priorityColor });
+    setPopupEvent({ eventId: post._id, title: post.title, date: post.date, duration: post.duration, priorityColor: post.priorityColor });
   }
 
   const handleCreate = async () => {
     try {
       // Create a new event
-      const msg = await createEvent(popupEvent.title, popupEvent.date, popupEvent.priorityColor);
+      const msg = await createEvent(popupEvent.title, popupEvent.date, popupEvent.duration, popupEvent.priorityColor);
       // Update posts state
       filterEventsWithSelectedDate(selectedDate);
       // Set the success message
@@ -109,7 +112,7 @@ const CalendarTab = () => {
   const handleUpdate = async () => {
     try {
       // Create a new event
-      const msg = await updateEvent(popupEvent.eventId, popupEvent.title, popupEvent.date, popupEvent.priorityColor);
+      const msg = await updateEvent(popupEvent.eventId, popupEvent.title, popupEvent.date, popupEvent.duration, popupEvent.priorityColor);
       // Update posts state
       filterEventsWithSelectedDate(selectedDate);
       // Set the success message
@@ -154,21 +157,36 @@ const CalendarTab = () => {
   };
 
   const dateInput = () => {
-    return <DatePicker
-      selected={popupEvent.date}
-      onChange={(date) => updatePopup("date", date)}
-      showTimeSelect
-      dateFormat="Pp" // Format date et heure
-      locale={fr}
-      className="calendar-datepicker-input text-center date-picker-reports"
-      placeholderText="Choose a date"
-    />;
+    return <div className="flex flex-col relative">
+      <span className="absolute left-2 top-2 text-gray-400 pointer-events-none text-xs z-10">
+        Date :
+      </span>
+      <DatePicker
+        selected={popupEvent.date}
+        onChange={(date) => updatePopup("date", date)}
+        showTimeSelect
+        dateFormat="Pp" // Format date et heure
+        locale={fr}
+        className="calendar-datepicker-input"
+        placeholderText="Choose a date"
+      />
+      <span className="absolute left-2 bottom-1 text-gray-400 pointer-events-none text-xs">
+        Duration :
+      </span>
+      <TimePicker
+        onChange={(duration) => updatePopup("duration", duration)}
+        value={popupEvent.duration}
+        disableClock={true}
+        format="HH:mm"
+        className="calendar-popup-time-picker"
+      />
+    </div>;
   }
 
   return (
     <section className="card">
-      {success && <Success msg={success} />}
-      {error && <Alert msg={error} />}
+      {success && <Success msg={success} setMsg={setSuccess} />}
+      {error && <Alert msg={error} setMsg={setError} />}
 
       <div className="calendar-tab">
         <h1 className="title absolute text-4xl underline top-0">Shared Calendar</h1>

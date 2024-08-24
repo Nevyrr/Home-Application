@@ -109,12 +109,12 @@ const ReminderTab = () => {
 
   return (
     <section className="card">
-      {success && <Success msg={success} />}
-      {error && <Alert msg={error} />}
+      {success && <Success msg={success} setMsg={setSuccess} />}
+      {error && <Alert msg={error} setMsg={setError}/>}
 
       <div className="reminder-tab">
         <PostList
-         title={<h1 className="font-bold text-2xl underline">{"Reminder Board"}</h1>}
+          title={<h1 className="font-bold text-2xl underline">{"Reminder Board"}</h1>}
           posts={reminderPosts}
           PostComposant={ReminderPost}
           sortPosts={sortReminderPosts}

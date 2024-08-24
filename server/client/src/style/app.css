@@ -187,11 +187,19 @@
     }
 
     .calendar-datepicker-input {
-        @apply w-full p-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-indigo-600 focus:border-indigo-600;
+        @apply text-center pl-8 w-full p-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-indigo-600 focus:border-indigo-600 text-sm;
     }
 
     .calendar-tab .react-datepicker {
-        @apply flex
+        @apply flex;
+    }
+
+    .calendar-popup-time-picker {
+        @apply mt-4;
+    }
+
+    .calendar-popup-time-picker .react-time-picker__wrapper {
+        @apply border border-gray-300 rounded-lg pl-16 pr-4 justify-center;
     }
 
     /* ----- SCREEN ----- */

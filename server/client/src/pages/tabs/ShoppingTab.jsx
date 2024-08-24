@@ -211,8 +211,8 @@ const ShoppingTab = () => {
 
   return (
     <section className="card">
-      {success && <Success msg={success} />}
-      {error && <Alert msg={error} />}
+      {success && <Success msg={success} setMsg={setSuccess} />}
+      {error && <Alert msg={error} setMsg={setError}/>}
 
       <div className="flex justify-evenly mb-8 text-3xl h-&1/10">
         <h1 className="font-bold text-xl underline">Shopping Board</h1>

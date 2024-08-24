@@ -66,7 +66,7 @@ const Login = () => {
 
       <button className="btn mt-2 mx-auto" onClick={handleRegister}>New ? Create an Account</button>
 
-      {error && <Alert msg={error} />}
+      {error && <Alert msg={error} setMsg={setError} />}
     </section>
   );
 };

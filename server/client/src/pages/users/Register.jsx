@@ -37,7 +37,7 @@ const Register = () => {
         formData.passwordConfirm
       );
       // Update the user state
-      setUser({name: formData.name, email: formData.email})
+      setUser({ name: formData.name, email: formData.email })
       // Navigate to dashboard
       navigate('/dashboard')
     } catch (error) {
@@ -49,7 +49,7 @@ const Register = () => {
       <h1 className="title">Create a new account</h1>
 
       <form onSubmit={handleRegister}>
-      <input
+        <input
           type="name"
           placeholder="name"
           className="input"
@@ -86,7 +86,7 @@ const Register = () => {
         <button className="btn">Register</button>
       </form>
 
-      {error && <Alert msg={error} />}
+      {error && <Alert msg={error} setMsg={setError} />}
     </section>
   );
 };

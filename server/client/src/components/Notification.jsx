@@ -2,7 +2,7 @@ import { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../contexts/UserContext";
 
-const Notification = ({ msg, icon, color, timer }) => {
+const Notification = ({ msg, setMsg, icon, color, timer }) => {
   const [show, setShow] = useState(true);
   const { user, setUser } = useContext(UserContext);
   const navigate = useNavigate();
@@ -24,6 +24,7 @@ const Notification = ({ msg, icon, color, timer }) => {
       // Réglage du délai pour masquer la notification
       const timeout = setTimeout(() => {
         setShow(false);
+        setMsg("");
       }, timer);
 
       // Nettoyage de l'effet lorsque le message change ou le composant se démonte

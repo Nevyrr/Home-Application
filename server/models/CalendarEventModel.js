@@ -19,6 +19,10 @@ const CalendarEventSchema = new mongoose.Schema({
         type: Date,
         required: true
     },
+    duration: {
+        type: String,
+        required: false
+    },
     priorityColor: {
         type: Number,
         required: true

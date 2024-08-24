@@ -17,7 +17,7 @@ const getEvents = async (_req, res) => {
 /************************************ Create New Calendar Event ************************************/
 const addEvent = async (req, res) => {
   // Grab the data from request body
-  const { title, date, priorityColor } = req.body;
+  const { title, date, duration, priorityColor } = req.body;
 
   // Check the fields are not empty
   if (!title) {
@@ -33,7 +33,7 @@ const addEvent = async (req, res) => {
 
   try {
     // Create a new Event and save in DB
-    const event = await CalendarEvent.create({ user: user._id, username: user.name, title: title, date: date, priorityColor: priorityColor });
+    const event = await CalendarEvent.create({ user: user._id, username: user.name, title: title, date: date, duration: duration, priorityColor: priorityColor });
 
     res.status(200).json({ success: title + " event created.", event });
   } catch (error) {
@@ -71,7 +71,7 @@ const deleteEvent = async (req, res) => {
 /************************************ Update Calendar Events ************************************/
 const updateEvent = async (req, res) => {
   // Grab the data from request body
-  const { title, date, priorityColor } = req.body;
+  const { title, date, duration, priorityColor } = req.body;
 
   // Check the fields are not empty
   if (!title) {
@@ -106,7 +106,7 @@ const updateEvent = async (req, res) => {
   }
 
   try {
-    await event.updateOne({ title: title, date: date, priorityColor: priorityColor });
+    await event.updateOne({ title: title, date: date, duration: duration, priorityColor: priorityColor });
     res.status(200).json({ success: title + " calendar event was updated.", event });
   } catch (error) {
     res.status(500).json({ error: error.message });
