@@ -2,6 +2,7 @@ import multer from "multer";
 import {GridFsStorage}  from "multer-gridfs-storage";
 import Grid from "gridfs-stream";
 import mongoose from "mongoose";
+import TacoModel from "../models/TacoModel.js";
 
 
 const conn = mongoose.createConnection(process.env.DB_URI);
@@ -27,6 +28,30 @@ const storage = new GridFsStorage({
 
 const upload = multer({ storage });
 
+const getTacoData = async (req, res) => {
+    const taco = await TacoModel.find();
+    res.status(200).json({ taco });
+};
+
+const updateVermifugeDate = async (req, res) => {
+    const updatedTaco = await TacoModel.findOneAndUpdate(
+        {}, // match the only taco document
+        { vermifugeDate: req.body.date }, 
+        { new: true }
+    );
+
+    res.json(updatedTaco);
+};
+
+const updateAntiPuceDate = async (req, res) => {
+    const updatedTaco = await TacoModel.findOneAndUpdate(
+        {}, // match the only taco documents
+        { antiPuceDate: req.body.date }, 
+        { new: true }
+    );
+
+    res.json(updatedTaco);
+};
 
 const getFile = async (req, res) => {
     gfs.files.findOne({ filename: req.params.filename }, (_, file) => {
@@ -52,4 +77,4 @@ function handleUpload(req, res, next) {
     });
   }
 
-export { getFile, handleUpload };
+export { getTacoData, updateVermifugeDate, updateAntiPuceDate, getFile, handleUpload };

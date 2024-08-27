@@ -6,6 +6,7 @@ import UserProvider from "./contexts/UserContext.jsx";
 import ShoppingPostProvider from "./contexts/ShoppingPostContext.jsx";
 import ReminderPostProvider from "./contexts/ReminderPostContext.jsx";
 import CalendarEventProvider from "./contexts/CalendarEventContext.jsx";
+import TacoProvider from "./contexts/TacoContext.jsx";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
@@ -13,7 +14,9 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       <ShoppingPostProvider>
         <ReminderPostProvider>
           <CalendarEventProvider>
-            <App />
+            <TacoProvider>
+              <App />
+            </TacoProvider>
           </CalendarEventProvider>
         </ReminderPostProvider>
       </ShoppingPostProvider>

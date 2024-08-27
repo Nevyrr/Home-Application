@@ -231,7 +231,7 @@ const ShoppingTab = () => {
                   onChange={(date) => handleUpdateDateItem(shoppingItem._id, shoppingItem.name, date.toLocaleDateString())}
                   locale="fr"
                   dateFormat="P"
-                  className="shopping-datepicker-input"
+                  className="datepicker-input"
                 />
               </div>}
               posts={shoppingItem.shoppingList}
