@@ -8,7 +8,9 @@ const TacoProvider = ({ children }) => {
   // Posts global state
   const [taco, setTaco] = useState({
     vermifugeDate: "",
+    vermifugeReminder: "",
     antiPuceDate: "",
+    antiPuceReminder: "",
   });
 
   // Return a custom component to expose Post state to the children components

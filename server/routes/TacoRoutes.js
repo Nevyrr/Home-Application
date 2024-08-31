@@ -1,13 +1,15 @@
 import express from "express";
 import auth from "../middlewares/auth.js";
-import { handleUpload, updateVermifugeDate, updateAntiPuceDate, getFile, getTacoData } from "../controllers/TacoController.js"
+import { handleUpload, updateVermifugeDate, updateAntiPuceDate, getFile, getTacoData, updateAntiPuceReminder, updateVermifugeReminder } from "../controllers/TacoController.js"
 
 // Creating an instance of Express router
 const router = express.Router();
 
 router.get("/", auth, getTacoData);
-router.post("/vermifuge", auth, updateVermifugeDate);
-router.post("/antipuce", auth, updateAntiPuceDate);
+router.post("/vermifuge/date", auth, updateVermifugeDate);
+router.post("/vermifuge/reminder", auth, updateVermifugeReminder);
+router.post("/antipuce/date", auth, updateAntiPuceDate);
+router.post("/antipuce/reminder", auth, updateAntiPuceReminder);
 router.get("/image/:filename", auth, getFile);
 router.post("/upload", auth, handleUpload, (_, res) => {
   // After handleUpload completes, req.file should be available

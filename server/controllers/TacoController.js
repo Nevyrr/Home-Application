@@ -43,10 +43,30 @@ const updateVermifugeDate = async (req, res) => {
     res.json(updatedTaco);
 };
 
+const updateVermifugeReminder = async (req, res) => {
+    const updatedTaco = await TacoModel.findOneAndUpdate(
+        {}, // match the only taco document
+        { vermifugeReminder: req.body.date }, 
+        { new: true }
+    );
+
+    res.json(updatedTaco);
+};
+
 const updateAntiPuceDate = async (req, res) => {
     const updatedTaco = await TacoModel.findOneAndUpdate(
         {}, // match the only taco documents
         { antiPuceDate: req.body.date }, 
+        { new: true }
+    );
+
+    res.json(updatedTaco);
+};
+
+const updateAntiPuceReminder = async (req, res) => {
+    const updatedTaco = await TacoModel.findOneAndUpdate(
+        {}, // match the only taco documents
+        { antiPuceReminder: req.body.date }, 
         { new: true }
     );
 
@@ -77,4 +97,4 @@ function handleUpload(req, res, next) {
     });
   }
 
-export { getTacoData, updateVermifugeDate, updateAntiPuceDate, getFile, handleUpload };
+export { getTacoData, updateVermifugeDate, updateVermifugeReminder, updateAntiPuceDate, updateAntiPuceReminder, getFile, handleUpload };

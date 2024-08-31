@@ -18,7 +18,26 @@ const getTacoData = async () => {
 };
 
 const updateVermifugeDate = async (date) => {
-  const res = await fetch('/api/taco/vermifuge/', {
+  const res = await fetch('/api/taco/vermifuge/date', {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
+    body: JSON.stringify({ date }),
+  })
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw Error(data.error);
+  }
+
+  return data;
+};
+
+const updateVermifugeReminder = async (date) => {
+  const res = await fetch('/api/taco/vermifuge/reminder', {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -37,7 +56,26 @@ const updateVermifugeDate = async (date) => {
 };
 
 const updateAntiPuceDate = async (date) => {
-  const res = await fetch('/api/taco/antipuce/', {
+  const res = await fetch('/api/taco/antipuce/date', {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
+    body: JSON.stringify({ date }),
+  })
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw Error(data.error);
+  }
+
+  return data;
+};
+
+const updateAntiPuceReminder = async (date) => {
+  const res = await fetch('/api/taco/antipuce/reminder', {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -97,4 +135,4 @@ const uploadFile = async (selectedFile) => {
   return data;
 };
 
-export { getTacoData, getFile, updateVermifugeDate, updateAntiPuceDate, uploadFile };
+export { getTacoData, getFile, updateVermifugeDate, updateVermifugeReminder, updateAntiPuceDate, updateAntiPuceReminder, uploadFile };

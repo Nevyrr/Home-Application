@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { Alert, Success } from "../../components";
 import ImageUpload from "../../components/ImageUpload";
-import { getTacoData, updateVermifugeDate, updateAntiPuceDate } from "../../controllers/TacoController";
+import { getTacoData, updateVermifugeDate, updateVermifugeReminder, updateAntiPuceDate, updateAntiPuceReminder} from "../../controllers/TacoController";
 import { TacoContext } from "../../contexts/TacoContext";
 import DatePicker, { registerLocale } from 'react-datepicker';
 import fr from 'date-fns/locale/fr';
@@ -29,14 +29,28 @@ const TacoTab = () => {
 
   // Fonction pour convertir la chaîne de caractères en objet Date
   const convertStringToDate = (dateString) => {
-    const [day, month, year] = dateString.split('/');
-    return new Date(`${year}-${month}-${day}`);
+    if (dateString) {
+      const [day, month, year] = dateString.split('/');
+      return new Date(`${year}-${month}-${day}`);
+    }
+    return new Date();
   };
 
   const handleUpdateVermifugeDate = async (date) => {
     try {
       // Create a new post
       const msg = await updateVermifugeDate(date);
+      getTaco();
+      setSuccess(msg.success);
+    } catch (error) {
+      setError(error.message);
+    }
+  };
+
+  const handleUpdateVermifugeReminder = async (date) => {
+    try {
+      // Create a new post
+      const msg = await updateVermifugeReminder(date);
       getTaco();
       setSuccess(msg.success);
     } catch (error) {
@@ -55,33 +69,65 @@ const TacoTab = () => {
     }
   };
 
+  const handleUpdateAntiPuceReminder = async (date) => {
+    try {
+      // Create a new post
+      const msg = await updateAntiPuceReminder(date);
+      getTaco();
+      setSuccess(msg.success);
+    } catch (error) {
+      setError(error.message);
+    }
+  };
+
   return (
     <section className="card">
 
       {success && <Success msg={success} setMsg={setSuccess} />}
       {error && <Alert msg={error} setMsg={setError} />}
 
-      <h1 className="title">Pour mon boubou TACO</h1>
+      <h1 className="title">TACO</h1>
 
       {taco.vermifugeDate !== "" && (
         <div>
-          <h1 className="font-semibold mb-4 text-xl"> Dernier Vermifuge: </h1>
-          <DatePicker
-            selected={new Date(convertStringToDate(taco.vermifugeDate))}
-            onChange={(date) => handleUpdateVermifugeDate(date.toLocaleDateString())}
-            locale="fr"
-            dateFormat="P"
-            className="datepicker-input mb-8"
-          />
+          <div className="taco-tab-reminder-div">
+            <h1 className="font-semibold text-xl"> Dernier Vermifuge: </h1>
+            <h1 className="font-semibold text-xl"> Rappel: </h1>
+            <DatePicker
+              selected={new Date(convertStringToDate(taco.vermifugeDate))}
+              onChange={(date) => handleUpdateVermifugeDate(date.toLocaleDateString())}
+              locale="fr"
+              dateFormat="P"
+              className="datepicker-input"
+            />
+            <DatePicker
+              selected={new Date(convertStringToDate(taco.vermifugeReminder))}
+              onChange={(date) => handleUpdateVermifugeReminder(date.toLocaleDateString())}
+              locale="fr"
+              dateFormat="P"
+              className="datepicker-input"
+            />
+          </div>
 
-          <h1 className="font-semibold mb-4 text-xl"> Dernier Anti-Puce: </h1>
-          <DatePicker
-            selected={new Date(convertStringToDate(taco.antiPuceDate))}
-            onChange={(date) => handleUpdateAntiPuceDate(date.toLocaleDateString())}
-            locale="fr"
-            dateFormat="P"
-            className="datepicker-input mb-8"
-          />
+
+          <div className="taco-tab-reminder-div">
+            <h1 className="font-semibold text-xl"> Dernier Anti-Puce: </h1>
+            <h1 className="font-semibold text-xl"> Rappel: </h1>
+            <DatePicker
+              selected={new Date(convertStringToDate(taco.antiPuceDate))}
+              onChange={(date) => handleUpdateAntiPuceDate(date.toLocaleDateString())}
+              locale="fr"
+              dateFormat="P"
+              className="datepicker-input"
+            />
+            <DatePicker
+              selected={new Date(convertStringToDate(taco.antiPuceReminder))}
+              onChange={(date) => handleUpdateAntiPuceReminder(date.toLocaleDateString())}
+              locale="fr"
+              dateFormat="P"
+              className="datepicker-input"
+            />
+          </div>
 
           <h1 className="font-semibold mt-8 text-xl"> Feuilles de soin: </h1>
 

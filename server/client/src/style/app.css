@@ -202,6 +202,12 @@
         @apply border border-gray-300 rounded-lg pl-16 pr-4 justify-center;
     }
 
+    /* ------ TACO ------ */
+
+    .taco-tab-reminder-div {
+        @apply grid grid-rows-2 grid-flow-col gap-4 mb-8 border border-solid p-2 rounded-lg border-indigo-600
+    }
+
     /* ----- SCREEN ----- */
 
     /* Phones */

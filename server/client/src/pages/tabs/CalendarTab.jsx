@@ -189,7 +189,7 @@ const CalendarTab = () => {
       {error && <Alert msg={error} setMsg={setError} />}
 
       <div className="calendar-tab">
-        <h1 className="title absolute text-4xl underline top-0">Shared Calendar</h1>
+        <h1 className="title absolute text-2xl underline top-0">Shared Calendar</h1>
         <EditableCalendar
           allEvents={events}
           handleDateChange={handleDateChange}

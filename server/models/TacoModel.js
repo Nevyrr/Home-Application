@@ -6,7 +6,15 @@ const TacoSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    vermifugeReminder: {
+        type: String,
+        required: true
+    },
     antiPuceDate: {
+        type: String,
+        required: true
+    },
+    antiPuceReminder: {
         type: String,
         required: true
     },
