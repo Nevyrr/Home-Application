@@ -4,7 +4,7 @@
 
 @layer components {
     .nav-link {
-        @apply w-8 h-8 rounded-md hover:bg-indigo-600 grid place-items-center;
+        @apply w-8 h-8 rounded-md hover:bg-indigo-600 grid place-items-center hover:scale-150 transition-transform duration-500;
     }
 
     .nav-link.selected {
@@ -121,7 +121,7 @@
     }
 
     .shopping-chevron-icon {
-        @apply absolute top-2 left-1 text-xl p-2;
+        @apply absolute top-2 left-1 text-xl p-2 cursor-pointer;
     }
 
     .shopping-day-list:has(.rolled) .shopping-total-bar,
@@ -142,7 +142,7 @@
     }
 
     .shopping-post-body-count {
-        @apply inline-block px-2 py-2 font-bold text-green-600 bg-gray-100 rounded shadow-lg hover:scale-110;
+        @apply inline-block px-2 py-2 font-bold text-indigo-600 bg-gray-100 rounded shadow-lg hover:scale-110 min-w-14 max-w-20 text-center;
     }
 
     .shopping-total-bar {

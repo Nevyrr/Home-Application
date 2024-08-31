@@ -216,7 +216,7 @@ const ShoppingTab = () => {
 
       <div className="flex justify-evenly mb-8 text-3xl h-&1/10">
         <h1 className="font-bold text-xl underline">Shopping Board</h1>
-        <span className="border-2 border-indigo-600 select-none text-xs inline-block px-2 py-2 text-indigo-600 font-semibold rounded-lg shadow-xl hover:text-indigo-800 cursor-pointer" onClick={handleCreateDate}>New Shopping List</span>
+        <span className="border-2 border-indigo-600 select-none text-xs inline-block px-2 py-2 text-indigo-600 font-semibold rounded-lg shadow-xl hover:text-indigo-800 cursor-pointer hover:scale-110 transition-transform duration-200" onClick={handleCreateDate}>New Shopping List</span>
       </div>
 
       <div className="shopping-tab">
