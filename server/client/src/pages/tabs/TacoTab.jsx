@@ -111,8 +111,8 @@ const TacoTab = () => {
 
 
           <div className="taco-tab-reminder-div">
-            <h1 className="font-semibold text-xl"> Dernier Anti-Puce: </h1>
-            <h1 className="font-semibold text-xl"> Rappel: </h1>
+            <h1 className="font-semibold text-xl">Dernier Anti-Puce: </h1>
+            <h1 className="font-semibold text-xl">Rappel: </h1>
             <DatePicker
               selected={new Date(convertStringToDate(taco.antiPuceDate))}
               onChange={(date) => handleUpdateAntiPuceDate(date.toLocaleDateString())}

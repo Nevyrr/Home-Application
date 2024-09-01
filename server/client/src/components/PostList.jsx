@@ -79,7 +79,7 @@ const PostList = ({ title, posts, PostComposant = Post, sortPosts, popupPost, ha
     <section className="post-list-section">
       <div className="post-list-header">
         {title}
-        <button className="fa-solid fa-circle-plus" onClick={toggleCreationPopup}></button>
+        <button className="fa-solid fa-circle-plus hover:scale-125 transition-transform duration-500" onClick={toggleCreationPopup}></button>
       </div>
 
       {loading && (<i className="fa-solid fa-spinner animate-spin text-3xl fixed inset-0 flex items-center justify-center"></i>)}

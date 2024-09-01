@@ -208,6 +208,10 @@
         @apply grid grid-rows-2 grid-flow-col gap-4 mb-8 border border-solid p-2 rounded-lg border-indigo-600
     }
 
+    .taco-tab-reminder-div .react-datepicker__tab-loop {
+        @apply absolute
+    }
+
     /* ----- SCREEN ----- */
 
     /* Phones */
