@@ -190,10 +190,22 @@ const CalendarTab = () => {
 
       <div className="calendar-tab">
         <h1 className="title absolute text-2xl underline top-0">Shared Calendar</h1>
-        <EditableCalendar
-          allEvents={events}
-          handleDateChange={handleDateChange}
-        />
+        <div className="calendar-div">
+          <EditableCalendar
+            allEvents={events}
+            handleDateChange={handleDateChange}
+          />
+          <div className="border-2 p-4 flex flex-row">
+            <h1 className="mr-5 font-bold text-l"> Légende: </h1>
+            <h1 className="w-5 h-5 bg-green-500 rounded-full"></h1>
+            <h1 className="ml-1 mr-5">Validé</h1>
+            <h1 className="w-5 h-5 bg-yellow-500 rounded-full"></h1>
+            <h1 className="ml-1 mr-5">Envisagé</h1>
+            <h1 className="w-5 h-5 bg-red-500 rounded-full"></h1>
+            <h1 className="ml-1 mr-5">En attente d'une action</h1>
+          </div>
+        </div>
+      
         <div className="events-calendar text-center">
           <div className="calendar-list-event">
             <PostList

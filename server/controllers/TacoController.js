@@ -1,14 +1,43 @@
 import multer from "multer";
-import {GridFsStorage}  from "multer-gridfs-storage";
+import { GridFsStorage } from "multer-gridfs-storage";
 import Grid from "gridfs-stream";
 import mongoose from "mongoose";
 import TacoModel from "../models/TacoModel.js";
+import cron from "node-cron"
+import { sendEmail } from "../config/nodeMailConfig.js";
 
+/* ------ SETUP CRON JOB ------ */
+
+// Cron job execute every day at 8am
+cron.schedule('0 8 * * *', async () => {
+    console.log('Send reminders emails');
+    const taco = await TacoModel.find();
+
+    // Current Date
+    const currentDate = new Date();
+
+    const [day1, month1, year1] = taco[0].vermifugeReminder.split('/');
+    const vermifugeReminderDate = new Date(`${year1}-${month1}-${day1}`);
+
+    const [day2, month2, year2] = taco[0].antiPuceReminder.split('/');
+    const antiPuceReminderDate = new Date(`${year2}-${month2}-${day2}`);
+
+    if (vermifugeReminderDate.getTime() < currentDate.getTime()) {
+        sendEmail("clement.davin998@gmail.com", "rappel vermifuge coco", "la date du rappel du vermifuge pour Taco DAVIN est désormais dépassé. Pensez à le faire au plus vite !");
+        sendEmail("lyseknobloch@gmail.com", "rappel vermifuge coco", "la date du rappel du vermifuge pour Taco DAVIN est désormais dépassé. Pensez à le faire au plus vite !");
+    };
+
+    if (antiPuceReminderDate.getTime() < currentDate.getTime()) {
+        sendEmail("clement.davin998@gmail.com", "rappel anti-puce coco", "la date du rappel de l'anti-puce pour Taco DAVIN est désormais dépassé. Pensez à le faire au plus vite !");
+        sendEmail("lyseknobloch@gmail.com", "rappel anti-puce coco", "la date du rappel de l'anti-puce pour Taco DAVIN est désormais dépassé. Pensez à le faire au plus vite !");
+    };
+});
+
+
+/* ------ SETUP MONGO IMAGE UPLOAD ------ */
 
 const conn = mongoose.createConnection(process.env.DB_URI);
-
 let gfs;
-
 conn.once('open', () => {
     // Initialize stream
     gfs = Grid(conn.db, mongoose.mongo);
@@ -36,7 +65,7 @@ const getTacoData = async (req, res) => {
 const updateVermifugeDate = async (req, res) => {
     const updatedTaco = await TacoModel.findOneAndUpdate(
         {}, // match the only taco document
-        { vermifugeDate: req.body.date }, 
+        { vermifugeDate: req.body.date },
         { new: true }
     );
 
@@ -46,7 +75,7 @@ const updateVermifugeDate = async (req, res) => {
 const updateVermifugeReminder = async (req, res) => {
     const updatedTaco = await TacoModel.findOneAndUpdate(
         {}, // match the only taco document
-        { vermifugeReminder: req.body.date }, 
+        { vermifugeReminder: req.body.date },
         { new: true }
     );
 
@@ -56,7 +85,7 @@ const updateVermifugeReminder = async (req, res) => {
 const updateAntiPuceDate = async (req, res) => {
     const updatedTaco = await TacoModel.findOneAndUpdate(
         {}, // match the only taco documents
-        { antiPuceDate: req.body.date }, 
+        { antiPuceDate: req.body.date },
         { new: true }
     );
 
@@ -66,7 +95,7 @@ const updateAntiPuceDate = async (req, res) => {
 const updateAntiPuceReminder = async (req, res) => {
     const updatedTaco = await TacoModel.findOneAndUpdate(
         {}, // match the only taco documents
-        { antiPuceReminder: req.body.date }, 
+        { antiPuceReminder: req.body.date },
         { new: true }
     );
 
@@ -90,11 +119,11 @@ const getFile = async (req, res) => {
 // Middleware to handle file upload
 function handleUpload(req, res, next) {
     upload.single('image')(req, res, (err) => {
-      if (err) {
-        return res.status(500).send('Error uploading image');
-      }
-      next();
+        if (err) {
+            return res.status(500).send('Error uploading image');
+        }
+        next();
     });
-  }
+}
 
 export { getTacoData, updateVermifugeDate, updateVermifugeReminder, updateAntiPuceDate, updateAntiPuceReminder, getFile, handleUpload };
