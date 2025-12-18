@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-// Creating post schema using Mongoose Schema class
+// Creating Taco schema using Mongoose Schema class
 const TacoSchema = new mongoose.Schema({
     vermifugeDate: {
         type: String,
@@ -22,6 +22,6 @@ const TacoSchema = new mongoose.Schema({
 
 
 // Creating a model from schema
-const TacoModel = mongoose.model("Taco", TacoSchema)
+const TacoModel = mongoose.model("Taco", TacoSchema);
 
-export default TacoModel
+export default TacoModel;

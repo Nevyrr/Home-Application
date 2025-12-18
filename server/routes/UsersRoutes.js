@@ -4,13 +4,8 @@ import { registerUser, loginUser, updateUser } from '../controllers/UsersControl
 // Creating an instance of Express router
 const router = express.Router();
 
-// Register user route
 router.post('/', registerUser);
-
-// Login user route
 router.post('/login', loginUser);
-
-// Login user route
 router.put('/:id', updateUser);
 
-export { router as UsersRoutes }
+export { router as UsersRoutes };

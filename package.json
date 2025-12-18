@@ -1,0 +1,26 @@
+{
+  "name": "home-application",
+  "version": "1.0.0",
+  "description": "Personal home management web application",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently -n \"BACKEND,FRONTEND\" -c \"cyan,magenta\" \"npm run server\" \"npm run client\"",
+    "server": "cd server && npm run server",
+    "client": "cd server/client && npm run dev",
+    "install:all": "npm install && cd server && npm install && cd client && npm install",
+    "build": "cd server && npm run build"
+  },
+  "keywords": [
+    "home",
+    "management",
+    "mern",
+    "react",
+    "express"
+  ],
+  "author": "Clément Davin",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
+

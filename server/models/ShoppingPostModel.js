@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-// Creating post schema using Mongoose Schema class
+// Creating shopping post schema using Mongoose Schema class
 const ShoppingPostSchema = new mongoose.Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
@@ -47,6 +47,6 @@ const ShoppingListDaySchema = new mongoose.Schema({
 
 
 // Creating a model from schema
-const ShoppingDay = mongoose.model("ShoppingDay", ShoppingListDaySchema)
+const ShoppingDay = mongoose.model("ShoppingDay", ShoppingListDaySchema);
 
-export default ShoppingDay
+export default ShoppingDay;

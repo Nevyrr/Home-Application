@@ -49,39 +49,67 @@ It helps you **organize your daily life** by managing tasks, shopping, events, a
    cd home-application
    ```
 
-2. **Install backend dependencies**  
+2. **Install all dependencies**  
    ```bash
-   cd server
+   npm run install:all
+   ```
+   
+   Ou manuellement :
+   ```bash
    npm install
+   cd server && npm install
+   cd server/client && npm install
    ```
 
-3. **Install frontend dependencies**  
-   ```bash
-   cd ../client
-   npm install
-   ```
-
-4. **Configure environment variables**  
+3. **Configure environment variables**  
    Create a `.env` file in the `server` folder with:  
+   
+   **Variables obligatoires :**
    ```env
-   PORT=5000
-   MONGO_URI=your_mongodb_connection_string
-   JWT_SECRET=your_secret_key
+   # Connexion MongoDB (obligatoire)
+   # Format local : mongodb://localhost:27017
+   # Format MongoDB Atlas : mongodb+srv://username:password@cluster.mongodb.net
+   DB_URI=mongodb://localhost:27017
+   
+   # Clé secrète JWT (obligatoire)
+   # Utilisez une clé longue et aléatoire en production
+   # Vous pouvez générer une clé avec : openssl rand -base64 32
+   SECRET=votre_cle_secrete_jwt_tres_longue_et_aleatoire_ici
+   ```
+   
+   **Variables optionnelles (pour l'envoi d'emails) :**
+   ```env
+   # Email pour l'envoi de rappels (optionnel)
+   # Pour Gmail, créez un "Mot de passe d'application" dans les paramètres Google
+   EMAIL_USER=votre_email@gmail.com
+   EMAIL_PASS=votre_mot_de_passe_application
+   ```
+   
+   **Exemple complet minimal :**
+   ```env
+   DB_URI=mongodb://localhost:27017
+   SECRET=ma_super_cle_secrete_123456789_abcdefghijklmnopqrstuvwxyz
    ```
 
-5. **Run the application**  
-   In two separate terminals:  
+4. **Run the application**  
+   
+   **Option 1 : Lancer les deux serveurs en une seule commande** (recommandé)
    ```bash
-   # Backend
-   cd server
-   npm run dev
-
-   # Frontend
-   cd client
    npm run dev
    ```
+   
+   **Option 2 : Lancer séparément**
+   ```bash
+   # Terminal 1 - Backend
+   npm run server
+   
+   # Terminal 2 - Frontend
+   npm run client
+   ```
 
-6. Open your browser at **http://localhost:5173** (or the port shown in terminal).
+5. **Accéder à l'application**  
+   - Frontend : **http://localhost:5173** (ou le port affiché dans le terminal)
+   - Backend API : **http://localhost:4000**
 
 ---
 

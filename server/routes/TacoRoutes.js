@@ -12,7 +12,6 @@ router.post("/antipuce/date", auth, updateAntiPuceDate);
 router.post("/antipuce/reminder", auth, updateAntiPuceReminder);
 router.get("/image/:filename", auth, getFile);
 router.post("/upload", auth, handleUpload, (_, res) => {
-  // After handleUpload completes, req.file should be available
   res.status(200).send('Image uploaded successfully');
 });
 

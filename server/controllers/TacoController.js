@@ -23,13 +23,13 @@ cron.schedule('0 8 * * *', async () => {
     const antiPuceReminderDate = new Date(`${year2}-${month2}-${day2}`);
 
     if (vermifugeReminderDate.getTime() < currentDate.getTime()) {
-        sendEmail("clement.davin998@gmail.com", "rappel vermifuge coco", "la date du rappel du vermifuge pour Taco DAVIN est désormais dépassé. Pensez à le faire au plus vite !");
-        sendEmail("lyseknobloch@gmail.com", "rappel vermifuge coco", "la date du rappel du vermifuge pour Taco DAVIN est désormais dépassé. Pensez à le faire au plus vite !");
+        sendEmail("clement.davin998@gmail.com", "rappel vermifuge coco", "La date du rappel du vermifuge pour Taco DAVIN est désormais dépassée. Pensez à le faire au plus vite !");
+        sendEmail("lyseknobloch@gmail.com", "rappel vermifuge coco", "La date du rappel du vermifuge pour Taco DAVIN est désormais dépassée. Pensez à le faire au plus vite !");
     };
 
     if (antiPuceReminderDate.getTime() < currentDate.getTime()) {
-        sendEmail("clement.davin998@gmail.com", "rappel anti-puce coco", "la date du rappel de l'anti-puce pour Taco DAVIN est désormais dépassé. Pensez à le faire au plus vite !");
-        sendEmail("lyseknobloch@gmail.com", "rappel anti-puce coco", "la date du rappel de l'anti-puce pour Taco DAVIN est désormais dépassé. Pensez à le faire au plus vite !");
+        sendEmail("clement.davin998@gmail.com", "rappel anti-puce coco", "La date du rappel de l'anti-puce pour Taco DAVIN est désormais dépassée. Pensez à le faire au plus vite !");
+        sendEmail("lyseknobloch@gmail.com", "rappel anti-puce coco", "La date du rappel de l'anti-puce pour Taco DAVIN est désormais dépassée. Pensez à le faire au plus vite !");
     };
 });
 
@@ -84,7 +84,7 @@ const updateVermifugeReminder = async (req, res) => {
 
 const updateAntiPuceDate = async (req, res) => {
     const updatedTaco = await TacoModel.findOneAndUpdate(
-        {}, // match the only taco documents
+        {}, // match the only taco document
         { antiPuceDate: req.body.date },
         { new: true }
     );
@@ -94,7 +94,7 @@ const updateAntiPuceDate = async (req, res) => {
 
 const updateAntiPuceReminder = async (req, res) => {
     const updatedTaco = await TacoModel.findOneAndUpdate(
-        {}, // match the only taco documents
+        {}, // match the only taco document
         { antiPuceReminder: req.body.date },
         { new: true }
     );

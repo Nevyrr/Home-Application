@@ -1,4 +1,4 @@
-/**************************** Get all shopping-posts  ********************************/
+/**************************** Get All Calendar Events  ********************************/
 const getEvents = async () => {
   const res = await fetch("/api/calendar-events");
   const data = await res.json();
@@ -11,16 +11,16 @@ const getEvents = async () => {
 };
 
 
-/**************************** Create shopping-posts  ******************************/
+/**************************** Create Calendar Event  ******************************/
 const createEvent = async (title, date, duration, priorityColor) => {
   if (!title) {
-    throw Error("A Title is required");
+    throw Error("Title is required");
   }
   if (!date) {
-    throw Error("A Date is required");
+    throw Error("Date is required");
   }
   if (priorityColor === undefined) {
-    throw Error("A priority color is required");
+    throw Error("Priority color is required");
   }
 
   const res = await fetch("/api/calendar-events", {
@@ -41,7 +41,7 @@ const createEvent = async (title, date, duration, priorityColor) => {
   return data;
 };
 
-/**************************** Delete shopping-posts  ******************************/
+/**************************** Delete Calendar Event  ******************************/
 const deleteEvent = async (_id) => {
   const res = await fetch(`/api/calendar-events/${_id}`, {
     method: "DELETE",
@@ -59,7 +59,7 @@ const deleteEvent = async (_id) => {
   return data;
 };
 
-/**************************** Update shopping-posts  ******************************/
+/**************************** Update Calendar Event  ******************************/
 const updateEvent = async (_id, title, date, duration, priorityColor) => {
   if (!_id) {
     throw Error("EventId is required");

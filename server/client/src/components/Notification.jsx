@@ -9,19 +9,17 @@ const Notification = ({ msg, setMsg, icon, color, timer }) => {
 
   useEffect(() => {
     if (msg) {
-      setShow(true); // Afficher la notification
+      setShow(true);
 
       if (msg === "jwt expired") {
-        // TODO This is not a good way to do it
+        // Déconnexion automatique si le token JWT a expiré
         setUser({ email: null });
-        // Remove the items from local storage
         localStorage.removeItem("email");
         localStorage.removeItem("token");
-        // Navigate to ShoppingTab page
         navigate("/shopping");
       }
 
-      // Réglage du délai pour masquer la notification
+      // Masquer la notification après le délai spécifié
       const timeout = setTimeout(() => {
         setShow(false);
         setMsg("");
@@ -30,7 +28,7 @@ const Notification = ({ msg, setMsg, icon, color, timer }) => {
       // Nettoyage de l'effet lorsque le message change ou le composant se démonte
       return () => clearTimeout(timeout);
     }
-  }, [msg, timer]); // Dépendances : réexécuter lorsque msg ou timer change
+  }, [msg, timer, setUser, navigate, setMsg]);
 
   return (
     <div>

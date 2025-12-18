@@ -6,8 +6,8 @@ import User from "../models/UserModel.js";
 const getEvents = async (_req, res) => {
   try {
     // Grab all the events from DB
-    const posts = await CalendarEvent.find().sort({ priorityColor: "desc" });
-    res.status(200).json({ posts });
+    const events = await CalendarEvent.find().sort({ priorityColor: "desc" });
+    res.status(200).json({ events });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -23,9 +23,9 @@ const addEvent = async (req, res) => {
   if (!title) {
     return res.status(400).json({ error: "Title is required" });
   } else if (!date) {
-    return res.status(400).json({ error: "Date need to be selected" })
+    return res.status(400).json({ error: "Date needs to be selected" });
   } else if (priorityColor === undefined) {
-    return res.status(400).json({ error: "Priority Color need to be selected" })
+    return res.status(400).json({ error: "Priority color needs to be selected" });
   }
 
   // Find the authenticated user using the user id provided by request object
@@ -35,7 +35,7 @@ const addEvent = async (req, res) => {
     // Create a new Event and save in DB
     const event = await CalendarEvent.create({ user: user._id, username: user.name, title: title, date: date, duration: duration, priorityColor: priorityColor });
 
-    res.status(200).json({ success: title + " event created.", event });
+    res.status(200).json({ success: title + " event created", event });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -62,7 +62,7 @@ const deleteEvent = async (req, res) => {
 
   try {
     await event.deleteOne();
-    res.status(200).json({ success: event.title + " calendar event was deleted." });
+    res.status(200).json({ success: event.title + " calendar event was deleted" });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -78,14 +78,12 @@ const updateEvent = async (req, res) => {
     return res.status(400).json({ error: "Title is required" });
   }
 
-  // Check the fields are not empty
   if (date === undefined) {
     return res.status(400).json({ error: "Date is required" });
   }
 
-  // Check the fields are not empty
   if (priorityColor === undefined) {
-    return res.status(400).json({ error: "Priority Color is required" });
+    return res.status(400).json({ error: "Priority color is required" });
   }
 
   // Check the ID is valid type
@@ -107,7 +105,7 @@ const updateEvent = async (req, res) => {
 
   try {
     await event.updateOne({ title: title, date: date, duration: duration, priorityColor: priorityColor });
-    res.status(200).json({ success: title + " calendar event was updated.", event });
+    res.status(200).json({ success: title + " calendar event was updated", event });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-// Creating post schema using Mongoose Schema class
+// Creating reminder post schema using Mongoose Schema class
 const ReminderPostSchema = new mongoose.Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
@@ -27,6 +27,6 @@ const ReminderPostSchema = new mongoose.Schema({
 
 
 // Creating a model from schema
-const ReminderPost = mongoose.model("ReminderPost", ReminderPostSchema)
+const ReminderPost = mongoose.model("ReminderPost", ReminderPostSchema);
 
-export default ReminderPost
+export default ReminderPost;

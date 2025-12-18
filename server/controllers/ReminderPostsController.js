@@ -30,7 +30,7 @@ const addPost = async (req, res) => {
     // Create a new post and save in DB
     const post = await ReminderPost.create({ user: user._id, username: user.name, title, body, priorityColor });
 
-    res.status(200).json({ success: title +  " reminder post created.", post });
+    res.status(200).json({ success: title + " reminder post created", post });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -46,7 +46,7 @@ const deletePost = async (req, res) => {
   // Check the post exists
   const post = await ReminderPost.findById(req.params.id);
   if (!post) {
-    return res.status(400).json({ error: "r0eminder post not found" });
+    return res.status(400).json({ error: "Reminder post not found" });
   }
 
   // Check the user owns the post
@@ -57,7 +57,7 @@ const deletePost = async (req, res) => {
 
   try {
     await post.deleteOne();
-    res.status(200).json({ success: post.title + " reminder post was deleted." });
+    res.status(200).json({ success: post.title + " reminder post was deleted" });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -92,7 +92,7 @@ const updatePost = async (req, res) => {
 
   try {
     await post.updateOne({ title: title, body: body, priorityColor: priorityColor });
-    res.status(200).json({ success: title + " reminder post was updated.", post });
+    res.status(200).json({ success: title + " reminder post was updated", post });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

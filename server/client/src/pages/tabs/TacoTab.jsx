@@ -29,11 +29,26 @@ const TacoTab = () => {
 
   // Fonction pour convertir la chaîne de caractères en objet Date
   const convertStringToDate = (dateString) => {
-    if (dateString) {
-      const [day, month, year] = dateString.split('/');
-      return new Date(`${year}-${month}-${day}`);
+    if (!dateString) {
+      return new Date(); // Retourne la date actuelle si pas de date
     }
-    return new Date();
+    
+    const [day, month, year] = dateString.split('/');
+    
+    // Validation des valeurs
+    if (!day || !month || !year) {
+      return new Date(); // Retourne la date actuelle si format invalide
+    }
+    
+    // Créer la date au format YYYY-MM-DD (format ISO)
+    const date = new Date(`${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`);
+    
+    // Vérifier que la date est valide
+    if (isNaN(date.getTime())) {
+      return new Date(); // Retourne la date actuelle si date invalide
+    }
+    
+    return date;
   };
 
   const handleUpdateVermifugeDate = async (date) => {
@@ -94,15 +109,23 @@ const TacoTab = () => {
             <h1 className="font-semibold text-xl"> Dernier Vermifuge: </h1>
             <h1 className="font-semibold text-xl"> Rappel: </h1>
             <DatePicker
-              selected={new Date(convertStringToDate(taco.vermifugeDate))}
-              onChange={(date) => handleUpdateVermifugeDate(date.toLocaleDateString())}
+              selected={convertStringToDate(taco.vermifugeDate)}
+              onChange={(date) => {
+                if (date && !isNaN(date.getTime())) {
+                  handleUpdateVermifugeDate(date.toLocaleDateString());
+                }
+              }}
               locale="fr"
               dateFormat="P"
               className="datepicker-input"
             />
             <DatePicker
-              selected={new Date(convertStringToDate(taco.vermifugeReminder))}
-              onChange={(date) => handleUpdateVermifugeReminder(date.toLocaleDateString())}
+              selected={convertStringToDate(taco.vermifugeReminder)}
+              onChange={(date) => {
+                if (date && !isNaN(date.getTime())) {
+                  handleUpdateVermifugeReminder(date.toLocaleDateString());
+                }
+              }}
               locale="fr"
               dateFormat="P"
               className="datepicker-input"
@@ -114,15 +137,23 @@ const TacoTab = () => {
             <h1 className="font-semibold text-xl">Dernier Anti-Puce: </h1>
             <h1 className="font-semibold text-xl">Rappel: </h1>
             <DatePicker
-              selected={new Date(convertStringToDate(taco.antiPuceDate))}
-              onChange={(date) => handleUpdateAntiPuceDate(date.toLocaleDateString())}
+              selected={convertStringToDate(taco.antiPuceDate)}
+              onChange={(date) => {
+                if (date && !isNaN(date.getTime())) {
+                  handleUpdateAntiPuceDate(date.toLocaleDateString());
+                }
+              }}
               locale="fr"
               dateFormat="P"
               className="datepicker-input"
             />
             <DatePicker
-              selected={new Date(convertStringToDate(taco.antiPuceReminder))}
-              onChange={(date) => handleUpdateAntiPuceReminder(date.toLocaleDateString())}
+              selected={convertStringToDate(taco.antiPuceReminder)}
+              onChange={(date) => {
+                if (date && !isNaN(date.getTime())) {
+                  handleUpdateAntiPuceReminder(date.toLocaleDateString());
+                }
+              }}
               locale="fr"
               dateFormat="P"
               className="datepicker-input"

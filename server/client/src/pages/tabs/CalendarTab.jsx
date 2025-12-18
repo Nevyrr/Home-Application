@@ -5,7 +5,7 @@ import { getEvents, deleteEvent, createEvent, updateEvent } from "../../controll
 import PostList from "../../components/PostList";
 import { fr } from 'date-fns/locale'; // Importer la locale française
 import DatePicker from 'react-datepicker';
-import TimePicker from 'react-time-picker';;
+import TimePicker from 'react-time-picker';
 import { isSameDate } from "../../helpers/dateHelper";
 import CalendarPost from "../../components/CalendarPost";
 import 'react-datepicker/dist/react-datepicker.css';
@@ -41,8 +41,7 @@ const CalendarTab = () => {
     const data = await getEvents();
 
     // Convert string date to real date
-
-    const events = data.posts.map(event => {
+    const events = data.events.map(event => {
       return {
         ...event, // keep event properties
         date: new Date(event.date) // Convert Date in real Date

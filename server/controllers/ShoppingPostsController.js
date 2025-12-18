@@ -4,13 +4,13 @@ import User from "../models/UserModel.js";
 
 /************************************ Get All Posts ************************************/
 
-// extract string to "DD/MM/YYYY"
+// Extract string to "DD/MM/YYYY"
 const parseDateComponents = (dateStr) => {
   const [day, month, year] = dateStr.split('/').map(Number);
   return { day, month, year };
 };
 
-// Compare 2 dates and returns oldest one
+// Compare 2 dates and return the oldest one
 const compareDates = (post1, post2) => {
   const { day: d1, month: m1, year: y1 } = parseDateComponents(post1.date);
   const { day: d2, month: m2, year: y2 } = parseDateComponents(post2.date);
@@ -30,37 +30,37 @@ const getPosts = async (req, res) => {
     }
     res.status(200).json({ posts });
   } catch (error) {
-    res.status(500).json({ msg: error.message });
+    res.status(500).json({ error: error.message });
   }
 };
 
 
-/************************************ Create New ShoppingDay ************************************/
+/************************************ Create New Shopping Day ************************************/
 const addDate = async (req, res) => {
   // Grab the data from request body
   const { date, name } = req.body;
 
   // Check the fields are not empty
   if (!date || !name) {
-    return res.status(400).json({ error: "Date are required" });
+    return res.status(400).json({ error: "Date and name are required" });
   }
 
   try {
     await ShoppingDay.create({ date: date, name: name, shoppingList: [] });
-    res.status(200).json({ msg: date + " shopping date created." });
+    res.status(200).json({ success: date + " shopping date created" });
   } catch (error) {
-    res.status(500).json({ msg: error.message });
+    res.status(500).json({ error: error.message });
   }
 };
 
-/************************************ Create New ShoppingDay ************************************/
+/************************************ Update Shopping Day ************************************/
 const updateDateItem = async (req, res) => {
   // Grab the data from request body
   const { shoppingListId, name, date } = req.body;
 
   // Check the fields are not empty
   if (!name || !date || !shoppingListId) {
-    return res.status(400).json({ error: "name and date are required" });
+    return res.status(400).json({ error: "Name, date and shopping list ID are required" });
   }
 
   try {
@@ -70,14 +70,14 @@ const updateDateItem = async (req, res) => {
         date: date
        }
     );
-    res.status(200).json({ msg: name + " shopping list updated." });
+    res.status(200).json({ success: name + " shopping list updated" });
   } catch (error) {
-    res.status(500).json({ msg: error.message });
+    res.status(500).json({ error: error.message });
   }
 };
 
 
-/************************************ Create New ShoppingDay ************************************/
+/************************************ Create New Shopping Post ************************************/
 const addPost = async (req, res) => {
   // Grab the data from request body
   const { shoppingListId, title, count, unit, priorityColor } = req.body;
@@ -95,8 +95,7 @@ const addPost = async (req, res) => {
     const shoppingDayList = await ShoppingDay.findOne({ _id: shoppingListId });
 
     if (shoppingDayList === undefined || shoppingDayList === null) {
-      res.status(500).json({ msg: "no shoppingList found with this id" });
-      return;
+      return res.status(404).json({ error: "Shopping list not found with this ID" });
     }
 
     const shoppingDay = {
@@ -111,13 +110,13 @@ const addPost = async (req, res) => {
     shoppingDayList.shoppingList.push(shoppingDay);
     shoppingDayList.save();
 
-    res.status(200).json({ msg: title + " shopping post created." });
+    res.status(200).json({ success: title + " shopping post created" });
   } catch (error) {
-    res.status(500).json({ msg: error.message });
+    res.status(500).json({ error: error.message });
   }
 };
 
-/************************************ Delete ShoppingDay ************************************/
+/************************************ Delete Shopping Post ************************************/
 const deletePost = async (req, res) => {
   // Check the ID is valid type
   if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
@@ -131,12 +130,12 @@ const deletePost = async (req, res) => {
   });
 
   if (shoppingDayList === undefined || shoppingDayList === null) {
-    return res.status(400).json({ msg: "shopping list not found with this id" });
+    return res.status(404).json({ error: "Shopping list not found with this ID" });
   }
 
   const shoppingPostIndex = shoppingDayList.shoppingList.findIndex((shoppingItem) => shoppingItem._id.equals(new mongoose.Types.ObjectId(req.params.id)));
   if (shoppingPostIndex === -1) {
-    return res.status(400).json({ msg: "shopping post not found with this id" });
+    return res.status(404).json({ error: "Shopping post not found with this ID" });
   }
 
   try {
@@ -146,23 +145,23 @@ const deletePost = async (req, res) => {
     } else {
       await shoppingDayList.deleteOne();
     }
-    res.status(200).json({ msg: "shopping post was deleted." });
+    res.status(200).json({ success: "Shopping post was deleted" });
   } catch (error) {
-    res.status(500).json({ msg: error.message });
+    res.status(500).json({ error: error.message });
   }
 };
 
-/************************************ Delete all ShoppingDay ************************************/
+/************************************ Delete All Shopping Posts ************************************/
 const deletePosts = async (req, res) => {
   try {
     await ShoppingDay.deleteOne({ _id: req.params.id });
-    res.status(200).json({ msg: "All shopping posts at this date were deleted." });
+    res.status(200).json({ success: "All shopping posts at this date were deleted" });
   } catch (error) {
-    res.status(500).json({ msg: error.message });
+    res.status(500).json({ error: error.message });
   }
 };
 
-/************************************ Update ShoppingDay ************************************/
+/************************************ Update Shopping Post ************************************/
 const updatePost = async (req, res) => {
   // Grab the data from request body
   const { title, count, unit, priorityColor } = req.body;
@@ -184,12 +183,12 @@ const updatePost = async (req, res) => {
   });
 
   if (shoppingDayList === undefined || shoppingDayList === null) {
-    return res.status(400).json({ msg: "shopping list not found with this id" });
+    return res.status(404).json({ error: "Shopping list not found with this ID" });
   }
 
   const shoppingPostIndex = shoppingDayList.shoppingList.findIndex((shoppingItem) => shoppingItem._id.equals(new mongoose.Types.ObjectId(req.params.id)));
   if (shoppingPostIndex === -1) {
-    return res.status(400).json({ msg: "shopping post not found with this id" });
+    return res.status(404).json({ error: "Shopping post not found with this ID" });
   }
 
   const user = await User.findById(req.user._id);
@@ -208,7 +207,7 @@ const updatePost = async (req, res) => {
     shoppingDayList.shoppingList.splice(shoppingPostIndex, 1);
     shoppingDayList.shoppingList.push(shoppingDay);
     await shoppingDayList.save();
-    res.status(200).json({ success: title + " shopping post was updated." });
+    res.status(200).json({ success: title + " shopping post was updated" });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

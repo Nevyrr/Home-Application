@@ -19,13 +19,13 @@ const registerUser = async (req, res) => {
     return res.status(400).json({ error: "All fields are required." });
   }
 
-  // Check if email already exist
+  // Check if name already exists
   const nameExist = await User.findOne({ name });
   if (nameExist) {
-    return res.status(400).json({ error: "name is already taken" });
+    return res.status(400).json({ error: "Name is already taken" });
   }
 
-  // Check if email already exist
+  // Check if email already exists
   const emailExist = await User.findOne({ email });
   if (emailExist) {
     return res.status(400).json({ error: "Email is already taken" });
@@ -39,7 +39,7 @@ const registerUser = async (req, res) => {
     // Register the user
     const user = await User.create({ name, email, password: hashed, receiveEmail: false, isAdmin: false });
     // Create the JsonWebToken
-    const token = createToken(user._id)
+    const token = createToken(user._id);
     // Send the response
     res.status(200).json({ name, email, token });
   } catch (error) {
@@ -57,16 +57,16 @@ const loginUser = async (req, res) => {
     return res.status(400).json({ error: "All fields are required." });
   }
 
-  // Check if email already exist
+  // Check if email exists
   const user = await User.findOne({ email });
   if (!user) {
-    return res.status(400).json({ error: "Incorrect email." });
+    return res.status(400).json({ error: "Incorrect email" });
   }
 
   // Check password
   const match = await bcrypt.compare(password, user.password);
   if (!match) {
-    return res.status(400).json({ error: "Incorrect password." });
+    return res.status(400).json({ error: "Incorrect password" });
   }
 
   try {

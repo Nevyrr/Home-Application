@@ -107,7 +107,7 @@ const deletePosts = async (shoppingListId) => {
     method: "DELETE",
     headers: {
       Authorization: `Bearer ${localStorage.getItem("token")}`,
-    }
+    },
   });
 
   const data = await res.json();

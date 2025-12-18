@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-// Creating event schema using Mongoose Schema class
+// Creating calendar event schema using Mongoose Schema class
 const CalendarEventSchema = new mongoose.Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
@@ -31,6 +31,6 @@ const CalendarEventSchema = new mongoose.Schema({
 
 
 // Creating a model from schema
-const CalendarEvent = mongoose.model("CalendarEvent", CalendarEventSchema)
+const CalendarEvent = mongoose.model("CalendarEvent", CalendarEventSchema);
 
-export default CalendarEvent
+export default CalendarEvent;

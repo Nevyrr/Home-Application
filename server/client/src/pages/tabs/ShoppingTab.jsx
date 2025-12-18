@@ -205,8 +205,26 @@ const ShoppingTab = () => {
 
   // Fonction pour convertir la chaîne de caractères en objet Date
   const convertStringToDate = (dateString) => {
+    if (!dateString) {
+      return new Date(); // Retourne la date actuelle si pas de date
+    }
+    
     const [day, month, year] = dateString.split('/');
-    return new Date(`${year}-${month}-${day}`);
+    
+    // Validation des valeurs
+    if (!day || !month || !year) {
+      return new Date(); // Retourne la date actuelle si format invalide
+    }
+    
+    // Créer la date au format YYYY-MM-DD (format ISO)
+    const date = new Date(`${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`);
+    
+    // Vérifier que la date est valide
+    if (isNaN(date.getTime())) {
+      return new Date(); // Retourne la date actuelle si date invalide
+    }
+    
+    return date;
   };
 
   return (
@@ -227,8 +245,12 @@ const ShoppingTab = () => {
               title={<div className="flex text-sm w-4/5 ml-8">
                 {nameInput(shoppingItem)}
                 <DatePicker
-                  selected={new Date(convertStringToDate(shoppingItem.date))}
-                  onChange={(date) => handleUpdateDateItem(shoppingItem._id, shoppingItem.name, date.toLocaleDateString())}
+                  selected={convertStringToDate(shoppingItem.date)}
+                  onChange={(date) => {
+                    if (date && !isNaN(date.getTime())) {
+                      handleUpdateDateItem(shoppingItem._id, shoppingItem.name, date.toLocaleDateString());
+                    }
+                  }}
                   locale="fr"
                   dateFormat="P"
                   className="datepicker-input"

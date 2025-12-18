@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-// Creating post schema using Mongoose Schema class
+// Creating user schema using Mongoose Schema class
 const UserSchema = new mongoose.Schema(
   {
     name: {

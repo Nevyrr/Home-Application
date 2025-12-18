@@ -1,12 +1,12 @@
 
 const getTacoData = async () => {
-  const res = await fetch('/api/taco/', {
+  const res = await fetch("/api/taco/", {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${localStorage.getItem("token")}`,
     },
-  })
+  });
 
   const data = await res.json();
 
@@ -18,14 +18,14 @@ const getTacoData = async () => {
 };
 
 const updateVermifugeDate = async (date) => {
-  const res = await fetch('/api/taco/vermifuge/date', {
+  const res = await fetch("/api/taco/vermifuge/date", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${localStorage.getItem("token")}`,
     },
     body: JSON.stringify({ date }),
-  })
+  });
 
   const data = await res.json();
 
@@ -37,14 +37,14 @@ const updateVermifugeDate = async (date) => {
 };
 
 const updateVermifugeReminder = async (date) => {
-  const res = await fetch('/api/taco/vermifuge/reminder', {
+  const res = await fetch("/api/taco/vermifuge/reminder", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${localStorage.getItem("token")}`,
     },
     body: JSON.stringify({ date }),
-  })
+  });
 
   const data = await res.json();
 
@@ -56,14 +56,14 @@ const updateVermifugeReminder = async (date) => {
 };
 
 const updateAntiPuceDate = async (date) => {
-  const res = await fetch('/api/taco/antipuce/date', {
+  const res = await fetch("/api/taco/antipuce/date", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${localStorage.getItem("token")}`,
     },
     body: JSON.stringify({ date }),
-  })
+  });
 
   const data = await res.json();
 
@@ -75,14 +75,14 @@ const updateAntiPuceDate = async (date) => {
 };
 
 const updateAntiPuceReminder = async (date) => {
-  const res = await fetch('/api/taco/antipuce/reminder', {
+  const res = await fetch("/api/taco/antipuce/reminder", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${localStorage.getItem("token")}`,
     },
     body: JSON.stringify({ date }),
-  })
+  });
 
   const data = await res.json();
 
@@ -94,13 +94,13 @@ const updateAntiPuceReminder = async (date) => {
 };
 
 const getFile = async (filename) => {
-  const res = await fetch('/api/taco/image/' + filename, {
+  const res = await fetch(`/api/taco/image/${filename}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${localStorage.getItem("token")}`,
     },
-  })
+  });
 
   const data = await res.json();
 
@@ -113,18 +113,17 @@ const getFile = async (filename) => {
 
 const uploadFile = async (selectedFile) => {
   if (!selectedFile) {
-    setMessage('Please select a file first');
-    return;
+    throw Error("Please select a file first");
   }
   const formData = new FormData();
-  formData.append('image', selectedFile);
-  const res = await fetch('/api/taco/upload/', formData, {
+  formData.append("image", selectedFile);
+  const res = await fetch("/api/taco/upload/", {
     method: "POST",
     headers: {
-      "Content-Type": "application/json",
       Authorization: `Bearer ${localStorage.getItem("token")}`,
     },
-  })
+    body: formData,
+  });
 
   const data = await res.json();
 
