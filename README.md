@@ -72,24 +72,43 @@ It helps you **organize your daily life** by managing tasks, shopping, events, a
    DB_URI=mongodb://localhost:27017
    
    # Clé secrète JWT (obligatoire)
-   # Utilisez une clé longue et aléatoire en production
+   # Utilisez une clé longue et aléatoire en production (minimum 32 caractères recommandé)
    # Vous pouvez générer une clé avec : openssl rand -base64 32
    SECRET=votre_cle_secrete_jwt_tres_longue_et_aleatoire_ici
    ```
    
-   **Variables optionnelles (pour l'envoi d'emails) :**
+   **Variables optionnelles :**
    ```env
+   # Port du serveur backend (défaut: 4000)
+   PORT=4000
+   
+   # Environnement (défaut: development)
+   NODE_ENV=development
+   
+   # URL du frontend pour CORS en production
+   FRONTEND_URL=http://localhost:5173
+   
    # Email pour l'envoi de rappels (optionnel)
    # Pour Gmail, créez un "Mot de passe d'application" dans les paramètres Google
    EMAIL_USER=votre_email@gmail.com
    EMAIL_PASS=votre_mot_de_passe_application
+   
+   # Destinataires des emails de rappel pour Taco (optionnel)
+   EMAIL_RECIPIENT_1=email1@example.com
+   EMAIL_RECIPIENT_2=email2@example.com
    ```
    
    **Exemple complet minimal :**
    ```env
    DB_URI=mongodb://localhost:27017
    SECRET=ma_super_cle_secrete_123456789_abcdefghijklmnopqrstuvwxyz
+   PORT=4000
    ```
+   
+   **Note sur la sécurité :**
+   - Le mot de passe doit contenir au moins 8 caractères avec une majuscule, une minuscule et un chiffre
+   - Les tokens JWT expirent après 7 jours (au lieu de 20 jours précédemment)
+   - Le rate limiting est activé (100 requêtes par IP toutes les 15 minutes)
 
 4. **Run the application**  
    

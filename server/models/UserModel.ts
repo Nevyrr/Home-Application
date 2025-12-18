@@ -24,6 +24,10 @@ const UserSchema = new Schema<IUser>(
     isAdmin: {
       type: Boolean,
       default: false
+    },
+    refreshToken: {
+      type: String,
+      default: null
     }
   },
   { timestamps: true }

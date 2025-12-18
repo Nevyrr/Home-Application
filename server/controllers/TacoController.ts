@@ -6,6 +6,7 @@ import mongoose from "mongoose";
 import TacoModel from "../models/TacoModel.js";
 import cron from "node-cron";
 import { sendEmail } from "../config/nodeMailConfig.js";
+import { createError } from "../middlewares/errorHandler.js";
 
 /* ------ SETUP CRON JOB ------ */
 
@@ -26,20 +27,32 @@ cron.schedule('0 8 * * *', async () => {
     const antiPuceReminderDate = new Date(`${year2}-${month2}-${day2}`);
 
     if (vermifugeReminderDate.getTime() < currentDate.getTime()) {
-        sendEmail("clement.davin998@gmail.com", "rappel vermifuge coco", "La date du rappel du vermifuge pour Taco DAVIN est désormais dépassée. Pensez à le faire au plus vite !");
-        sendEmail("lyseknobloch@gmail.com", "rappel vermifuge coco", "La date du rappel du vermifuge pour Taco DAVIN est désormais dépassée. Pensez à le faire au plus vite !");
+        const { EMAIL_RECIPIENT_1, EMAIL_RECIPIENT_2 } = process.env;
+        if (EMAIL_RECIPIENT_1) {
+            sendEmail(EMAIL_RECIPIENT_1, "rappel vermifuge coco", "La date du rappel du vermifuge pour Taco DAVIN est désormais dépassée. Pensez à le faire au plus vite !");
+        }
+        if (EMAIL_RECIPIENT_2) {
+            sendEmail(EMAIL_RECIPIENT_2, "rappel vermifuge coco", "La date du rappel du vermifuge pour Taco DAVIN est désormais dépassée. Pensez à le faire au plus vite !");
+        }
     }
 
     if (antiPuceReminderDate.getTime() < currentDate.getTime()) {
-        sendEmail("clement.davin998@gmail.com", "rappel anti-puce coco", "La date du rappel de l'anti-puce pour Taco DAVIN est désormais dépassée. Pensez à le faire au plus vite !");
-        sendEmail("lyseknobloch@gmail.com", "rappel anti-puce coco", "La date du rappel de l'anti-puce pour Taco DAVIN est désormais dépassée. Pensez à le faire au plus vite !");
+        const { EMAIL_RECIPIENT_1, EMAIL_RECIPIENT_2 } = process.env;
+        if (EMAIL_RECIPIENT_1) {
+            sendEmail(EMAIL_RECIPIENT_1, "rappel anti-puce coco", "La date du rappel de l'anti-puce pour Taco DAVIN est désormais dépassée. Pensez à le faire au plus vite !");
+        }
+        if (EMAIL_RECIPIENT_2) {
+            sendEmail(EMAIL_RECIPIENT_2, "rappel anti-puce coco", "La date du rappel de l'anti-puce pour Taco DAVIN est désormais dépassée. Pensez à le faire au plus vite !");
+        }
     }
 });
 
 
 /* ------ SETUP MONGO IMAGE UPLOAD ------ */
 
-const conn = mongoose.createConnection(process.env.DB_URI as string);
+import { env } from "../config/env.js";
+
+const conn = mongoose.createConnection(env.DB_URI);
 let gfs: Grid.Grid;
 conn.once('open', () => {
     // Initialize stream
@@ -49,7 +62,7 @@ conn.once('open', () => {
 
 // Create storage engine for multer
 const storage = new GridFsStorage({
-    url: process.env.DB_URI as string,
+    url: env.DB_URI,
     file: (_req: Request, file: Express.Multer.File) => {
         return {
             filename: file.originalname,
@@ -62,7 +75,7 @@ const upload = multer({ storage });
 
 const getTacoData = async (_req: Request, res: Response): Promise<void> => {
     const taco = await TacoModel.find();
-    res.status(200).json({ taco });
+    sendSuccess(res, { taco }, "Données Taco récupérées avec succès");
 };
 
 const updateVermifugeDate = async (req: Request, res: Response): Promise<void> => {
@@ -72,7 +85,17 @@ const updateVermifugeDate = async (req: Request, res: Response): Promise<void> =
         { new: true }
     );
 
-    res.json(updatedTaco);
+    if (!updatedTaco) {
+        throw createError("Données Taco non trouvées", 404);
+    }
+
+    // Format compatible avec l'ancien frontend
+    const response: any = {
+      success: "Date de vermifuge mise à jour avec succès",
+      taco: [updatedTaco], // Tableau pour compatibilité
+      data: { taco: updatedTaco },
+    };
+    res.status(200).json(response);
 };
 
 const updateVermifugeReminder = async (req: Request, res: Response): Promise<void> => {
@@ -82,7 +105,17 @@ const updateVermifugeReminder = async (req: Request, res: Response): Promise<voi
         { new: true }
     );
 
-    res.json(updatedTaco);
+    if (!updatedTaco) {
+        throw createError("Données Taco non trouvées", 404);
+    }
+
+    // Format compatible avec l'ancien frontend
+    const response: any = {
+      success: "Rappel de vermifuge mis à jour avec succès",
+      taco: [updatedTaco],
+      data: { taco: updatedTaco },
+    };
+    res.status(200).json(response);
 };
 
 const updateAntiPuceDate = async (req: Request, res: Response): Promise<void> => {
@@ -92,7 +125,17 @@ const updateAntiPuceDate = async (req: Request, res: Response): Promise<void> =>
         { new: true }
     );
 
-    res.json(updatedTaco);
+    if (!updatedTaco) {
+        throw createError("Données Taco non trouvées", 404);
+    }
+
+    // Format compatible avec l'ancien frontend
+    const response: any = {
+      success: "Date d'anti-puce mise à jour avec succès",
+      taco: [updatedTaco],
+      data: { taco: updatedTaco },
+    };
+    res.status(200).json(response);
 };
 
 const updateAntiPuceReminder = async (req: Request, res: Response): Promise<void> => {
@@ -102,25 +145,34 @@ const updateAntiPuceReminder = async (req: Request, res: Response): Promise<void
         { new: true }
     );
 
-    res.json(updatedTaco);
+    if (!updatedTaco) {
+        throw createError("Données Taco non trouvées", 404);
+    }
+
+    // Format compatible avec l'ancien frontend
+    const response: any = {
+      success: "Rappel d'anti-puce mis à jour avec succès",
+      taco: [updatedTaco],
+      data: { taco: updatedTaco },
+    };
+    res.status(200).json(response);
 };
 
 const getFile = async (req: Request, res: Response): Promise<void> => {
     if (!gfs) {
-        res.status(500).json({ err: 'GridFS not initialized' });
-        return;
+        throw createError('GridFS non initialisé', 500);
     }
 
     gfs.files.findOne({ filename: req.params.filename }, (_err, file) => {
         if (!file || file.length === 0) {
-            res.status(404).json({ err: 'No file exists' });
+            sendNotFound(res, 'Fichier non trouvé');
             return;
         }
         if (file.contentType === 'image/jpeg' || file.contentType === 'image/png') {
             const readstream = gfs.createReadStream(file.filename);
             readstream.pipe(res);
         } else {
-            res.status(404).json({ err: 'Not an image' });
+            sendNotFound(res, 'Ce n\'est pas une image');
         }
     });
 };
@@ -129,7 +181,7 @@ const getFile = async (req: Request, res: Response): Promise<void> => {
 function handleUpload(req: Request, res: Response, next: NextFunction): void {
     upload.single('image')(req, res, (err) => {
         if (err) {
-            res.status(500).send('Error uploading image');
+            res.status(500).send('Erreur lors du téléchargement de l\'image');
             return;
         }
         next();

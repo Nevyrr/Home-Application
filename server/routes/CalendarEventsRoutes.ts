@@ -6,14 +6,17 @@ import {
   updateEvent,
 } from "../controllers/CalendarEventsController.js";
 import auth from "../middlewares/auth.js";
+import { validate } from "../utils/validation.js";
+import { calendarEventSchema } from "../utils/validation.js";
+import { asyncHandler } from "../middlewares/errorHandler.js";
 
 // Creating an instance of Express router
 const router = express.Router();
 
-router.get("/", getEvents);
-router.post("/", auth, addEvent);
-router.delete("/:id", auth, deleteEvent);
-router.put("/:id", auth, updateEvent);
+router.get("/", asyncHandler(getEvents));
+router.post("/", auth, validate(calendarEventSchema), asyncHandler(addEvent));
+router.delete("/:id", auth, asyncHandler(deleteEvent));
+router.put("/:id", auth, validate(calendarEventSchema), asyncHandler(updateEvent));
 
 export { router as CalendarEventsRoutes };
 
