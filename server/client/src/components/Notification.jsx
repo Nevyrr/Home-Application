@@ -1,10 +1,10 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { UserContext } from "../contexts/UserContext";
+import { useAuth } from "../hooks";
 
 const Notification = ({ msg, setMsg, icon, color, timer }) => {
   const [show, setShow] = useState(true);
-  const { user, setUser } = useContext(UserContext);
+  const { logout } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -13,9 +13,7 @@ const Notification = ({ msg, setMsg, icon, color, timer }) => {
 
       if (msg === "jwt expired") {
         // Déconnexion automatique si le token JWT a expiré
-        setUser({ email: null });
-        localStorage.removeItem("email");
-        localStorage.removeItem("token");
+        logout();
         navigate("/shopping");
       }
 
@@ -28,7 +26,7 @@ const Notification = ({ msg, setMsg, icon, color, timer }) => {
       // Nettoyage de l'effet lorsque le message change ou le composant se démonte
       return () => clearTimeout(timeout);
     }
-  }, [msg, timer, setUser, navigate, setMsg]);
+  }, [msg, timer, logout, navigate, setMsg]);
 
   return (
     <div>

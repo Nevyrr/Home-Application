@@ -1,12 +1,13 @@
-import { useContext, useState } from "react";
+import { useState } from "react";
 import { Alert, ReminderPost, Success } from "../../components";
 import { getPosts, deletePost, createPost, updatePost } from "../../controllers/ReminderPostsController";
-import { ReminderPostContext } from "../../contexts/ReminderPostContext";
+import { useApp } from "../../contexts/AppContext";
+import { useErrorHandler } from "../../hooks";
 import PostList from "../../components/PostList";
 
 const ReminderTab = () => {
-  // Use post context
-  const { reminderPosts, setReminderPosts } = useContext(ReminderPostContext);
+  const { reminderPosts, setReminderPosts } = useApp();
+  const { error, success, setError, setSuccess, handleAsyncOperation } = useErrorHandler();
 
   // Post being updated or created
   const [popupReminder, setPopupReminder] = useState({
@@ -15,9 +16,6 @@ const ReminderTab = () => {
     body: "",
     priorityColor: 0
   });
-
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(null);
 
   const updatePopup = (key, value) => {
     setPopupReminder(prevState => ({
@@ -54,45 +52,43 @@ const ReminderTab = () => {
   };
 
   const handleCreate = async () => {
-    try {
-      // Create a new post
-      const msg = await createPost(popupReminder.title, popupReminder.body, popupReminder.priorityColor);
-      // Update posts state
-      sortReminderPosts();
-      // Set the success message
-      setSuccess(msg.success);
-    } catch (error) {
-      setError(error.message);
-    }
-  };
-
-  // Handle delete post
-  const handleUpdate = async () => {
-    try {
-      // Create a new post
-      const msg = await updatePost(popupReminder.reminderId, popupReminder.title, popupReminder.body, popupReminder.priorityColor);
-      // Update posts state
-      sortReminderPosts();
-      // Set the success message
-      setSuccess(msg.success);
-    } catch (error) {
-      setError(error.message);
-    }
-  };
-
-  // Handle delete post
-  const handleDelete = async (_id) => {
-    if (confirm("Confirm delete?")) {
-      try {
-        // Delete the post
-        const msg = await deletePost(_id);
-        // Update posts state
+    await handleAsyncOperation(
+      async () => {
+        const msg = await createPost(popupReminder.title, popupReminder.body, popupReminder.priorityColor);
         sortReminderPosts();
-        // Set the success message
-        setSuccess(msg.success);
-      } catch (error) {
-        setError(error.message);
-      }
+        return msg;
+      },
+      null
+    ).then((msg) => {
+      if (msg?.success) setSuccess(msg.success);
+    });
+  };
+
+  const handleUpdate = async () => {
+    await handleAsyncOperation(
+      async () => {
+        const msg = await updatePost(popupReminder.reminderId, popupReminder.title, popupReminder.body, popupReminder.priorityColor);
+        sortReminderPosts();
+        return msg;
+      },
+      null
+    ).then((msg) => {
+      if (msg?.success) setSuccess(msg.success);
+    });
+  };
+
+  const handleDelete = async (_id) => {
+    if (confirm("Confirmer la suppression ?")) {
+      await handleAsyncOperation(
+        async () => {
+          const msg = await deletePost(_id);
+          sortReminderPosts();
+          return msg;
+        },
+        null
+      ).then((msg) => {
+        if (msg?.success) setSuccess(msg.success);
+      });
     }
   };
 

@@ -1,32 +1,14 @@
-import { useContext, useState } from "react";
-import { Link, Outlet, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { Link, Outlet } from "react-router-dom";
 import Icon from "../components/Icon";
-
-import { UserContext } from "../contexts/UserContext";
+import { useAuth } from "../hooks";
 
 const Layout = () => {
-  // Use navigate hook
-  const navigate = useNavigate();
-
-  // Grab the User global state
-  const { user, setUser } = useContext(UserContext);
+  const { user, logout } = useAuth();
   const [selectedLink, setSelectedLink] = useState(null);
 
   const handleLinkClick = (link) => {
     setSelectedLink(link);
-  };
-
-  // Handle logout
-  const handleLogout = () => {
-    if (confirm("Confirm Logout?")) {
-      // Reset the User state
-      setUser({ email: null });
-      // Remove the items from local storage
-      localStorage.removeItem("email");
-      localStorage.removeItem("token");
-      // Navigate to ShoppingTab page
-      navigate("/shopping");
-    }
   };
 
   return (
@@ -73,7 +55,7 @@ const Layout = () => {
               ></Link>
               <button
                 title="Logout"
-                onClick={handleLogout}
+                onClick={logout}
                 className="fa-solid fa-right-from-bracket nav-link"
               ></button>
             </div>

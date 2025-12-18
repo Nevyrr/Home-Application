@@ -1,22 +1,15 @@
-import { useState, useContext } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
 import { registerUser } from "../../controllers/UsersController";
-import { UserContext } from "../../contexts/UserContext";
+import { useAuth } from "../../hooks";
+import { useErrorHandler } from "../../hooks";
 import Alert from "../../components/Alert";
 
-
 const Register = () => {
-  // Use user context
-  const { setUser } = useContext(UserContext)
+  const { login } = useAuth();
+  const navigate = useNavigate();
+  const { error, setError, handleAsyncOperation } = useErrorHandler();
 
-  // Use navigate hook
-  const navigate = useNavigate()
-
-  // Error state
-  const [error, setError] = useState(null);
-
-  // Form data state
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -24,25 +17,28 @@ const Register = () => {
     passwordConfirm: "",
   });
 
-  // Handle login
   const handleRegister = async (e) => {
     e.preventDefault();
 
-    try {
-      // Register the user
-      await registerUser(
-        formData.name,
-        formData.email,
-        formData.password,
-        formData.passwordConfirm
-      );
-      // Update the user state
-      setUser({ name: formData.name, email: formData.email })
-      // Navigate to dashboard
-      navigate('/dashboard')
-    } catch (error) {
-      setError(error.message);
-    }
+    await handleAsyncOperation(
+      async () => {
+        await registerUser(
+          formData.name,
+          formData.email,
+          formData.password,
+          formData.passwordConfirm
+        );
+        login({
+          name: formData.name,
+          email: formData.email,
+          id: localStorage.getItem("id"),
+          receiveEmail: localStorage.getItem("receiveEmail"),
+          isAdmin: localStorage.getItem("isAdmin"),
+        });
+        navigate('/dashboard');
+      },
+      null
+    );
   };
   return (
     <section className="card">

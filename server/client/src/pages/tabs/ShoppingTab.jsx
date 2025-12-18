@@ -1,15 +1,17 @@
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Alert, ShoppingPost, Success, PostList } from "../../components";
 import { getPosts, createDate, updateDateItem, deletePost, deletePosts, createPost, updatePost } from "../../controllers/ShoppingPostsController";
-import { ShoppingPostContext } from "../../contexts/ShoppingPostContext";
+import { useApp } from "../../contexts/AppContext";
+import { useErrorHandler } from "../../hooks";
+import { convertStringToDate } from "../../utils";
 import DatePicker, { registerLocale } from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import fr from 'date-fns/locale/fr';
 import QuantityInput from "../../components/QuantityInput";
 
 const ShoppingTab = () => {
-  // Use post context
-  const { shoppingItems, setShoppingItems } = useContext(ShoppingPostContext);
+  const { shoppingItems, setShoppingItems } = useApp();
+  const { error, success, setError, setSuccess, handleAsyncOperation } = useErrorHandler();
 
   const countRegex = /^[1-9]([0-9]{0,2})([.,][0-9]+)?$/;
 
@@ -23,9 +25,6 @@ const ShoppingTab = () => {
   });
   const [isCountValid, setIsCountValid] = useState(true);
   registerLocale('fr', fr);
-
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(null);
 
   useEffect(() => {
     setTimeout(async () => {
@@ -86,87 +85,84 @@ const ShoppingTab = () => {
   };
 
   const handleCreateDate = async () => {
-    try {
-      // Create a new post
-      const msg = await createDate(new Date().toLocaleDateString(), "Shopping Title");
-      // Update posts state
-      sortShoppingPosts();
-      // Set the success message
-      setSuccess(msg.success);
-    } catch (error) {
-      setError(error.message);
-    }
+    await handleAsyncOperation(
+      async () => {
+        const msg = await createDate(new Date().toLocaleDateString(), "Shopping Title");
+        sortShoppingPosts();
+        return msg;
+      },
+      null
+    ).then((msg) => {
+      if (msg?.success) setSuccess(msg.success);
+    });
   };
 
   const handleUpdateDateItem = async (shoppingListId, name, date) => {
-    try {
-      // Create a new post
-      const msg = await updateDateItem(shoppingListId, name, date);
-      // Update posts state
-      sortShoppingPosts();
-      // Set the success message
-      setSuccess(msg.success);
-    } catch (error) {
-      setError(error.message);
-    }
+    await handleAsyncOperation(
+      async () => {
+        const msg = await updateDateItem(shoppingListId, name, date);
+        sortShoppingPosts();
+        return msg;
+      },
+      null
+    ).then((msg) => {
+      if (msg?.success) setSuccess(msg.success);
+    });
   };
 
   const handleCreatePost = async (id) => {
-    try {
-      // Create a new post
-      const msg = await createPost(id, popupShopping.title, popupShopping.count, popupShopping.unit, popupShopping.priorityColor);
-      // Update posts state
-      sortShoppingPosts();
-      // Set the success message
-      setSuccess(msg.success);
-    } catch (error) {
-      setError(error.message);
-    }
+    await handleAsyncOperation(
+      async () => {
+        const msg = await createPost(id, popupShopping.title, popupShopping.count, popupShopping.unit, popupShopping.priorityColor);
+        sortShoppingPosts();
+        return msg;
+      },
+      null
+    ).then((msg) => {
+      if (msg?.success) setSuccess(msg.success);
+    });
   };
 
-  // Handle delete post
   const handleUpdate = async () => {
-    try {
-      // Create a new post
-      const msg = await updatePost(popupShopping.shoppingId, popupShopping.title, popupShopping.count, popupShopping.unit, popupShopping.priorityColor);
-      // Update posts state
-      sortShoppingPosts();
-      // Set the success message
-      setSuccess(msg.success);
-    } catch (error) {
-      setError(error.message);
-    }
+    await handleAsyncOperation(
+      async () => {
+        const msg = await updatePost(popupShopping.shoppingId, popupShopping.title, popupShopping.count, popupShopping.unit, popupShopping.priorityColor);
+        sortShoppingPosts();
+        return msg;
+      },
+      null
+    ).then((msg) => {
+      if (msg?.success) setSuccess(msg.success);
+    });
   };
 
-  // Handle delete post
   const handleDelete = async (_id) => {
-    if (confirm("Confirm delete?")) {
-      try {
-        // Delete the post
-        const msg = await deletePost(_id);
-        // Update posts state
-        sortShoppingPosts();
-        // Set the success message
-        setSuccess(msg.success);
-      } catch (error) {
-        setError(error.message);
-      }
+    if (confirm("Confirmer la suppression ?")) {
+      await handleAsyncOperation(
+        async () => {
+          const msg = await deletePost(_id);
+          sortShoppingPosts();
+          return msg;
+        },
+        null
+      ).then((msg) => {
+        if (msg?.success) setSuccess(msg.success);
+      });
     }
   };
 
-  // Handle clean all shopping posts of a date
   const handleCleanDate = async (shoppingListId) => {
-    if (confirm("Confirm delete?")) {
-      try {
-        // Delete the post
-        const msg = await deletePosts(shoppingListId);
-        // Update posts state
-        sortShoppingPosts();
-        // Set the success message
-        setSuccess(msg.success);
-      } catch (error) {
-        setError(error.message);
-      }
+    if (confirm("Confirmer la suppression ?")) {
+      await handleAsyncOperation(
+        async () => {
+          const msg = await deletePosts(shoppingListId);
+          sortShoppingPosts();
+          return msg;
+        },
+        null
+      ).then((msg) => {
+        if (msg?.success) setSuccess(msg.success);
+      });
     }
   };
 
@@ -203,29 +199,6 @@ const ShoppingTab = () => {
     />;
   }
 
-  // Fonction pour convertir la chaîne de caractères en objet Date
-  const convertStringToDate = (dateString) => {
-    if (!dateString) {
-      return new Date(); // Retourne la date actuelle si pas de date
-    }
-    
-    const [day, month, year] = dateString.split('/');
-    
-    // Validation des valeurs
-    if (!day || !month || !year) {
-      return new Date(); // Retourne la date actuelle si format invalide
-    }
-    
-    // Créer la date au format YYYY-MM-DD (format ISO)
-    const date = new Date(`${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`);
-    
-    // Vérifier que la date est valide
-    if (isNaN(date.getTime())) {
-      return new Date(); // Retourne la date actuelle si date invalide
-    }
-    
-    return date;
-  };
 
   return (
     <section className="card">

@@ -1,13 +1,10 @@
-import { useContext } from "react";
 import { Navigate, Outlet } from "react-router-dom";
-
-import { UserContext } from "../contexts/UserContext";
+import { useAuth } from "../hooks";
 
 const GuestRoutes = () => {
-  const { user } = useContext(UserContext);
+  const { isAuthenticated } = useAuth();
 
-  // Check if User email is NOT true/exist then show the proper routes otherwise redirect to Dashboard page
-  return !user.email ? <Outlet /> : <Navigate to="/dashboard" />;
+  return !isAuthenticated ? <Outlet /> : <Navigate to="/dashboard" />;
 };
 
 export default GuestRoutes;

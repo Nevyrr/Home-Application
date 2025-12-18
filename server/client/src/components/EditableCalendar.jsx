@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import { getCssColor } from './PriorityFlag';
-import { isSameDate } from '../helpers/dateHelper';
+import { isSameDate } from '../utils';
 
 const EditableCalendar = ({ allEvents, handleDateChange }) => {
 

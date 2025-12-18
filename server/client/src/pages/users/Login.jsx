@@ -1,38 +1,36 @@
-import { useState, useContext } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
 import { loginUser } from "../../controllers/UsersController";
-import { UserContext } from "../../contexts/UserContext";
+import { useAuth } from "../../hooks";
+import { useErrorHandler } from "../../hooks";
 import Alert from "../../components/Alert";
 
 const Login = () => {
-  // Use user context
-  const { setUser } = useContext(UserContext);
-
-  // Use navigate hook
+  const { login } = useAuth();
   const navigate = useNavigate();
+  const { error, setError, handleAsyncOperation } = useErrorHandler();
 
-  // Error state
-  const [error, setError] = useState(null);
-
-  // Form data state
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  // Handle login
   const handleLogin = async (e) => {
     e.preventDefault();
 
-    try {
-      // Login the user
-      await loginUser(email, password);
-      // Update the user state
-      setUser({ id: localStorage.getItem("id"), name: localStorage.getItem("name"), email: localStorage.getItem("email"), receiveEmail: localStorage.getItem("receiveEmail"), isAdmin: localStorage.getItem("isAdmin") });
-      // Navigate to dashboard
-      navigate('/dashboard')
-    } catch (error) {
-      setError(error.message);
-    }
+    await handleAsyncOperation(
+      async () => {
+        const userData = await loginUser(email, password);
+        login({
+          id: localStorage.getItem("id"),
+          name: localStorage.getItem("name"),
+          email: localStorage.getItem("email"),
+          receiveEmail: localStorage.getItem("receiveEmail"),
+          isAdmin: localStorage.getItem("isAdmin"),
+        });
+        navigate('/dashboard');
+        return userData;
+      },
+      null
+    );
   };
 
   // Handle navigate to register

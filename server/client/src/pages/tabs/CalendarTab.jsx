@@ -1,20 +1,20 @@
 import { Alert, Success, EditableCalendar } from "../../components";
-import { CalendarEventContext } from "../../contexts/CalendarEventContext";
-import { useContext, useState } from "react";
+import { useApp } from "../../contexts/AppContext";
+import { useErrorHandler } from "../../hooks";
+import { useState } from "react";
 import { getEvents, deleteEvent, createEvent, updateEvent } from "../../controllers/CalendarEventsController";
 import PostList from "../../components/PostList";
-import { fr } from 'date-fns/locale'; // Importer la locale française
+import { fr } from 'date-fns/locale';
 import DatePicker from 'react-datepicker';
 import TimePicker from 'react-time-picker';
-import { isSameDate } from "../../helpers/dateHelper";
+import { isSameDate } from "../../utils";
 import CalendarPost from "../../components/CalendarPost";
 import 'react-datepicker/dist/react-datepicker.css';
 import 'react-time-picker/dist/TimePicker.css';
 
 const CalendarTab = () => {
-
-  // Use event context
-  const { events, setEvents } = useContext(CalendarEventContext);
+  const { events, setEvents } = useApp();
+  const { error, success, setError, setSuccess, handleAsyncOperation } = useErrorHandler();
 
   // Event being updated or created
   const [popupEvent, setPopupEvent] = useState({
@@ -27,9 +27,6 @@ const CalendarTab = () => {
 
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [eventsOnDate, setEventsOnDate] = useState([]);
-
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(null);
 
 
   /* Use to sort date using hour and minutes by adding hour and minutes of an event */
@@ -95,63 +92,60 @@ const CalendarTab = () => {
   }
 
   const handleCreate = async () => {
-    try {
-      // Create a new event
-      const msg = await createEvent(popupEvent.title, popupEvent.date, popupEvent.duration, popupEvent.priorityColor);
-      // Update posts state
-      filterEventsWithSelectedDate(selectedDate);
-      // Set the success message
-      setSuccess(msg.success);
-    } catch (error) {
-      setError(error.message);
-    }
+    await handleAsyncOperation(
+      async () => {
+        const msg = await createEvent(popupEvent.title, popupEvent.date, popupEvent.duration, popupEvent.priorityColor);
+        filterEventsWithSelectedDate(selectedDate);
+        return msg;
+      },
+      null
+    ).then((msg) => {
+      if (msg?.success) setSuccess(msg.success);
+    });
   };
 
-  // Handle delete post
   const handleUpdate = async () => {
-    try {
-      // Create a new event
-      const msg = await updateEvent(popupEvent.eventId, popupEvent.title, popupEvent.date, popupEvent.duration, popupEvent.priorityColor);
-      // Update posts state
-      filterEventsWithSelectedDate(selectedDate);
-      // Set the success message
-      setSuccess(msg.success);
-    } catch (error) {
-      setError(error.message);
-    }
+    await handleAsyncOperation(
+      async () => {
+        const msg = await updateEvent(popupEvent.eventId, popupEvent.title, popupEvent.date, popupEvent.duration, popupEvent.priorityColor);
+        filterEventsWithSelectedDate(selectedDate);
+        return msg;
+      },
+      null
+    ).then((msg) => {
+      if (msg?.success) setSuccess(msg.success);
+    });
   };
 
-  // Handle delete post
   const handleDelete = async (_id) => {
-    if (confirm("Confirm delete?")) {
-      try {
-        // Delete the post
-        const msg = await deleteEvent(_id);
-        // Update posts state
-        filterEventsWithSelectedDate(selectedDate);
-        // Set the success message
-        setSuccess(msg.success);
-      } catch (error) {
-        setError(error.message);
-      }
+    if (confirm("Confirmer la suppression ?")) {
+      await handleAsyncOperation(
+        async () => {
+          const msg = await deleteEvent(_id);
+          filterEventsWithSelectedDate(selectedDate);
+          return msg;
+        },
+        null
+      ).then((msg) => {
+        if (msg?.success) setSuccess(msg.success);
+      });
     }
   };
 
-  // Handle delete post
-  const handleClearDay = async (_id) => {
-    if (confirm("Confirm delete?")) {
-      try {
-        // Delete the post
-        for (const event of eventsOnDate) {
-          await deleteEvent(event._id);
-        }
-        // Update posts state
-        filterEventsWithSelectedDate(selectedDate);
-        // Set the success message
-        setSuccess("All tasks are done for today congrats !");
-      } catch (error) {
-        setError(error.message);
-      }
+  const handleClearDay = async () => {
+    if (confirm("Confirmer la suppression de tous les événements du jour ?")) {
+      await handleAsyncOperation(
+        async () => {
+          for (const event of eventsOnDate) {
+            await deleteEvent(event._id);
+          }
+          filterEventsWithSelectedDate(selectedDate);
+          return { success: "Tous les événements du jour ont été supprimés !" };
+        },
+        null
+      ).then((msg) => {
+        if (msg?.success) setSuccess(msg.success);
+      });
     }
   };
 

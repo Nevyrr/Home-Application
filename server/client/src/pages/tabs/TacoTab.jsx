@@ -1,19 +1,19 @@
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Alert, Success } from "../../components";
 import ImageUpload from "../../components/ImageUpload";
 import { getTacoData, updateVermifugeDate, updateVermifugeReminder, updateAntiPuceDate, updateAntiPuceReminder} from "../../controllers/TacoController";
-import { TacoContext } from "../../contexts/TacoContext";
+import { useApp } from "../../contexts/AppContext";
+import { useErrorHandler, useDateConverter } from "../../hooks";
 import DatePicker, { registerLocale } from 'react-datepicker';
 import fr from 'date-fns/locale/fr';
 import 'react-datepicker/dist/react-datepicker.css';
 
 const TacoTab = () => {
-  const { taco, setTaco } = useContext(TacoContext);
+  const { taco, setTaco } = useApp();
+  const { error, success, setError, setSuccess, handleAsyncOperation } = useErrorHandler();
+  const { convertStringToDate } = useDateConverter();
 
   registerLocale('fr', fr);
-
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(null);
 
   useEffect(() => {
     setTimeout(async () => {
@@ -27,72 +27,56 @@ const TacoTab = () => {
     setTaco(data);
   };
 
-  // Fonction pour convertir la chaîne de caractères en objet Date
-  const convertStringToDate = (dateString) => {
-    if (!dateString) {
-      return new Date(); // Retourne la date actuelle si pas de date
-    }
-    
-    const [day, month, year] = dateString.split('/');
-    
-    // Validation des valeurs
-    if (!day || !month || !year) {
-      return new Date(); // Retourne la date actuelle si format invalide
-    }
-    
-    // Créer la date au format YYYY-MM-DD (format ISO)
-    const date = new Date(`${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`);
-    
-    // Vérifier que la date est valide
-    if (isNaN(date.getTime())) {
-      return new Date(); // Retourne la date actuelle si date invalide
-    }
-    
-    return date;
-  };
-
   const handleUpdateVermifugeDate = async (date) => {
-    try {
-      // Create a new post
-      const msg = await updateVermifugeDate(date);
-      getTaco();
-      setSuccess(msg.success);
-    } catch (error) {
-      setError(error.message);
-    }
+    await handleAsyncOperation(
+      async () => {
+        const msg = await updateVermifugeDate(date);
+        getTaco();
+        return msg;
+      },
+      null
+    ).then((msg) => {
+      if (msg?.success) setSuccess(msg.success);
+    });
   };
 
   const handleUpdateVermifugeReminder = async (date) => {
-    try {
-      // Create a new post
-      const msg = await updateVermifugeReminder(date);
-      getTaco();
-      setSuccess(msg.success);
-    } catch (error) {
-      setError(error.message);
-    }
+    await handleAsyncOperation(
+      async () => {
+        const msg = await updateVermifugeReminder(date);
+        getTaco();
+        return msg;
+      },
+      null
+    ).then((msg) => {
+      if (msg?.success) setSuccess(msg.success);
+    });
   };
 
   const handleUpdateAntiPuceDate = async (date) => {
-    try {
-      // Create a new post
-      const msg = await updateAntiPuceDate(date);
-      getTaco();
-      setSuccess(msg.success);
-    } catch (error) {
-      setError(error.message);
-    }
+    await handleAsyncOperation(
+      async () => {
+        const msg = await updateAntiPuceDate(date);
+        getTaco();
+        return msg;
+      },
+      null
+    ).then((msg) => {
+      if (msg?.success) setSuccess(msg.success);
+    });
   };
 
   const handleUpdateAntiPuceReminder = async (date) => {
-    try {
-      // Create a new post
-      const msg = await updateAntiPuceReminder(date);
-      getTaco();
-      setSuccess(msg.success);
-    } catch (error) {
-      setError(error.message);
-    }
+    await handleAsyncOperation(
+      async () => {
+        const msg = await updateAntiPuceReminder(date);
+        getTaco();
+        return msg;
+      },
+      null
+    ).then((msg) => {
+      if (msg?.success) setSuccess(msg.success);
+    });
   };
 
   return (

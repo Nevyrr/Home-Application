@@ -1,10 +1,8 @@
-import { UserContext } from "../contexts/UserContext";
-import { useContext } from "react";
+import { useAuth } from "../hooks";
 import { PriorityFlag } from "../components";
 
 const Post = ({ post, onUpdate, onDelete, children }) => {
-
-  const { user } = useContext(UserContext);
+  const { user } = useAuth();
 
   return (
     <div className="my-2 relative post">
