@@ -10,13 +10,15 @@ interface ApiResponse {
 /**************************** Get all reminder-posts  ********************************/
 const getPosts = async (): Promise<{ posts: ReminderPost[] }> => {
   const res = await fetch("/api/reminder-posts");
-  const data: ApiResponse = await res.json();
+  const data: any = await res.json();
 
   if (!res.ok) {
     throw Error(data.error || "Failed to fetch posts");
   }
 
-  return data as { posts: ReminderPost[] };
+  // Gérer le nouveau format de réponse (data.data.posts) ou l'ancien (data.posts)
+  const posts = data.data?.posts || data.posts || [];
+  return { posts };
 };
 
 /**************************** Create reminder-posts  ******************************/
@@ -34,13 +36,18 @@ const createPost = async (title: string, body: string, priorityColor: number): P
     body: JSON.stringify({ title, body, priorityColor }),
   });
 
-  const data: ApiResponse = await res.json();
+  const data: any = await res.json();
 
   if (!res.ok) {
     throw Error(data.error || "Failed to create post");
   }
 
-  return data;
+  // Gérer le nouveau format de réponse
+  return {
+    success: data.message || data.success,
+    post: data.data?.post || data.post,
+    ...data
+  };
 };
 
 /**************************** Delete reminder-posts  ******************************/
@@ -52,13 +59,17 @@ const deletePost = async (_id: string): Promise<ApiResponse> => {
     },
   });
 
-  const data: ApiResponse = await res.json();
+  const data: any = await res.json();
 
   if (!res.ok) {
     throw Error(data.error || "Failed to delete post");
   }
 
-  return data;
+  // Gérer le nouveau format de réponse
+  return {
+    success: data.message || data.success,
+    ...data
+  };
 };
 
 /**************************** Update reminder-posts  ******************************/
@@ -76,13 +87,18 @@ const updatePost = async (_id: string, title: string, body: string, priorityColo
     body: JSON.stringify({ title, body, priorityColor }),
   });
 
-  const data: ApiResponse = await res.json();
+  const data: any = await res.json();
 
   if (!res.ok) {
     throw Error(data.error || "Failed to update post");
   }
 
-  return data;
+  // Gérer le nouveau format de réponse
+  return {
+    success: data.message || data.success,
+    post: data.data?.post || data.post,
+    ...data
+  };
 };
 
 export { getPosts, createPost, deletePost, updatePost };

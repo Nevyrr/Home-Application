@@ -23,7 +23,7 @@ const QuantityInput = ({ count, unit, onChange }: QuantityInputProps) => {
                 type="number"
                 value={count}
                 onChange={handleQuantityChange}
-                className="border border-gray-300 p-2 rounded-md w-24"
+                className="input w-24"
                 placeholder="Count"
                 min="0"
                 max="99"
@@ -34,7 +34,7 @@ const QuantityInput = ({ count, unit, onChange }: QuantityInputProps) => {
                 value={unit}
                 placeholder="unit"
                 onChange={handleUnitChange}
-                className="border border-gray-300 p-2 rounded-md"
+                className="input"
             >
                 {units.map((unitOption) => (
                     <option key={unitOption} value={unitOption}>

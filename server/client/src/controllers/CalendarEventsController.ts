@@ -10,13 +10,23 @@ interface ApiResponse {
 /**************************** Get All Calendar Events  ********************************/
 const getEvents = async (): Promise<{ events: CalendarEvent[] }> => {
   const res = await fetch("/api/calendar-events");
-  const data: ApiResponse = await res.json();
+  
+  // Vérifier le Content-Type avant de parser JSON
+  const contentType = res.headers.get("content-type");
+  if (!contentType || !contentType.includes("application/json")) {
+    const text = await res.text();
+    throw Error(text || "Failed to fetch events");
+  }
+  
+  const data: any = await res.json();
 
   if (!res.ok) {
     throw Error(data.error || "Failed to fetch events");
   }
 
-  return data as { events: CalendarEvent[] };
+  // Gérer le nouveau format de réponse (data.data.events) ou l'ancien (data.events)
+  const events = data.data?.events || data.events || [];
+  return { events };
 };
 
 
@@ -41,13 +51,24 @@ const createEvent = async (title: string, date: Date | string, duration: string,
     body: JSON.stringify({ title, date, duration, priorityColor }),
   });
 
-  const data: ApiResponse = await res.json();
+  const contentType = res.headers.get("content-type");
+  if (!contentType || !contentType.includes("application/json")) {
+    const text = await res.text();
+    throw Error(text || "Failed to create event");
+  }
+  
+  const data: any = await res.json();
 
   if (!res.ok) {
     throw Error(data.error || "Failed to create event");
   }
 
-  return data;
+  // Gérer le nouveau format de réponse
+  return {
+    success: data.message || data.success,
+    event: data.data?.event || data.event,
+    ...data
+  };
 };
 
 /**************************** Delete Calendar Event  ******************************/
@@ -59,13 +80,23 @@ const deleteEvent = async (_id: string): Promise<ApiResponse> => {
     },
   });
 
-  const data: ApiResponse = await res.json();
+  const contentType = res.headers.get("content-type");
+  if (!contentType || !contentType.includes("application/json")) {
+    const text = await res.text();
+    throw Error(text || "Failed to delete event");
+  }
+  
+  const data: any = await res.json();
 
   if (!res.ok) {
     throw Error(data.error || "Failed to delete event");
   }
 
-  return data;
+  // Gérer le nouveau format de réponse
+  return {
+    success: data.message || data.success,
+    ...data
+  };
 };
 
 /**************************** Update Calendar Event  ******************************/
@@ -89,13 +120,24 @@ const updateEvent = async (_id: string, title: string, date: Date | string, dura
     body: JSON.stringify({ title, date, duration, priorityColor }),
   });
 
-  const data: ApiResponse = await res.json();
+  const contentType = res.headers.get("content-type");
+  if (!contentType || !contentType.includes("application/json")) {
+    const text = await res.text();
+    throw Error(text || "Failed to update event");
+  }
+  
+  const data: any = await res.json();
 
   if (!res.ok) {
     throw Error(data.error || "Failed to update event");
   }
 
-  return data;
+  // Gérer le nouveau format de réponse
+  return {
+    success: data.message || data.success,
+    event: data.data?.event || data.event,
+    ...data
+  };
 };
 
 export { getEvents, createEvent, deleteEvent, updateEvent };

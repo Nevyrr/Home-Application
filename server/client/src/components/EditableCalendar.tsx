@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
+import '../style/calendar-override.css';
 import { getCssColor } from './PriorityFlag.tsx';
 import { isSameDate } from '../utils/index.ts';
 import { CalendarEvent } from '../types/index.ts';

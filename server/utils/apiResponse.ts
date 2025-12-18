@@ -31,13 +31,18 @@ export const sendSuccess = <T>(
     data,
     meta: {
       timestamp: new Date().toISOString(),
-      path: res.req.path,
+      path: res.req?.path,
     },
   };
 
   // Compatibilité avec l'ancien format frontend : ajouter les données à la racine
-  if (data && typeof data === 'object') {
-    Object.assign(response, data);
+  if (data && typeof data === 'object' && !Array.isArray(data)) {
+    // Copier toutes les propriétés de data dans response (sauf celles déjà présentes)
+    for (const key in data) {
+      if (data.hasOwnProperty(key) && key !== 'meta') {
+        (response as any)[key] = (data as any)[key];
+      }
+    }
   }
 
   res.status(statusCode).json(response);
@@ -58,7 +63,7 @@ export const sendError = (
     errors,
     meta: {
       timestamp: new Date().toISOString(),
-      path: res.req.path,
+      path: res.req?.path,
     },
   };
 

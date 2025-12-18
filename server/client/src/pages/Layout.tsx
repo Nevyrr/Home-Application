@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, Outlet } from "react-router-dom";
 import Icon from "../components/Icon.tsx";
+import ThemeToggle from "../components/ThemeToggle.tsx";
 import { useAuth } from "../hooks/index.ts";
 
 const Layout = () => {
@@ -13,8 +14,8 @@ const Layout = () => {
 
   return (
     <>
-      <header className="bg-indigo-600 text-white">
-        <nav className="flex items-center justify-between p-4 max-w-screen-lg mx-auto">
+      <header className="bg-header border-b border-theme shadow-theme-sm sticky top-0 z-50">
+        <nav className="flex items-center justify-between p-4 max-w-7xl mx-auto gap-3 px-6">
           <Link
             title="Shopping"
             to="/shopping"
@@ -47,6 +48,7 @@ const Layout = () => {
 
           {user.email ? (
             <div className="flex items-center gap-2">
+              <ThemeToggle />
               <Link
                 title="Dashboard"
                 to="/dashboard"
@@ -61,6 +63,7 @@ const Layout = () => {
             </div>
           ) : (
             <div className="flex items-center gap-2">
+              <ThemeToggle />
               <Link
                 title="Login"
                 to="/login"
@@ -74,13 +77,15 @@ const Layout = () => {
             </div>
           )}
 
-          <div className="max-w-20">
-            <Icon imageName={"DavinIcon.png"} />
+          <div className="flex items-center gap-3">
+            <div className="max-w-20">
+              <Icon imageName={"DavinIcon.png"} />
+            </div>
           </div>
         </nav>
       </header>
 
-      <main className="p-4">
+      <main className="p-4 min-h-screen max-w-7xl mx-auto px-6">
         <Outlet />
       </main>
     </>

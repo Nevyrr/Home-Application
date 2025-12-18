@@ -1,0 +1,137 @@
+/* =========================
+   🎨 Thème clair (Light)
+   ========================= */
+:root {
+  --main-font: Calibre, San Francisco, SF Pro Text, -apple-system, system-ui, BlinkMacSystemFont, Roboto, Helvetica Neue, Segoe UI, Arial, sans-serif;
+  --code-font: SF Mono, Fira Code, Fira Mono, Roboto Mono, Lucida Console, Monaco, Monospace;
+  
+  /* Couleurs principales */
+  --primary: #4F46E5;
+  --secondary: #6C63FF;
+  --accent: #9F8CFF;
+
+  /* Couleurs boutons */
+  --btn-bg: var(--primary);
+  --btn-border: #4338CA;
+  --btn-hover-bg: #4338CA;
+  --btn-hover-border: #3730A3;
+
+  /* Fond et bordures */
+  --bg: #F5F7FF;
+  --bg-header: #EDF0FD;
+  --bg-panel: #FFFFFF;
+  --border: #a2c1ff;
+  --hover: #E0E7FF;
+  
+  /* Ombres élégantes */
+  --shadow-xs: 0 1px 3px rgba(79, 70, 229, 0.08);
+  --shadow-sm: 0 2px 8px rgba(79, 70, 229, 0.1);
+  --shadow-md: 0 4px 16px rgba(79, 70, 229, 0.12);
+  --shadow-lg: 0 8px 24px rgba(79, 70, 229, 0.15);
+  --shadow-xl: 0 12px 32px rgba(79, 70, 229, 0.18);
+
+  /* Couleurs de texte */
+  --text-main: #0A192F;
+  --text-heading: #111827;
+  --text-subheading: #374151;
+  --text-muted: #6B7280;
+}
+
+/* =========================
+   🌙 Thème sombre (Dark)
+   ========================= */
+[data-theme="dark"] {
+  /* Couleurs principales */
+  --primary: #6C63FF;
+  --secondary: #9F8CFF;
+  --accent: #BBAAFF;
+
+  /* Couleurs boutons */
+  --btn-bg: var(--primary);
+  --btn-border: #5B52E0;
+  --btn-hover-bg: #584DE0;
+  --btn-hover-border: #483CC4;
+
+  /* Fond et bordures */
+  --bg: #0A192F;
+  --bg-header: #172a4c;
+  --bg-panel: #1d2f4d;
+  --border: #2d54a3;
+  --hover: #1C2A4A;
+  
+  /* Ombres élégantes */
+  --shadow-xs: 0 1px 3px rgba(108, 99, 255, 0.15);
+  --shadow-sm: 0 2px 8px rgba(108, 99, 255, 0.2);
+  --shadow-md: 0 4px 16px rgba(108, 99, 255, 0.25);
+  --shadow-lg: 0 8px 24px rgba(108, 99, 255, 0.3);
+  --shadow-xl: 0 12px 32px rgba(108, 99, 255, 0.35);
+
+  /* Couleurs de texte */
+  --text-main: #E6F1FF;
+  --text-heading: #F8FAFC;
+  --text-subheading: #CBD5E1;
+  --text-muted: #94A3B8;
+}
+
+/* =========================
+   🎯 Application globale
+   ========================= */
+* {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+body {
+  font-family: var(--main-font);
+  background-color: var(--bg);
+  color: var(--text-main);
+  margin: 0;
+  padding: 0;
+}
+
+/* =========================
+   🔹 Classes utilitaires
+   ========================= */
+.bg-primary {
+  background-color: var(--primary);
+}
+
+.bg-secondary {
+  background-color: var(--secondary);
+}
+
+.bg-panel {
+  background-color: var(--bg-panel);
+}
+
+.bg-header {
+  background-color: var(--bg-header);
+}
+
+.text-main {
+  color: var(--text-main);
+}
+
+.text-heading {
+  color: var(--text-heading);
+}
+
+.text-muted {
+  color: var(--text-muted);
+}
+
+.border-theme {
+  border-color: var(--border);
+}
+
+.shadow-theme-sm {
+  box-shadow: var(--shadow-sm);
+}
+
+.shadow-theme-md {
+  box-shadow: var(--shadow-md);
+}
+
+.shadow-theme-lg {
+  box-shadow: var(--shadow-lg);
+}
+

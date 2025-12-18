@@ -46,14 +46,28 @@ const PostList = ({
 
   // Grab all the posts on page load
   useEffect(() => {
-    setTimeout(async () => {
-      // Grab all posts
-      await sortPosts();
+    let mounted = true;
+    const loadPosts = async () => {
+      try {
+        await sortPosts();
+        if (mounted) {
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error('Error loading posts:', error);
+        if (mounted) {
+          setLoading(false);
+        }
+      }
+    };
 
-      // Remove the loading
-      setLoading(false);
-    }, 1000);
-  }, [sortPosts]);
+    // Charger les posts immédiatement
+    loadPosts();
+
+    return () => {
+      mounted = false;
+    };
+  }, [sortPosts]); // Maintenant que sortPosts est stable avec useCallback, on peut l'inclure
 
   const toggleCreationPopup = () => {
     resetAllFields();

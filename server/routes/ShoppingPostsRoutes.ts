@@ -10,7 +10,7 @@ import {
 } from "../controllers/ShoppingPostsController.js";
 import auth from "../middlewares/auth.js";
 import { validate } from "../utils/validation.js";
-import { shoppingPostSchema } from "../utils/validation.js";
+import { shoppingPostSchema, shoppingPostUpdateSchema } from "../utils/validation.js";
 import { asyncHandler } from "../middlewares/errorHandler.js";
 
 // Creating an instance of Express router
@@ -22,7 +22,7 @@ router.post("/date", auth, asyncHandler(addDate));
 router.put("/date", auth, asyncHandler(updateDateItem));
 router.delete("/:id", auth, asyncHandler(deletePost));
 router.delete("/list/:id", auth, asyncHandler(deletePosts));
-router.put("/:id", auth, validate(shoppingPostSchema), asyncHandler(updatePost));
+router.put("/:id", auth, validate(shoppingPostUpdateSchema), asyncHandler(updatePost));
 
 export { router as ShoppingPostsRoutes };
 

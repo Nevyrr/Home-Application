@@ -15,4 +15,5 @@ export { default as ValidationPopup } from "./ValidationPopup.tsx";
 export { default as PostValidationPopup } from "./PostValidationPopup.tsx";
 export { default as Icon } from "./Icon.tsx";
 export { default as ErrorBoundary } from "./ErrorBoundary.tsx";
+export { default as ThemeToggle } from "./ThemeToggle.tsx";
 

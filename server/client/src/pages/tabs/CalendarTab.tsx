@@ -1,7 +1,7 @@
 import { Alert, Success, EditableCalendar } from "../../components/index.ts";
 import { useApp } from "../../contexts/AppContext.tsx";
 import { useErrorHandler } from "../../hooks/index.ts";
-import { useState, ReactNode } from "react";
+import { useState, ReactNode, useEffect, useCallback } from "react";
 import { getEvents, deleteEvent, createEvent, updateEvent } from "../../controllers/CalendarEventsController.ts";
 import PostList from "../../components/PostList.tsx";
 import { fr } from 'date-fns/locale';
@@ -42,7 +42,7 @@ const CalendarTab = () => {
     return eventDate.getHours() * 60 + eventDate.getMinutes();
   };
 
-  const filterEventsWithSelectedDate = async (date?: Date) => {
+  const filterEventsWithSelectedDate = useCallback(async (date?: Date) => {
     const data = await getEvents();
 
     // Convert string date to real date
@@ -69,7 +69,27 @@ const CalendarTab = () => {
     });
     // Update posts state
     setEventsOnDate(selectedDateEvents);
-  };
+  }, [selectedDate]);
+
+  // Charger les événements au montage du composant
+  useEffect(() => {
+    let mounted = true;
+    const loadEvents = async () => {
+      try {
+        await filterEventsWithSelectedDate();
+      } catch (error) {
+        console.error('Error loading calendar events:', error);
+        setError(error instanceof Error ? error.message : 'Erreur lors du chargement des événements');
+      }
+    };
+
+    loadEvents();
+
+    return () => {
+      mounted = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Charger une seule fois au montage
 
   const updatePopup = (key: string, value: string | number | Date) => {
     setPopupEvent(prevState => ({
@@ -195,29 +215,46 @@ const CalendarTab = () => {
       {success && <Success msg={success} setMsg={setSuccess} />}
       {error && <Alert msg={error} setMsg={setError} />}
 
+      <h1 className="font-bold text-xl text-text-heading flex items-center gap-2">
+        <i className="fa-solid fa-calendar-days text-primary"></i>
+        Calendrier partagé
+      </h1>
+
       <div className="calendar-tab">
-        <h1 className="title absolute text-2xl underline top-0">Shared Calendar</h1>
+
         <div className="calendar-div">
           <EditableCalendar
             allEvents={events}
             handleDateChange={handleDateChange}
           />
-          <div className="border-2 p-4 flex flex-row">
-            <h1 className="mr-5 font-bold text-l"> Légende: </h1>
-            <h1 className="w-5 h-5 bg-green-500 rounded-full"></h1>
-            <h1 className="ml-1 mr-5">Validé</h1>
-            <h1 className="w-5 h-5 bg-yellow-500 rounded-full"></h1>
-            <h1 className="ml-1 mr-5">Envisagé</h1>
-            <h1 className="w-5 h-5 bg-red-500 rounded-full"></h1>
-            <h1 className="ml-1 mr-5">En attente d'une action</h1>
+          <div className="bg-bg-panel border border-theme rounded-xl p-4 mt-4 flex flex-wrap items-center gap-4">
+            <span className="font-semibold text-text-heading flex items-center gap-2">
+              <i className="fa-solid fa-info-circle text-primary"></i>
+              Légende:
+            </span>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 bg-green-500 rounded-full"></div>
+              <span className="text-sm text-text-main">Validé</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 bg-yellow-500 rounded-full"></div>
+              <span className="text-sm text-text-main">Envisagé</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 bg-red-500 rounded-full"></div>
+              <span className="text-sm text-text-main">En attente d'une action</span>
+            </div>
           </div>
         </div>
       
-        <div className="events-calendar text-center">
-          <div className="calendar-list-event">
+        <div className="events-calendar flex justify-center">
+          <div className="calendar-list-event w-full max-w-2xl">
             <PostList
               PostComposant={CalendarPost}
-              title={<h1 className="font-bold text-2xl content-center">{selectedDate.toLocaleDateString()}</h1>}
+              title={<h1 className="font-bold text-2xl text-text-heading flex items-center gap-2">
+                <i className="fa-solid fa-calendar-check text-primary"></i>
+                {selectedDate.toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+              </h1>}
               posts={eventsOnDate}
               sortPosts={filterEventsWithSelectedDate}
               popupPost={popupEvent}
@@ -230,7 +267,17 @@ const CalendarTab = () => {
               resetAllFields={resetAllFields}
               popupInputs={dateInput()}
             />
-            <button className="delete-button" onClick={handleClearDay}>Clear Day</button>
+            {eventsOnDate.length > 0 && (
+              <div className="mt-4 flex justify-center">
+                <button 
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-bg-panel border border-theme text-text-main rounded-lg hover:bg-hover hover:border-red-500/50 hover:text-red-500 dark:hover:text-red-400 transition-all duration-200 font-medium text-sm" 
+                  onClick={handleClearDay}
+                >
+                  <i className="fa-solid fa-trash-can"></i>
+                  Vider la journée
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>

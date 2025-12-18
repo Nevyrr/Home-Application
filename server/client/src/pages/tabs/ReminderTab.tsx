@@ -1,4 +1,4 @@
-import { useState, ReactNode } from "react";
+import { useState, ReactNode, useCallback, useEffect } from "react";
 import { Alert, ReminderPost, Success } from "../../components/index.ts";
 import { getPosts, deletePost, createPost, updatePost } from "../../controllers/ReminderPostsController.ts";
 import { useApp } from "../../contexts/AppContext.tsx";
@@ -51,11 +51,23 @@ const ReminderTab = () => {
     setPopupReminder({ reminderId: post._id, title: post.title, body: post.body, priorityColor: post.priorityColor });
   };
 
-  const sortReminderPosts = async () => {
-    const data = await getPosts();
-    data.posts.sort((a, b) => b.priorityColor - a.priorityColor);
-    setReminderPosts(data.posts);
-  };
+  const sortReminderPosts = useCallback(async () => {
+    try {
+      const data = await getPosts();
+      if (data && data.posts) {
+        const sortedPosts = [...data.posts].sort((a, b) => b.priorityColor - a.priorityColor);
+        setReminderPosts(sortedPosts);
+      }
+    } catch (error) {
+      console.error('Error loading reminder posts:', error);
+      setError(error instanceof Error ? error.message : 'Erreur lors du chargement des rappels');
+    }
+  }, [setReminderPosts, setError]);
+
+  // Charger les posts au montage
+  useEffect(() => {
+    sortReminderPosts();
+  }, [sortReminderPosts]);
 
   const handleCreate = async () => {
     await handleAsyncOperation(

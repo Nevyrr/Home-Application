@@ -3,11 +3,14 @@
   "type": "module",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/server.js",
   "scripts": {
     "server": "nodemon",
     "dev": "nodemon",
-    "build": "npm install --prefix ./client && npm run build --prefix ./client && npm install"
+    "build:server": "tsc",
+    "build:client": "npm install --prefix ./client && npm run build --prefix ./client",
+    "build": "npm run build:server && npm run build:client && npm install",
+    "start": "node dist/server.js"
   },
   "author": "",
   "license": "ISC",

@@ -4,7 +4,7 @@ import ShoppingDay from "../models/ShoppingPostModel.js";
 import User from "../models/UserModel.js";
 import { AuthRequest } from "../middlewares/auth.js";
 import { createError } from "../middlewares/errorHandler.js";
-import { sendSuccess, sendCreated, sendUpdated, sendDeleted, sendNotFound } from "../utils/apiResponse.js";
+import { sendSuccess, sendCreated, sendUpdated, sendDeleted } from "../utils/apiResponse.js";
 
 /************************************ Get All Posts ************************************/
 
@@ -126,7 +126,7 @@ const deletePost = async (req: Request, res: Response): Promise<void> => {
     throw createError("Liste de courses non trouvée", 404);
   }
 
-  const shoppingPostIndex = shoppingDayList.shoppingList.findIndex((shoppingItem) => shoppingItem._id.equals(new mongoose.Types.ObjectId(req.params.id)));
+  const shoppingPostIndex = shoppingDayList.shoppingList.findIndex((shoppingItem) => shoppingItem._id && shoppingItem._id.equals(new mongoose.Types.ObjectId(req.params.id)));
   if (shoppingPostIndex === -1) {
     throw createError("Article de course non trouvé", 404);
   }
@@ -173,7 +173,7 @@ const updatePost = async (req: AuthRequest, res: Response): Promise<void> => {
     throw createError("Liste de courses non trouvée", 404);
   }
 
-  const shoppingPostIndex = shoppingDayList.shoppingList.findIndex((shoppingItem) => shoppingItem._id.equals(new mongoose.Types.ObjectId(req.params.id)));
+  const shoppingPostIndex = shoppingDayList.shoppingList.findIndex((shoppingItem) => shoppingItem._id && shoppingItem._id.equals(new mongoose.Types.ObjectId(req.params.id)));
   if (shoppingPostIndex === -1) {
     throw createError("Article de course non trouvé", 404);
   }

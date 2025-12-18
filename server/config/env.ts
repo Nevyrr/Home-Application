@@ -14,7 +14,6 @@ interface EnvConfig {
 }
 
 const requiredEnvVars = ['DB_URI', 'SECRET'] as const;
-const optionalEnvVars = ['EMAIL_USER', 'EMAIL_PASS', 'EMAIL_RECIPIENT_1', 'EMAIL_RECIPIENT_2'] as const;
 
 /**
  * Valide que toutes les variables d'environnement requises sont présentes

@@ -4,7 +4,7 @@ import ReminderPost from "../models/ReminderPostModel.js";
 import User from "../models/UserModel.js";
 import { AuthRequest } from "../middlewares/auth.js";
 import { createError } from "../middlewares/errorHandler.js";
-import { sendSuccess, sendCreated, sendUpdated, sendDeleted, sendNotFound, sendForbidden } from "../utils/apiResponse.js";
+import { sendSuccess, sendCreated, sendUpdated, sendDeleted } from "../utils/apiResponse.js";
 
 /************************************ Get All Posts ************************************/
 const getPosts = async (_req: AuthRequest, res: Response): Promise<void> => {

@@ -66,7 +66,7 @@ export const reminderPostSchema = z.object({
 });
 
 /**
- * Schéma de validation pour les posts de shopping
+ * Schéma de validation pour les posts de shopping (création)
  */
 export const shoppingPostSchema = z.object({
   shoppingListId: z.string().min(1, 'L\'ID de la liste est requis'),
@@ -77,10 +77,20 @@ export const shoppingPostSchema = z.object({
 });
 
 /**
+ * Schéma de validation pour la mise à jour des posts de shopping (sans shoppingListId)
+ */
+export const shoppingPostUpdateSchema = z.object({
+  title: z.string().min(1, 'Le titre est requis'),
+  count: z.number().positive('La quantité doit être positive'),
+  unit: z.string().optional(),
+  priorityColor: z.number().int().min(0).max(3, 'Couleur de priorité invalide'),
+});
+
+/**
  * Middleware de validation avec Zod
  */
 export const validate = <T extends z.ZodTypeAny>(schema: T) => {
-  return (req: any, res: any, next: any): void => {
+  return (req: any, _res: any, next: any): void => {
     try {
       req.body = schema.parse(req.body);
       next();

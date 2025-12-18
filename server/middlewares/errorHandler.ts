@@ -36,12 +36,12 @@ export const createError = (
 const handleZodError = (err: ZodError): { message: string; errors: Record<string, string[]> } => {
   const errors: Record<string, string[]> = {};
   
-  err.errors.forEach((error) => {
-    const path = error.path.join('.');
+  err.issues.forEach((issue) => {
+    const path = issue.path.join('.');
     if (!errors[path]) {
       errors[path] = [];
     }
-    errors[path].push(error.message);
+    errors[path].push(issue.message);
   });
 
   return {

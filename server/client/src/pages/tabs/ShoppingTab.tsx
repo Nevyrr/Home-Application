@@ -183,10 +183,11 @@ const ShoppingTab = () => {
   const nameInput = (shoppingItem: ShoppingDay): ReactNode => {
     return <input
       type="text"
-      className="input-field"
+      className="input-field font-semibold"
       value={shoppingItem.name}
       onChange={(e) => handleNameChange(shoppingItem._id, e.target.value)}
       onBlur={() => handleUpdateDateItem(shoppingItem._id, shoppingItem.name, shoppingItem.date)}
+      placeholder="Nom de la liste"
     />;
   };
 
@@ -208,21 +209,30 @@ const ShoppingTab = () => {
 
 
   return (
-    <section className="card">
+    <section className="card shopping-card">
       {success && <Success msg={success} setMsg={setSuccess} />}
       {error && <Alert msg={error} setMsg={setError}/>}
 
-      <div className="flex justify-evenly mb-8 text-3xl h-&1/10">
-        <h1 className="font-bold text-xl underline">Shopping Board</h1>
-        <span className="border-2 border-indigo-600 select-none text-xs inline-block px-2 py-2 text-indigo-600 font-semibold rounded-lg shadow-xl hover:text-indigo-800 cursor-pointer hover:scale-110 transition-transform duration-200" onClick={handleCreateDate}>New Shopping List</span>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="font-bold text-2xl text-text-heading flex items-center gap-2">
+          <i className="fa-solid fa-shopping-cart text-primary"></i>
+          Shopping Board
+        </h1>
+        <button 
+          onClick={handleCreateDate}
+          className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white font-semibold rounded-lg shadow-sm hover:shadow-md transition-all duration-200 hover:scale-105"
+        >
+          <i className="fa-solid fa-plus"></i>
+          Nouvelle liste
+        </button>
       </div>
 
-      <div className="shopping-tab">
-        {shoppingItems && shoppingItems.map(shoppingItem => (
-          <div className="shopping-day-list" key={shoppingItem._id}>
+      <div className="shopping-tab space-y-4">
+        {shoppingItems && shoppingItems.map((shoppingItem, index) => (
+          <div className="shopping-day-list" key={shoppingItem._id} data-list-index={index}>
             <div className="shopping-chevron-icon fa-solid fa-chevron-down" onClick={unrollPanel}></div>
             <PostList
-              title={<div className="flex text-sm w-4/5 ml-8">
+              title={<div className="flex items-center gap-3 w-full ml-8">
                 {nameInput(shoppingItem)}
                 <DatePicker
                   selected={convertStringToDate(shoppingItem.date)}
@@ -233,7 +243,7 @@ const ShoppingTab = () => {
                   }}
                   locale="fr"
                   dateFormat="P"
-                  className="datepicker-input"
+                  className="datepicker-input flex-shrink-0"
                 />
               </div>}
               posts={shoppingItem.shoppingList}
@@ -252,8 +262,17 @@ const ShoppingTab = () => {
             {
               shoppingItems.length !== 0 && (
                 <div className="shopping-total-bar">
-                  <button className="delete-button shopping-delete-all-button" onClick={() => { handleCleanDate(shoppingItem._id) }}>Clear the cart</button>
-                  <p className="shopping-total-text">Total Items: {shoppingItem.shoppingList.length}</p>
+                  <button 
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-bg-panel border border-theme text-text-main rounded-lg hover:bg-hover hover:border-red-500/50 hover:text-red-500 dark:hover:text-red-400 transition-all duration-200 font-medium text-sm" 
+                    onClick={() => { handleCleanDate(shoppingItem._id) }}
+                  >
+                    <i className="fa-solid fa-trash-can"></i>
+                    Vider la liste
+                  </button>
+                  <p className="shopping-total-text flex items-center gap-2">
+                    <i className="fa-solid fa-list-check text-primary"></i>
+                    {shoppingItem.shoppingList.length} {shoppingItem.shoppingList.length > 1 ? 'articles' : 'article'}
+                  </p>
                 </div>
               )
             }

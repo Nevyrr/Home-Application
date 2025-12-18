@@ -23,7 +23,11 @@ const dirname = path.dirname(filename);
 const app = express();
 
 // Security middleware
-app.use(helmet());
+// Désactiver certaines protections de helmet pour les uploads
+app.use(helmet({
+    crossOriginResourcePolicy: false,
+    crossOriginEmbedderPolicy: false,
+}));
 
 // CORS configuration
 app.use(
@@ -39,16 +43,48 @@ app.use(
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // Limite chaque IP à 100 requêtes par fenêtre
-  message: "Trop de requêtes depuis cette IP, veuillez réessayer plus tard.",
   standardHeaders: true,
   legacyHeaders: false,
+  handler: (req, res) => {
+    res.status(429).json({
+      success: false,
+      error: "Trop de requêtes depuis cette IP, veuillez réessayer plus tard.",
+      meta: {
+        timestamp: new Date().toISOString(),
+        path: req.path,
+      },
+    });
+  },
 });
 
-app.use("/api/", limiter);
+app.use("/api/", (req, res, next) => {
+    if (req.path === '/taco/upload') {
+        console.log('[SERVER] Requête POST /api/taco/upload reçue');
+        console.log('[SERVER] Content-Type:', req.headers['content-type']);
+    }
+    next();
+}, limiter);
 
 // Middleware to receive JSON (limite de taille pour sécurité)
-app.use(express.json({ limit: "10mb" }));
-app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+// IMPORTANT: Ne pas parser le body pour les routes d'upload (multer le fait)
+app.use((req, res, next) => {
+    // Ne JAMAIS parser le body pour les requêtes multipart/form-data (gérées par multer)
+    const contentType = req.headers['content-type'] || '';
+    if (contentType.includes('multipart/form-data')) {
+        console.log('[SERVER] Requête multipart/form-data détectée, skip body parser');
+        return next();
+    }
+    express.json({ limit: "10mb" })(req, res, next);
+});
+
+app.use((req, res, next) => {
+    // Ne JAMAIS parser le body pour les requêtes multipart/form-data (gérées par multer)
+    const contentType = req.headers['content-type'] || '';
+    if (contentType.includes('multipart/form-data')) {
+        return next();
+    }
+    express.urlencoded({ extended: true, limit: "10mb" })(req, res, next);
+});
 
 // API routes
 app.use("/api/shopping-posts", ShoppingPostsRoutes);

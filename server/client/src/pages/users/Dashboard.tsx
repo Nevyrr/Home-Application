@@ -35,14 +35,14 @@ const Dashboard = () => {
     <section className="card">
       <h1 className="title m-0">{localUser.name} Dashboard</h1>
       <p className="mb-4">{localUser.email}</p>
-      <label className="flex items-center space-x-3">
+      <label className="flex items-center space-x-3 cursor-pointer p-3 rounded-lg hover:bg-hover transition-colors duration-200">
         <input
-          className="form-checkbox h-5 w-5 text-blue-600"
+          className="checkbox-theme h-5 w-5 cursor-pointer"
           type="checkbox"
           checked={getBooleanFromString(localUser.receiveEmail)}
           onChange={handleCheckboxMailChange}
         />
-        <span className="text-gray-900">Receive emails from the application</span>
+        <span className="text-main">Receive emails from the application</span>
       </label>
 
       <span className="title mt-12 block">Highlight multiple boards :</span>

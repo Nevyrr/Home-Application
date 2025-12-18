@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 import { AuthRequest } from "../middlewares/auth.js";
 import { createError } from "../middlewares/errorHandler.js";
 import { createAccessToken, createRefreshToken, verifyToken } from "../utils/tokenUtils.js";
-import { sendSuccess, sendCreated, sendUpdated, sendUnauthorized, sendNotFound } from "../utils/apiResponse.js";
+import { sendSuccess, sendUpdated } from "../utils/apiResponse.js";
 
 /************************************ Register User ************************************/
 const registerUser = async (req: AuthRequest, res: Response): Promise<void> => {

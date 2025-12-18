@@ -1,0 +1,29 @@
+/* =========================
+   🎨 React Calendar Override
+   Surcharge du CSS de react-calendar pour le thème
+   ========================= */
+
+/* Jour actuel - surcharge avec spécificité maximale */
+.react-calendar__tile--now,
+.react-calendar .react-calendar__tile--now,
+.editable-calendar .react-calendar .react-calendar__tile--now {
+    background-color: transparent !important;
+    background: transparent !important;
+    color: var(--text-heading) !important;
+    border: 2px dashed var(--primary) !important;
+    border-radius: 0.375rem !important;
+    font-weight: 600 !important;
+    box-shadow: var(--shadow-xs) !important;
+}
+
+.react-calendar__tile--now:enabled:hover,
+.react-calendar__tile--now:enabled:focus,
+.react-calendar .react-calendar__tile--now:enabled:hover,
+.react-calendar .react-calendar__tile--now:enabled:focus {
+    background-color: var(--hover) !important;
+    background: var(--hover) !important;
+    border-color: var(--primary) !important;
+    border-style: dashed !important;
+    box-shadow: var(--shadow-sm) !important;
+}
+
