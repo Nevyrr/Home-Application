@@ -27,6 +27,11 @@ const app = express();
 app.use(helmet({
     crossOriginResourcePolicy: false,
     crossOriginEmbedderPolicy: false,
+    contentSecurityPolicy: {
+        directives: {
+            imgSrc: ["'self'", "data:", "blob:"],
+        },
+    },
 }));
 
 // CORS configuration
@@ -57,7 +62,7 @@ const limiter = rateLimit({
   },
 });
 
-app.use("/api/", (req, res, next) => {
+app.use("/api/", (req, _res, next) => {
     if (req.path === '/taco/upload') {
         console.log('[SERVER] Requête POST /api/taco/upload reçue');
         console.log('[SERVER] Content-Type:', req.headers['content-type']);
@@ -94,8 +99,10 @@ app.use("/api/taco", TacoRoutes);
 app.use("/api/users", UsersRoutes);
 
 // Serve static files from React app
-app.use(express.static(path.join(dirname, "/client/dist")));
-app.get("*", (_req: Request, res: Response) => res.sendFile(path.join(dirname, "/client/dist/index.html")));
+// After compilation, dirname points to dist/, so we need to go up one level to access client/dist
+const clientDistPath = path.join(path.dirname(dirname), "client/dist");
+app.use(express.static(clientDistPath));
+app.get("*", (_req: Request, res: Response) => res.sendFile(path.join(clientDistPath, "index.html")));
 
 // Error handling middleware (doit être en dernier)
 app.use(errorHandler);

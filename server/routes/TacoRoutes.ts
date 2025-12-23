@@ -14,16 +14,16 @@ router.post("/antipuce/reminder", auth, asyncHandler(updateAntiPuceReminder));
 router.get("/image/:filename", auth, asyncHandler(getFile));
 router.get("/images", auth, asyncHandler(listImages));
 router.delete("/image/:filename", auth, asyncHandler(deleteImage));
-router.post("/upload", (req, res, next) => {
+router.post("/upload", (_req, _res, next) => {
     console.log('[ROUTE] POST /upload appelé');
     next();
-}, auth, (req, res, next) => {
+}, auth, (_req, _res, next) => {
     console.log('[ROUTE] Auth passé');
     next();
-}, checkStorage, (req, res, next) => {
+}, checkStorage, (_req, _res, next) => {
     console.log('[ROUTE] checkStorage passé');
     next();
-}, getUploadMiddleware(), (req, res, next) => {
+}, getUploadMiddleware(), (_req, _res, next) => {
     console.log('[ROUTE] Multer middleware passé');
     next();
 }, asyncHandler(handleUpload));
