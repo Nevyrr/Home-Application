@@ -14,7 +14,7 @@ export interface TokenPayload {
  */
 export const createAccessToken = (_id: string): string => {
   const payload: TokenPayload = { _id, type: 'access' };
-  return jwt.sign(payload, env.SECRET, { expiresIn: '15m' }); // 15 minutes
+  return jwt.sign(payload, env.SECRET, { expiresIn: env.ACCESS_TOKEN_TTL as jwt.SignOptions["expiresIn"] });
 };
 
 /**
@@ -22,7 +22,7 @@ export const createAccessToken = (_id: string): string => {
  */
 export const createRefreshToken = (_id: string): string => {
   const payload: TokenPayload = { _id, type: 'refresh' };
-  return jwt.sign(payload, env.SECRET, { expiresIn: '7d' }); // 7 jours
+  return jwt.sign(payload, env.SECRET, { expiresIn: env.REFRESH_TOKEN_TTL as jwt.SignOptions["expiresIn"] });
 };
 
 /**

@@ -16,10 +16,10 @@ const CalendarPost = ({ post, onUpdate, onDelete }: CalendarPostProps) => {
       post={post}
       onUpdate={onUpdate}
       onDelete={onDelete}
-      children={<div>
-        <p className="text-lg font-bold text-indigo-600">{formattedDate}</p>
+      children={<div className="calendar-post-timing">
+        <p className="calendar-post-time">{formattedDate}</p>
         {post.duration !== null && post.duration !== "" && (
-          <p className="text-lg font-bold text-indigo-600">{'(' + post.duration + ')'}</p>
+          <p className="calendar-post-duration">{'(' + post.duration + ')'}</p>
         )}
       </div>}
     />

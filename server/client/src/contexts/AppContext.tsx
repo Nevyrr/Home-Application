@@ -5,6 +5,7 @@
 
 import { createContext, useState, useContext, ReactNode } from "react";
 import { AppState, User, ShoppingDay, ReminderPost, CalendarEvent, Taco } from "../types/index.ts";
+import { loadStoredUser } from "../utils/session.ts";
 
 const AppContext = createContext<AppState | undefined>(undefined);
 
@@ -22,13 +23,7 @@ interface AppProviderProps {
 
 export const AppProvider = ({ children }: AppProviderProps) => {
   // User state
-  const [user, setUser] = useState<User>({
-    id: localStorage.getItem("id"),
-    name: localStorage.getItem("name"),
-    email: localStorage.getItem("email"),
-    receiveEmail: localStorage.getItem("receiveEmail"),
-    isAdmin: localStorage.getItem("isAdmin"),
-  });
+  const [user, setUser] = useState<User>(loadStoredUser());
 
   // Shopping state
   const [shoppingItems, setShoppingItems] = useState<ShoppingDay[]>([]);
@@ -45,6 +40,8 @@ export const AppProvider = ({ children }: AppProviderProps) => {
     vermifugeReminder: "",
     antiPuceDate: "",
     antiPuceReminder: "",
+    annualVaccineDate: "",
+    annualVaccineReminder: "",
   });
 
   const value: AppState = {

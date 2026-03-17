@@ -5,6 +5,7 @@ export interface IUser extends Document {
   name: string;
   email: string;
   password: string;
+  googleId?: string | null;
   receiveEmail: boolean;
   isAdmin: boolean;
   refreshToken?: string | null;
@@ -52,6 +53,9 @@ export interface IReminderPost extends Document {
   title: string;
   body: string;
   priorityColor: number;
+  status: "todo" | "doing" | "done";
+  dueDate?: Date | null;
+  sortOrder: number;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -62,6 +66,8 @@ export interface ITaco extends Document {
   vermifugeReminder: string;
   antiPuceDate: string;
   antiPuceReminder: string;
+  annualVaccineDate: string;
+  annualVaccineReminder: string;
   createdAt?: Date;
   updatedAt?: Date;
 }

@@ -17,8 +17,10 @@ const Popup = ({ show, title, onClose, buttons, children }: PopupProps) => {
         <div className="xpopup-overlay">
             <div className="xpopup">
                 <button className="close-button" onClick={onClose}>X</button>
-                <h1 className="title">{title}</h1>
-                {children}
+                <h1 className="title xpopup-title">{title}</h1>
+                <div className="xpopup-body">
+                    {children}
+                </div>
                 <div className="xpopup-panel-buttons">
                     {buttons}
                 </div>

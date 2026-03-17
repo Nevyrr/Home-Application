@@ -1,96 +1,98 @@
-/* =========================
-   🎨 Thème clair (Light)
-   ========================= */
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap");
+
 :root {
-  --main-font: Calibre, San Francisco, SF Pro Text, -apple-system, system-ui, BlinkMacSystemFont, Roboto, Helvetica Neue, Segoe UI, Arial, sans-serif;
-  --code-font: SF Mono, Fira Code, Fira Mono, Roboto Mono, Lucida Console, Monaco, Monospace;
-  
-  /* Couleurs principales */
-  --primary: #4F46E5;
-  --secondary: #6C63FF;
-  --accent: #9F8CFF;
+  --main-font: "Manrope", "Segoe UI", sans-serif;
+  --display-font: "Fraunces", Georgia, serif;
+  --code-font: "SF Mono", "Fira Code", monospace;
 
-  /* Couleurs boutons */
-  --btn-bg: var(--primary);
-  --btn-border: #4338CA;
-  --btn-hover-bg: #4338CA;
-  --btn-hover-border: #3730A3;
+  --primary: #146c94;
+  --secondary: #1f8a70;
+  --accent: #f28c52;
+  --success: #1f8a70;
+  --warning: #e09f3e;
+  --danger: #d65a31;
 
-  /* Fond et bordures */
-  --bg: #F5F7FF;
-  --bg-header: #EDF0FD;
-  --bg-panel: #FFFFFF;
-  --border: #a2c1ff;
-  --hover: #E0E7FF;
-  
-  /* Ombres élégantes */
-  --shadow-xs: 0 1px 3px rgba(79, 70, 229, 0.08);
-  --shadow-sm: 0 2px 8px rgba(79, 70, 229, 0.1);
-  --shadow-md: 0 4px 16px rgba(79, 70, 229, 0.12);
-  --shadow-lg: 0 8px 24px rgba(79, 70, 229, 0.15);
-  --shadow-xl: 0 12px 32px rgba(79, 70, 229, 0.18);
+  --btn-bg: linear-gradient(135deg, #146c94 0%, #1f8a70 100%);
+  --btn-border: #0f5370;
+  --btn-hover-bg: linear-gradient(135deg, #115d80 0%, #18705b 100%);
+  --btn-hover-border: #0c4359;
 
-  /* Couleurs de texte */
-  --text-main: #0A192F;
-  --text-heading: #111827;
-  --text-subheading: #374151;
-  --text-muted: #6B7280;
+  --bg: #f4f1ea;
+  --bg-header: rgba(253, 250, 244, 0.85);
+  --bg-panel: rgba(255, 255, 255, 0.84);
+  --bg-soft: rgba(255, 255, 255, 0.58);
+  --border: rgba(20, 108, 148, 0.18);
+  --hover: rgba(20, 108, 148, 0.08);
+
+  --shadow-xs: 0 10px 18px rgba(14, 50, 66, 0.05);
+  --shadow-sm: 0 14px 32px rgba(14, 50, 66, 0.08);
+  --shadow-md: 0 24px 48px rgba(14, 50, 66, 0.12);
+  --shadow-lg: 0 32px 60px rgba(14, 50, 66, 0.18);
+  --shadow-xl: 0 40px 80px rgba(14, 50, 66, 0.24);
+
+  --text-main: #17313b;
+  --text-heading: #0f252e;
+  --text-subheading: #36505a;
+  --text-muted: #6b7c83;
 }
 
-/* =========================
-   🌙 Thème sombre (Dark)
-   ========================= */
 [data-theme="dark"] {
-  /* Couleurs principales */
-  --primary: #6C63FF;
-  --secondary: #9F8CFF;
-  --accent: #BBAAFF;
+  --primary: #4cb7d8;
+  --secondary: #57c5a0;
+  --accent: #ffb36b;
+  --success: #57c5a0;
+  --warning: #ffbf69;
+  --danger: #ff7a59;
 
-  /* Couleurs boutons */
-  --btn-bg: var(--primary);
-  --btn-border: #5B52E0;
-  --btn-hover-bg: #584DE0;
-  --btn-hover-border: #483CC4;
+  --btn-bg: linear-gradient(135deg, #185f7c 0%, #1b6a56 100%);
+  --btn-border: rgba(76, 183, 216, 0.3);
+  --btn-hover-bg: linear-gradient(135deg, #1f7395 0%, #237560 100%);
+  --btn-hover-border: rgba(87, 197, 160, 0.35);
 
-  /* Fond et bordures */
-  --bg: #0A192F;
-  --bg-header: #172a4c;
-  --bg-panel: #1d2f4d;
-  --border: #2d54a3;
-  --hover: #1C2A4A;
-  
-  /* Ombres élégantes */
-  --shadow-xs: 0 1px 3px rgba(108, 99, 255, 0.15);
-  --shadow-sm: 0 2px 8px rgba(108, 99, 255, 0.2);
-  --shadow-md: 0 4px 16px rgba(108, 99, 255, 0.25);
-  --shadow-lg: 0 8px 24px rgba(108, 99, 255, 0.3);
-  --shadow-xl: 0 12px 32px rgba(108, 99, 255, 0.35);
+  --bg: #0f1a21;
+  --bg-header: rgba(18, 29, 36, 0.82);
+  --bg-panel: rgba(23, 35, 43, 0.82);
+  --bg-soft: rgba(17, 28, 35, 0.65);
+  --border: rgba(76, 183, 216, 0.16);
+  --hover: rgba(76, 183, 216, 0.08);
 
-  /* Couleurs de texte */
-  --text-main: #E6F1FF;
-  --text-heading: #F8FAFC;
-  --text-subheading: #CBD5E1;
-  --text-muted: #94A3B8;
+  --shadow-xs: 0 10px 18px rgba(0, 0, 0, 0.18);
+  --shadow-sm: 0 16px 36px rgba(0, 0, 0, 0.24);
+  --shadow-md: 0 24px 48px rgba(0, 0, 0, 0.32);
+  --shadow-lg: 0 32px 60px rgba(0, 0, 0, 0.38);
+  --shadow-xl: 0 40px 80px rgba(0, 0, 0, 0.42);
+
+  --text-main: #e8f2f4;
+  --text-heading: #f4fafb;
+  --text-subheading: #bfd0d5;
+  --text-muted: #89a0a9;
 }
 
-/* =========================
-   🎯 Application globale
-   ========================= */
 * {
-  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+  transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+html {
+  min-height: 100%;
 }
 
 body {
   font-family: var(--main-font);
-  background-color: var(--bg);
+  background:
+    radial-gradient(circle at top left, rgba(31, 138, 112, 0.12), transparent 34%),
+    radial-gradient(circle at top right, rgba(242, 140, 82, 0.14), transparent 28%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.45), transparent 35%),
+    var(--bg);
   color: var(--text-main);
   margin: 0;
   padding: 0;
+  min-height: 100vh;
 }
 
-/* =========================
-   🔹 Classes utilitaires
-   ========================= */
+#root {
+  min-height: 100vh;
+}
+
 .bg-primary {
   background-color: var(--primary);
 }
@@ -134,4 +136,3 @@ body {
 .shadow-theme-lg {
   box-shadow: var(--shadow-lg);
 }
-

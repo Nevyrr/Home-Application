@@ -7,6 +7,9 @@ interface EnvConfig {
   SECRET: string;
   PORT: string;
   NODE_ENV: string;
+  ACCESS_TOKEN_TTL: string;
+  REFRESH_TOKEN_TTL: string;
+  GOOGLE_CLIENT_ID?: string;
   EMAIL_USER?: string;
   EMAIL_PASS?: string;
   EMAIL_RECIPIENT_1?: string;
@@ -47,6 +50,9 @@ export const validateEnv = (): EnvConfig => {
     SECRET: process.env.SECRET!,
     PORT: process.env.PORT || '4000',
     NODE_ENV: process.env.NODE_ENV || 'development',
+    ACCESS_TOKEN_TTL: process.env.ACCESS_TOKEN_TTL || '12h',
+    REFRESH_TOKEN_TTL: process.env.REFRESH_TOKEN_TTL || '180d',
+    GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
     EMAIL_USER: process.env.EMAIL_USER,
     EMAIL_PASS: process.env.EMAIL_PASS,
     EMAIL_RECIPIENT_1: process.env.EMAIL_RECIPIENT_1,

@@ -1,151 +1,356 @@
-import { useState, ReactNode, useCallback, useEffect } from "react";
-import { Alert, ReminderPost, Success } from "../../components/index.ts";
-import { getPosts, deletePost, createPost, updatePost } from "../../controllers/ReminderPostsController.ts";
+import { useEffect, useState } from "react";
+import { Alert, Success } from "../../components/index.ts";
+import {
+  createPost,
+  deletePost,
+  getPosts,
+  ReminderPostPayload,
+  reorderPosts,
+  updatePost,
+} from "../../controllers/ReminderPostsController.ts";
 import { useApp } from "../../contexts/AppContext.tsx";
-import { useErrorHandler } from "../../hooks/index.ts";
-import PostList from "../../components/PostList.tsx";
-import { ReminderPost as ReminderPostType } from "../../types/index.ts";
+import { useAuth, useErrorHandler } from "../../hooks/index.ts";
+import { ReminderPost } from "../../types/index.ts";
+
+const STATUS_OPTIONS: Array<{ value: ReminderPost["status"]; label: string }> = [
+  { value: "todo", label: "A faire" },
+  { value: "doing", label: "En cours" },
+  { value: "done", label: "Termine" },
+];
+
+const EMPTY_EDITOR: ReminderPostPayload = {
+  title: "",
+  body: "",
+  status: "todo",
+  dueDate: "",
+};
+
+const normalizeDueDate = (dueDate?: string | Date | null): string => {
+  if (!dueDate) {
+    return "";
+  }
+
+  const parsedDate = dueDate instanceof Date ? dueDate : new Date(dueDate);
+
+  if (Number.isNaN(parsedDate.getTime())) {
+    return "";
+  }
+
+  return parsedDate.toISOString().slice(0, 10);
+};
+
+const toPayload = (post: ReminderPost): ReminderPostPayload => ({
+  title: post.title,
+  body: post.body || "",
+  status: post.status || "todo",
+  dueDate: normalizeDueDate(post.dueDate),
+  sortOrder: post.sortOrder,
+});
+
+const compareByManualOrder = (a: ReminderPost, b: ReminderPost): number => {
+  return (a.sortOrder ?? 0) - (b.sortOrder ?? 0);
+};
+
+const formatDueDate = (dueDate?: string | Date | null): string => {
+  if (!dueDate) {
+    return "Sans echeance";
+  }
+
+  const parsedDate = dueDate instanceof Date ? dueDate : new Date(dueDate);
+
+  if (Number.isNaN(parsedDate.getTime())) {
+    return "Sans echeance";
+  }
+
+  return parsedDate.toLocaleDateString("fr-FR", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+};
 
 const ReminderTab = () => {
   const { reminderPosts, setReminderPosts } = useApp();
+  const { user } = useAuth();
   const { error, success, setError, setSuccess, handleAsyncOperation } = useErrorHandler();
 
-  // Post being updated or created
-  const [popupReminder, setPopupReminder] = useState<{
-    reminderId: string;
-    title: string;
-    body: string;
-    priorityColor: number;
-  }>({
-    reminderId: "",
-    title: "",
-    body: "",
-    priorityColor: 0
-  });
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editor, setEditor] = useState<ReminderPostPayload>(EMPTY_EDITOR);
 
-  const updatePopup = (key: string, value: string | number) => {
-    setPopupReminder(prevState => ({
-      ...prevState,
-      [key]: value
+  const loadReminderPosts = async () => {
+    const data = await getPosts();
+    const orderedPosts = [...data.posts].sort(compareByManualOrder);
+    setReminderPosts(orderedPosts);
+  };
+
+  useEffect(() => {
+    loadReminderPosts().catch((loadError) => {
+      setError(loadError instanceof Error ? loadError.message : "Erreur lors du chargement des taches");
+    });
+  }, []);
+
+  const updateEditor = <K extends keyof ReminderPostPayload>(key: K, value: ReminderPostPayload[K]) => {
+    setEditor((previousState) => ({
+      ...previousState,
+      [key]: value,
     }));
   };
 
-
-  const setTitle = (title: string) => {
-    updatePopup("title", title);
+  const resetEditor = () => {
+    setEditor(EMPTY_EDITOR);
+    setEditingId(null);
   };
 
-  const setBody = (body: string) => {
-    updatePopup("body", body);
+  const handleEdit = (post: ReminderPost) => {
+    setEditingId(post._id);
+    setEditor(toPayload(post));
   };
 
-  const setPriorityColor = (priorityColor: number) => {
-    updatePopup("priorityColor", priorityColor);
+  const canManagePost = (post: ReminderPost): boolean => {
+    return post.user === user.id || user.isAdmin === "true";
   };
 
-  const resetAllFields = () => {
-    setPopupReminder({ reminderId: "", title: "", body: "", priorityColor: 0 });
-  };
-
-  const setAllFields = (post: ReminderPostType) => {
-    setPopupReminder({ reminderId: post._id, title: post.title, body: post.body, priorityColor: post.priorityColor });
-  };
-
-  const sortReminderPosts = useCallback(async () => {
-    try {
-      const data = await getPosts();
-      if (data && data.posts) {
-        const sortedPosts = [...data.posts].sort((a, b) => b.priorityColor - a.priorityColor);
-        setReminderPosts(sortedPosts);
+  const handleSubmit = async () => {
+    await handleAsyncOperation(async () => {
+      if (editingId) {
+        const response = await updatePost(editingId, editor);
+        await loadReminderPosts();
+        if (response.success) {
+          setSuccess(response.success);
+        }
+      } else {
+        const response = await createPost(editor);
+        await loadReminderPosts();
+        if (response.success) {
+          setSuccess(response.success);
+        }
       }
-    } catch (error) {
-      console.error('Error loading reminder posts:', error);
-      setError(error instanceof Error ? error.message : 'Erreur lors du chargement des rappels');
+
+      resetEditor();
+    }, null);
+  };
+
+  const handleDelete = async (postId: string) => {
+    if (!confirm("Confirmer la suppression de cette tache ?")) {
+      return;
     }
-  }, [setReminderPosts, setError]);
 
-  // Charger les posts au montage
-  useEffect(() => {
-    sortReminderPosts();
-  }, [sortReminderPosts]);
-
-  const handleCreate = async () => {
-    await handleAsyncOperation(
-      async () => {
-        const msg = await createPost(popupReminder.title, popupReminder.body, popupReminder.priorityColor);
-        sortReminderPosts();
-        return msg;
-      },
-      null
-    ).then((msg) => {
-      if (msg?.success) setSuccess(msg.success);
-    });
+    await handleAsyncOperation(async () => {
+      const response = await deletePost(postId);
+      await loadReminderPosts();
+      if (response.success) {
+        setSuccess(response.success);
+      }
+    }, null);
   };
 
-  const handleUpdate = async () => {
-    await handleAsyncOperation(
-      async () => {
-        const msg = await updatePost(popupReminder.reminderId, popupReminder.title, popupReminder.body, popupReminder.priorityColor);
-        sortReminderPosts();
-        return msg;
-      },
-      null
-    ).then((msg) => {
-      if (msg?.success) setSuccess(msg.success);
-    });
-  };
-
-  const handleDelete = async (_id: string) => {
-    if (confirm("Confirmer la suppression ?")) {
-      await handleAsyncOperation(
-        async () => {
-          const msg = await deletePost(_id);
-          sortReminderPosts();
-          return msg;
-        },
-        null
-      ).then((msg) => {
-        if (msg?.success) setSuccess(msg.success);
+  const handleStatusChange = async (post: ReminderPost, status: ReminderPost["status"]) => {
+    await handleAsyncOperation(async () => {
+      const response = await updatePost(post._id, {
+        ...toPayload(post),
+        status,
       });
-    }
+      await loadReminderPosts();
+      if (response.success) {
+        setSuccess(response.success);
+      }
+    }, null);
   };
 
-  const bodyInput = (): ReactNode => {
-    return <textarea
-      rows={3}
-      placeholder={`reminder body`}
-      className="input resize-none"
-      value={popupReminder.body}
-      onChange={(e) => setBody(e.target.value)}
-    />;
+  const handleMove = async (postId: string, direction: "up" | "down") => {
+    const orderedPosts = [...reminderPosts].sort(compareByManualOrder);
+    const currentIndex = orderedPosts.findIndex((post) => post._id === postId);
+    const targetIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1;
+
+    if (currentIndex === -1 || targetIndex < 0 || targetIndex >= orderedPosts.length) {
+      return;
+    }
+
+    const nextPosts = [...orderedPosts];
+    const [movedPost] = nextPosts.splice(currentIndex, 1);
+    nextPosts.splice(targetIndex, 0, movedPost);
+
+    await handleAsyncOperation(async () => {
+      await reorderPosts(nextPosts.map((post) => post._id));
+      await loadReminderPosts();
+      setSuccess("Ordre des taches mis a jour");
+    }, null);
   };
+
+  const orderedPosts = [...reminderPosts].sort(compareByManualOrder);
+  const todoCount = reminderPosts.filter((post) => post.status === "todo").length;
+  const doingCount = reminderPosts.filter((post) => post.status === "doing").length;
+  const doneCount = reminderPosts.filter((post) => post.status === "done").length;
 
   return (
-    <section className="card">
+    <section className="card reminder-card-shell">
       {success && <Success msg={success} setMsg={setSuccess} />}
-      {error && <Alert msg={error} setMsg={setError}/>}
+      {error && <Alert msg={error} setMsg={setError} />}
 
-      <div className="reminder-tab">
-        <PostList
-          title={<h1 className="font-bold text-2xl underline">{"Reminder Board"}</h1>}
-          posts={reminderPosts}
-          PostComposant={ReminderPost}
-          sortPosts={sortReminderPosts}
-          popupPost={popupReminder}
-          handleCreate={handleCreate}
-          handleUpdate={handleUpdate}
-          handleDelete={handleDelete}
-          setTitle={setTitle}
-          setPriorityColor={setPriorityColor}
-          setAllFields={setAllFields}
-          resetAllFields={resetAllFields}
-          popupInputs={bodyInput()}
-        />
+      <div className="reminder-hero">
+        <div>
+          <h1 className="title reminder-title">Todo list partagee</h1>
+        </div>
+
+        <div className="reminder-stats">
+          <div className="reminder-stat">
+            <span className="reminder-stat-value">{todoCount}</span>
+            <span className="reminder-stat-label">A faire</span>
+          </div>
+          <div className="reminder-stat">
+            <span className="reminder-stat-value">{doingCount}</span>
+            <span className="reminder-stat-label">En cours</span>
+          </div>
+          <div className="reminder-stat">
+            <span className="reminder-stat-value">{doneCount}</span>
+            <span className="reminder-stat-label">Termine</span>
+          </div>
+        </div>
       </div>
 
+      <div className="reminder-layout">
+        <aside className="reminder-editor">
+          <div className="reminder-panel-head">
+            <div>
+              <p className="eyebrow">Edition</p>
+              <h2>{editingId ? "Modifier la tache" : "Nouvelle tache"}</h2>
+            </div>
+            {editingId && (
+              <button className="ghost-button" onClick={resetEditor}>
+                Annuler
+              </button>
+            )}
+          </div>
+
+          <div className="reminder-form-grid">
+            <label className="reminder-field">
+              <span>Titre</span>
+              <input
+                className="input"
+                value={editor.title}
+                onChange={(event) => updateEditor("title", event.target.value)}
+                placeholder="Ex: appeler le plombier"
+              />
+            </label>
+
+            <label className="reminder-field">
+              <span>Notes</span>
+              <textarea
+                className="input reminder-textarea"
+                value={editor.body}
+                onChange={(event) => updateEditor("body", event.target.value)}
+                placeholder="Infos utiles, pieces a prevoir, contraintes..."
+                rows={5}
+              />
+            </label>
+
+            <div className="reminder-form-row">
+              <label className="reminder-field">
+                <span>Statut</span>
+                <select
+                  className="input"
+                  value={editor.status}
+                  onChange={(event) => updateEditor("status", event.target.value as ReminderPost["status"])}
+                >
+                  {STATUS_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="reminder-field">
+                <span>Echeance</span>
+                <input
+                  type="date"
+                  className="input"
+                  value={editor.dueDate || ""}
+                  onChange={(event) => updateEditor("dueDate", event.target.value)}
+                />
+              </label>
+            </div>
+
+            <button className="btn" onClick={handleSubmit}>
+              {editingId ? "Mettre a jour la tache" : "Ajouter a la todo list"}
+            </button>
+          </div>
+        </aside>
+
+        <div className="reminder-board">
+          <div className="reminder-task-list">
+            {orderedPosts.length === 0 ? (
+              <div className="reminder-empty-state">
+                <i className="fa-solid fa-list-check"></i>
+                <p>Aucune tache pour le moment.</p>
+              </div>
+            ) : (
+              orderedPosts.map((post, index) => {
+                const canManage = canManagePost(post);
+
+                return (
+                  <article key={post._id} className={`reminder-task-card status-${post.status}`}>
+                    <div className="reminder-task-top">
+                      <div className="reminder-rank-badge">{index + 1}</div>
+                      <div className="reminder-task-main">
+                        <div className="reminder-task-meta">
+                          <span>{post.username}</span>
+                          <span className="meta-separator">|</span>
+                          <span>{formatDueDate(post.dueDate)}</span>
+                        </div>
+                        <h3>{post.title}</h3>
+                        {post.body ? <p>{post.body}</p> : <p className="muted-copy">Aucune note ajoutee.</p>}
+                      </div>
+
+                      <div className="reminder-status-stack">
+                        {STATUS_OPTIONS.map((option) => (
+                          <button
+                            key={option.value}
+                            className={`status-chip ${post.status === option.value ? "active" : ""}`}
+                            disabled={!canManage}
+                            onClick={() => handleStatusChange(post, option.value)}
+                          >
+                            {option.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {canManage && (
+                      <div className="reminder-task-actions">
+                        <button
+                          className="icon-button"
+                          onClick={() => handleMove(post._id, "up")}
+                          disabled={index === 0}
+                          title="Monter"
+                        >
+                          <i className="fa-solid fa-arrow-up"></i>
+                        </button>
+                        <button
+                          className="icon-button"
+                          onClick={() => handleMove(post._id, "down")}
+                          disabled={index === orderedPosts.length - 1}
+                          title="Descendre"
+                        >
+                          <i className="fa-solid fa-arrow-down"></i>
+                        </button>
+                        <button className="ghost-button" onClick={() => handleEdit(post)}>
+                          Modifier
+                        </button>
+                        <button className="danger-button" onClick={() => handleDelete(post._id)}>
+                          Supprimer
+                        </button>
+                      </div>
+                    )}
+                  </article>
+                );
+              })
+            )}
+          </div>
+        </div>
+      </div>
     </section>
   );
 };
 
 export default ReminderTab;
-

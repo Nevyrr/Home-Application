@@ -17,6 +17,12 @@ const UserSchema = new Schema<IUser>(
       type: String,
       required: true,
     },
+    googleId: {
+      type: String,
+      default: null,
+      unique: true,
+      sparse: true,
+    },
     receiveEmail: {
       type: Boolean,
       default: false

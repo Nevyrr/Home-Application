@@ -19,6 +19,14 @@ const TacoSchema = new Schema<ITaco>({
         type: String,
         required: true
     },
+    annualVaccineDate: {
+        type: String,
+        default: ""
+    },
+    annualVaccineReminder: {
+        type: String,
+        default: ""
+    },
 }, { timestamps: true });
 
 

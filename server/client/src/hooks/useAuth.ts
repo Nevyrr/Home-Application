@@ -1,10 +1,11 @@
 /**
- * Hook personnalisé pour la gestion de l'authentification
+ * Hook personnalisÃ© pour la gestion de l'authentification
  */
 
 import { useNavigate } from "react-router-dom";
 import { useApp } from "../contexts/AppContext.tsx";
-import { User } from "../types/index.ts";
+import { logoutUser } from "../controllers/UsersController.ts";
+import { clearStoredSession, emptyUser, hasStoredSession } from "../utils/session.ts";
 
 interface LoginUserData {
   id: string;
@@ -18,7 +19,7 @@ export const useAuth = () => {
   const { user, setUser } = useApp();
   const navigate = useNavigate();
 
-  const isAuthenticated = !!user.email;
+  const isAuthenticated = !!user.email && hasStoredSession();
 
   const login = (userData: LoginUserData): void => {
     setUser({
@@ -30,23 +31,20 @@ export const useAuth = () => {
     });
   };
 
-  const logout = (): void => {
-    if (confirm("Confirmer la déconnexion ?")) {
-      setUser({
-        id: null,
-        name: null,
-        email: null,
-        receiveEmail: null,
-        isAdmin: null,
-      });
-      localStorage.removeItem("email");
-      localStorage.removeItem("token");
-      localStorage.removeItem("id");
-      localStorage.removeItem("name");
-      localStorage.removeItem("receiveEmail");
-      localStorage.removeItem("isAdmin");
-      navigate("/shopping");
+  const logout = async (askConfirmation = true): Promise<void> => {
+    if (askConfirmation && !confirm("Confirmer la dÃ©connexion ?")) {
+      return;
     }
+
+    try {
+      await logoutUser();
+    } catch {
+      // Nettoyer l'Ã©tat local mÃªme si la session serveur a dÃ©jÃ  expirÃ©.
+    }
+
+    clearStoredSession();
+    setUser(emptyUser());
+    navigate("/login");
   };
 
   return {
@@ -56,4 +54,3 @@ export const useAuth = () => {
     logout,
   };
 };
-

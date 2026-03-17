@@ -1,11 +1,26 @@
-import { jwtDecode } from "jwt-decode";
+import { fetchWithAuth } from "../utils/authClient.ts";
+import { storeSession } from "../utils/session.ts";
 
 interface LoginResponse {
   token: string;
+  refreshToken?: string;
   name: string;
   email: string;
   receiveEmail: boolean;
   isAdmin: boolean;
+  data?: {
+    user?: {
+      id: string;
+      name: string;
+      email: string;
+      receiveEmail: boolean;
+      isAdmin: boolean;
+    };
+    tokens?: {
+      accessToken: string;
+      refreshToken: string;
+    };
+  };
 }
 
 interface UpdateUserData {
@@ -34,27 +49,25 @@ const loginUser = async (email: string, password: string): Promise<LoginResponse
   if (!res.ok) {
     throw Error(data.error);
   }
- 
-  localStorage.setItem("token", data.token);
-  const decoded = jwtDecode<{ _id: string }>(data.token);
-  localStorage.setItem("id", decoded._id);
-  localStorage.setItem("name", data.name);
-  localStorage.setItem("email", data.email);
-  localStorage.setItem("receiveEmail", String(data.receiveEmail));
-  localStorage.setItem("isAdmin", String(data.isAdmin));
 
+  storeSession(data);
   return data;
 };
 
 /**************************** Update User  ********************************/
 const updateUser = async (user: UpdateUserData): Promise<void> => {
   const userId = localStorage.getItem("id");
-  const res = await fetch("/api/users/" + userId, {
+  const res = await fetchWithAuth("/api/users/" + userId, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ name: user.name, email: user.email, password: user.password, receiveEmail: user.receiveEmail }),
+    body: JSON.stringify({
+      name: user.name,
+      email: user.email,
+      password: user.password,
+      receiveEmail: user.receiveEmail,
+    }),
   });
 
   if (res.ok) {
@@ -73,7 +86,12 @@ const updateUser = async (user: UpdateUserData): Promise<void> => {
 };
 
 /**************************** Register User  ********************************/
-const registerUser = async (name: string, email: string, password: string, passwordConfirm: string): Promise<LoginResponse> => {
+const registerUser = async (
+  name: string,
+  email: string,
+  password: string,
+  passwordConfirm: string
+): Promise<LoginResponse> => {
   if (!name || !email || !password || !passwordConfirm) {
     throw Error("All fields are required");
   }
@@ -96,16 +114,39 @@ const registerUser = async (name: string, email: string, password: string, passw
     throw Error(data.error);
   }
 
-  localStorage.setItem("token", data.token);
-  const decoded = jwtDecode<{ _id: string }>(data.token);
-  localStorage.setItem("id", decoded._id);
-  localStorage.setItem("name", data.name);
-  localStorage.setItem("email", data.email);
-  localStorage.setItem("receiveEmail", "false");
-  localStorage.setItem("isAdmin", "false");
-
+  storeSession(data);
   return data;
 };
 
-export { loginUser, registerUser, updateUser };
+const logoutUser = async (): Promise<void> => {
+  const token = localStorage.getItem("token");
 
+  if (!token) {
+    return;
+  }
+
+  await fetchWithAuth("/api/users/logout", {
+    method: "POST",
+  });
+};
+
+const loginWithGoogle = async (credential: string): Promise<LoginResponse> => {
+  const res = await fetch("/api/users/google", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ credential }),
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw Error(data.error || "Connexion Google impossible");
+  }
+
+  storeSession(data);
+  return data;
+};
+
+export { loginUser, registerUser, updateUser, logoutUser, loginWithGoogle };

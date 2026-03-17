@@ -1,9 +1,8 @@
 import { useState, FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
-import { registerUser } from "../../controllers/UsersController.ts";
-import { useAuth } from "../../hooks/index.ts";
-import { useErrorHandler } from "../../hooks/index.ts";
-import Alert from "../../components/Alert.tsx";
+import { GoogleSignInButton } from "../../components/index.ts";
+import { registerUser, loginWithGoogle } from "../../controllers/UsersController.ts";
+import { useAuth, useErrorHandler } from "../../hooks/index.ts";
 
 const Register = () => {
   const { login } = useAuth();
@@ -17,74 +16,94 @@ const Register = () => {
     passwordConfirm: "",
   });
 
-  const handleRegister = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    await handleAsyncOperation(
-      async () => {
-        await registerUser(
-          formData.name,
-          formData.email,
-          formData.password,
-          formData.passwordConfirm
-        );
-        login({
-          name: formData.name,
-          email: formData.email,
-          id: localStorage.getItem("id") || "",
-          receiveEmail: localStorage.getItem("receiveEmail") === "true",
-          isAdmin: localStorage.getItem("isAdmin") === "true",
-        });
-        navigate('/dashboard');
-      },
-      null
-    );
+  const syncUserFromStorage = () => {
+    login({
+      id: localStorage.getItem("id") || "",
+      name: localStorage.getItem("name") || "",
+      email: localStorage.getItem("email") || "",
+      receiveEmail: localStorage.getItem("receiveEmail") === "true",
+      isAdmin: localStorage.getItem("isAdmin") === "true",
+    });
   };
+
+  const handleRegister = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    await handleAsyncOperation(async () => {
+      await registerUser(formData.name, formData.email, formData.password, formData.passwordConfirm);
+      syncUserFromStorage();
+      navigate("/dashboard");
+    }, null);
+  };
+
+  const handleGoogleRegister = async (credential: string) => {
+    await handleAsyncOperation(async () => {
+      await loginWithGoogle(credential);
+      syncUserFromStorage();
+      navigate("/dashboard");
+    }, null);
+  };
+
   return (
-    <section className="card">
-      <h1 className="title">Create a new account</h1>
+    <section className="auth-shell">
+      <div className="auth-copy">
+        <p className="eyebrow">Inscription</p>
+        <h1>Centralise les routines du foyer.</h1>
+        <p>
+          Cree ton espace, partage les taches utiles et garde une vision plus propre de ce qui doit etre fait. Si tu
+          veux aller vite, l'inscription Google est disponible juste en dessous.
+        </p>
+      </div>
 
-      <form onSubmit={handleRegister}>
-        <input
-          type="text"
-          placeholder="name"
-          className="input"
-          value={formData.name}
-          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          autoFocus
-        />
-        <input
-          type="email"
-          placeholder="Email Address"
-          className="input"
-          value={formData.email}
-          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          className="input"
-          value={formData.password}
-          onChange={(e) =>
-            setFormData({ ...formData, password: e.target.value })
-          }
-        />
-        <input
-          type="password"
-          placeholder="Confirm Password"
-          className="input"
-          value={formData.passwordConfirm}
-          onChange={(e) =>
-            setFormData({ ...formData, passwordConfirm: e.target.value })
-          }
-        />
-        <button className="btn">Register</button>
-      </form>
+      <div className="auth-card">
+        <p className="eyebrow">Nouveau compte</p>
+        <h2>Creer un acces</h2>
 
-      {error && <Alert msg={error} setMsg={setError} />}
+        <GoogleSignInButton onCredential={handleGoogleRegister} text="signup_with" />
+
+        <div className="divider-label">ou avec le formulaire</div>
+
+        <form onSubmit={handleRegister}>
+          <input
+            type="text"
+            placeholder="Nom"
+            className="input"
+            value={formData.name}
+            onChange={(event) => setFormData({ ...formData, name: event.target.value })}
+            autoFocus
+          />
+          <input
+            type="email"
+            placeholder="Adresse email"
+            className="input"
+            value={formData.email}
+            onChange={(event) => setFormData({ ...formData, email: event.target.value })}
+          />
+          <input
+            type="password"
+            placeholder="Mot de passe"
+            className="input"
+            value={formData.password}
+            onChange={(event) => setFormData({ ...formData, password: event.target.value })}
+          />
+          <input
+            type="password"
+            placeholder="Confirmer le mot de passe"
+            className="input"
+            value={formData.passwordConfirm}
+            onChange={(event) => setFormData({ ...formData, passwordConfirm: event.target.value })}
+          />
+          <button className="btn">Creer mon compte</button>
+        </form>
+
+        <button className="ghost-button mt-3 w-full" onClick={() => navigate("/login")}>
+          J'ai deja un compte
+        </button>
+
+        {error && <p className="mt-4 text-sm text-red-500">{error}</p>}
+      </div>
     </section>
   );
 };
 
 export default Register;
-

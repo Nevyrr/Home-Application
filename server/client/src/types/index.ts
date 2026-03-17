@@ -46,8 +46,21 @@ export interface ReminderPost {
   title: string;
   body: string;
   priorityColor: number;
+  status: "todo" | "doing" | "done";
+  dueDate?: string | Date | null;
+  sortOrder: number;
   createdAt?: string;
   updatedAt?: string;
+}
+
+export interface ExternalCalendarEvent {
+  id: string;
+  title: string;
+  start: string;
+  end?: string;
+  isAllDay: boolean;
+  location?: string;
+  htmlLink?: string;
 }
 
 export interface Taco {
@@ -56,6 +69,8 @@ export interface Taco {
   vermifugeReminder: string;
   antiPuceDate: string;
   antiPuceReminder: string;
+  annualVaccineDate: string;
+  annualVaccineReminder: string;
   createdAt?: string;
   updatedAt?: string;
 }

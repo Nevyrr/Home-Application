@@ -13,7 +13,7 @@ import { asyncHandler } from "../middlewares/errorHandler.js";
 // Creating an instance of Express router
 const router = express.Router();
 
-router.get("/", asyncHandler(getEvents));
+router.get("/", auth, asyncHandler(getEvents));
 router.post("/", auth, validate(calendarEventSchema), asyncHandler(addEvent));
 router.delete("/:id", auth, asyncHandler(deleteEvent));
 router.put("/:id", auth, validate(calendarEventSchema), asyncHandler(updateEvent));

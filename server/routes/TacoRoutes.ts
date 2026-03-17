@@ -1,6 +1,20 @@
 import express from "express";
 import auth from "../middlewares/auth.js";
-import { handleUpload, checkStorage, getUploadMiddleware, updateVermifugeDate, updateAntiPuceDate, getFile, getTacoData, updateAntiPuceReminder, updateVermifugeReminder, listImages, deleteImage } from "../controllers/TacoController.js";
+import {
+    handleUpload,
+    checkStorage,
+    getUploadMiddleware,
+    updateVermifugeDate,
+    updateAntiPuceDate,
+    updateAnnualVaccineDate,
+    getFile,
+    getTacoData,
+    updateAntiPuceReminder,
+    updateVermifugeReminder,
+    updateAnnualVaccineReminder,
+    listImages,
+    deleteImage
+} from "../controllers/TacoController.js";
 import { asyncHandler } from "../middlewares/errorHandler.js";
 
 // Creating an instance of Express router
@@ -11,6 +25,8 @@ router.post("/vermifuge/date", auth, asyncHandler(updateVermifugeDate));
 router.post("/vermifuge/reminder", auth, asyncHandler(updateVermifugeReminder));
 router.post("/antipuce/date", auth, asyncHandler(updateAntiPuceDate));
 router.post("/antipuce/reminder", auth, asyncHandler(updateAntiPuceReminder));
+router.post("/vaccine/date", auth, asyncHandler(updateAnnualVaccineDate));
+router.post("/vaccine/reminder", auth, asyncHandler(updateAnnualVaccineReminder));
 router.get("/image/:filename", auth, asyncHandler(getFile));
 router.get("/images", auth, asyncHandler(listImages));
 router.delete("/image/:filename", auth, asyncHandler(deleteImage));

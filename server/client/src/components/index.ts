@@ -16,4 +16,5 @@ export { default as PostValidationPopup } from "./PostValidationPopup.tsx";
 export { default as Icon } from "./Icon.tsx";
 export { default as ErrorBoundary } from "./ErrorBoundary.tsx";
 export { default as ThemeToggle } from "./ThemeToggle.tsx";
+export { default as GoogleSignInButton } from "./GoogleSignInButton.tsx";
 

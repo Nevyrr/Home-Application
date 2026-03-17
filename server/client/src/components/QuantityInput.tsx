@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from "react";
 
 interface QuantityInputProps {
   count: number;
@@ -7,7 +7,7 @@ interface QuantityInputProps {
 }
 
 const QuantityInput = ({ count, unit, onChange }: QuantityInputProps) => {
-    const units = ['', 'g', 'Kg', 'mL', 'L'];
+    const units = ["", "g", "Kg", "mL", "L"];
 
     const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         onChange({ count: Number(e.target.value), unit: unit });
@@ -18,12 +18,12 @@ const QuantityInput = ({ count, unit, onChange }: QuantityInputProps) => {
     };
 
     return (
-        <div className="flex items-center space-x-4">
+        <div className="quantity-input-row">
             <input
                 type="number"
                 value={count}
                 onChange={handleQuantityChange}
-                className="input w-24"
+                className="input quantity-input-count"
                 placeholder="Count"
                 min="0"
                 max="99"
@@ -34,7 +34,7 @@ const QuantityInput = ({ count, unit, onChange }: QuantityInputProps) => {
                 value={unit}
                 placeholder="unit"
                 onChange={handleUnitChange}
-                className="input"
+                className="input quantity-input-unit"
             >
                 {units.map((unitOption) => (
                     <option key={unitOption} value={unitOption}>

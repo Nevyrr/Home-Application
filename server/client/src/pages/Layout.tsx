@@ -1,91 +1,94 @@
-import { useState } from "react";
-import { Link, Outlet } from "react-router-dom";
+import { Link, Outlet, useLocation } from "react-router-dom";
 import Icon from "../components/Icon.tsx";
 import ThemeToggle from "../components/ThemeToggle.tsx";
 import { useAuth } from "../hooks/index.ts";
 
-const Layout = () => {
-  const { user, logout } = useAuth();
-  const [selectedLink, setSelectedLink] = useState<string | null>(null);
+const NAV_ITEMS = [
+  { path: "/shopping", icon: "fa-cart-shopping", label: "Shopping" },
+  { path: "/calendar", icon: "fa-calendar-days", label: "Calendrier" },
+  { path: "/reminders", icon: "fa-list-check", label: "Todo" },
+  { path: "/taco", icon: "fa-dog", label: "Taco" },
+];
 
-  const handleLinkClick = (link: string): void => {
-    setSelectedLink(link);
+const Layout = () => {
+  const { pathname } = useLocation();
+  const { user, logout } = useAuth();
+
+  const isSelected = (path: string): boolean => {
+    if (path === "/shopping" && pathname === "/") {
+      return true;
+    }
+
+    return pathname === path;
   };
 
   return (
     <>
-      <header className="bg-header border-b border-theme shadow-theme-sm sticky top-0 z-50">
-        <nav className="flex items-center justify-between p-4 max-w-7xl mx-auto gap-3 px-6">
-          <Link
-            title="Shopping"
-            to="/shopping"
-            className={`fa-solid shopping fa-cart-shopping nav-link ${selectedLink === 'shopping' ? 'selected' : ''}`}
-            onClick={() => handleLinkClick('shopping')}
-          ></Link>
-
-          <Link
-            title="Calendar"
-            to="/calendar"
-            className={`fa-solid calendar fa-calendar-days nav-link ${selectedLink === 'calendar' ? 'selected' : ''}`}
-            onClick={() => handleLinkClick('calendar')}
-          ></Link>
-
-          <Link
-            title="Reminders"
-            to="/reminders"
-            className={`fa-solid bell fa-bell nav-link ${selectedLink === 'reminders' ? 'selected' : ''}`}
-            onClick={() => handleLinkClick('reminders')}
-          ></Link>
-
-
-          <Link
-            title="Taco"
-            to="/taco"
-            className={`fa-solid taco fa-dog nav-link ${selectedLink === 'taco' ? 'selected' : ''}`}
-            onClick={() => handleLinkClick('taco')}
-          ></Link>
-
-
-          {user.email ? (
-            <div className="flex items-center gap-2">
-              <ThemeToggle />
-              <Link
-                title="Dashboard"
-                to="/dashboard"
-                className={`fa-solid fa-circle-user nav-link ${selectedLink === 'dashboard' ? 'selected' : ''}`}
-                onClick={() => handleLinkClick('dashboard')}
-              ></Link>
-              <button
-                title="Logout"
-                onClick={logout}
-                className="fa-solid fa-right-from-bracket nav-link"
-              ></button>
-            </div>
-          ) : (
-            <div className="flex items-center gap-2">
-              <ThemeToggle />
-              <Link
-                title="Login"
-                to="/login"
-                className="fa-solid fa-right-to-bracket nav-link"
-              ></Link>
-              <Link
-                title="Register"
-                to="/register"
-                className="fa-solid fa-user-plus nav-link"
-              ></Link>
-            </div>
-          )}
-
-          <div className="flex items-center gap-3">
-            <div className="max-w-20">
+      <header className="app-header">
+        <nav className="app-nav">
+          <Link to="/shopping" className="brand-lockup">
+            <div className="brand-icon-shell">
               <Icon imageName={"DavinIcon.png"} />
             </div>
+            <div className="brand-copy">
+              <span className="brand-eyebrow">Davin home application</span>
+              <strong>Home Base</strong>
+            </div>
+          </Link>
+
+          <div className="nav-cluster">
+            {NAV_ITEMS.map((item) => (
+              <Link
+                key={item.path}
+                title={item.label}
+                to={item.path}
+                className={`nav-link ${isSelected(item.path) ? "selected" : ""}`}
+              >
+                <i className={`fa-solid ${item.icon} nav-icon`}></i>
+                <span className="nav-label">{item.label}</span>
+              </Link>
+            ))}
+          </div>
+
+          <div className="nav-actions">
+            <ThemeToggle />
+
+            {user.email ? (
+              <>
+                <Link
+                  title="Dashboard"
+                  to="/dashboard"
+                  className={`nav-link compact ${isSelected("/dashboard") ? "selected" : ""}`}
+                >
+                  <i className="fa-solid fa-circle-user nav-icon"></i>
+                  <span className="nav-label">Compte</span>
+                </Link>
+                <button title="Logout" onClick={() => logout()} className="nav-link compact">
+                  <i className="fa-solid fa-right-from-bracket nav-icon"></i>
+                  <span className="nav-label">Quitter</span>
+                </button>
+              </>
+            ) : (
+              <>
+                <Link title="Login" to="/login" className={`nav-link compact ${isSelected("/login") ? "selected" : ""}`}>
+                  <i className="fa-solid fa-right-to-bracket nav-icon"></i>
+                  <span className="nav-label">Connexion</span>
+                </Link>
+                <Link
+                  title="Register"
+                  to="/register"
+                  className={`nav-link compact ${isSelected("/register") ? "selected" : ""}`}
+                >
+                  <i className="fa-solid fa-user-plus nav-icon"></i>
+                  <span className="nav-label">Inscription</span>
+                </Link>
+              </>
+            )}
           </div>
         </nav>
       </header>
 
-      <main className="p-4 min-h-screen max-w-7xl mx-auto px-6">
+      <main className="app-main">
         <Outlet />
       </main>
     </>
@@ -93,4 +96,3 @@ const Layout = () => {
 };
 
 export default Layout;
-

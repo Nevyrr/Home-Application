@@ -1,23 +1,48 @@
 import { Alert, Success, EditableCalendar } from "../../components/index.ts";
 import { useApp } from "../../contexts/AppContext.tsx";
 import { useErrorHandler } from "../../hooks/index.ts";
-import { useState, ReactNode, useEffect, useCallback } from "react";
+import { useState, ReactNode, useEffect, useRef } from "react";
 import { getEvents, deleteEvent, createEvent, updateEvent } from "../../controllers/CalendarEventsController.ts";
 import PostList from "../../components/PostList.tsx";
-import { fr } from 'date-fns/locale';
-import DatePicker from 'react-datepicker';
-import TimePicker from 'react-time-picker';
+import { fr } from "date-fns/locale";
+import DatePicker from "react-datepicker";
+import TimePicker from "react-time-picker";
 import { isSameDate } from "../../utils/index.ts";
 import CalendarPost from "../../components/CalendarPost.tsx";
-import 'react-datepicker/dist/react-datepicker.css';
-import 'react-time-picker/dist/TimePicker.css';
-import { CalendarEvent } from "../../types/index.ts";
+import "react-datepicker/dist/react-datepicker.css";
+import "react-time-picker/dist/TimePicker.css";
+import { CalendarEvent, ExternalCalendarEvent } from "../../types/index.ts";
+import {
+  clearGoogleCalendarSession,
+  disconnectGoogleCalendar,
+  fetchGoogleCalendarEvents,
+  getStoredGoogleCalendarToken,
+  isGoogleConfigured,
+  requestGoogleCalendarAccessToken,
+} from "../../utils/google.ts";
+
+const parseCalendarDate = (value: Date | string): Date => {
+  if (value instanceof Date) {
+    return value;
+  }
+
+  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    return new Date(`${value}T00:00:00`);
+  }
+
+  return new Date(value);
+};
 
 const CalendarTab = () => {
   const { events, setEvents } = useApp();
   const { error, success, setError, setSuccess, handleAsyncOperation } = useErrorHandler();
+  const hasLoadedEvents = useRef(false);
+  const legendItems = [
+    { colorClass: "priority-1", label: "Valide" },
+    { colorClass: "priority-2", label: "Envisage" },
+    { colorClass: "priority-3", label: "Action requise" },
+  ];
 
-  // Event being updated or created
   const [popupEvent, setPopupEvent] = useState<{
     eventId: string;
     date: Date;
@@ -29,75 +54,115 @@ const CalendarTab = () => {
     date: new Date(),
     duration: "",
     title: "",
-    priorityColor: 0
+    priorityColor: 0,
   });
 
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [eventsOnDate, setEventsOnDate] = useState<CalendarEvent[]>([]);
+  const [googleEvents, setGoogleEvents] = useState<ExternalCalendarEvent[]>([]);
+  const [googleEventsOnDate, setGoogleEventsOnDate] = useState<ExternalCalendarEvent[]>([]);
+  const [googleConnected, setGoogleConnected] = useState<boolean>(!!getStoredGoogleCalendarToken());
+  const [googleLoading, setGoogleLoading] = useState<boolean>(false);
 
-
-  /* Use to sort date using hour and minutes by adding hour and minutes of an event */
-  const getMinutes = (event: CalendarEvent): number => {
-    const eventDate = typeof event.date === 'string' ? new Date(event.date) : event.date;
-    return eventDate.getHours() * 60 + eventDate.getMinutes();
+  const getMinutes = (event: { date?: Date | string; start?: string }): number => {
+    const rawDate = event.date || event.start || new Date().toISOString();
+    const parsedDate = typeof rawDate === "string" ? parseCalendarDate(rawDate) : rawDate;
+    return parsedDate.getHours() * 60 + parsedDate.getMinutes();
   };
 
-  const filterEventsWithSelectedDate = useCallback(async (date?: Date) => {
-    const data = await getEvents();
+  const filterLocalEvents = (allEvents: CalendarEvent[], date: Date): CalendarEvent[] => {
+    return [...allEvents]
+      .filter((event) => isSameDate(parseCalendarDate(event.date), date))
+      .sort((a, b) => {
+        const minutesDiff = getMinutes(a) - getMinutes(b);
+        if (minutesDiff !== 0) {
+          return minutesDiff;
+        }
+        return b.priorityColor - a.priorityColor;
+      });
+  };
 
-    // Convert string date to real date
-    const eventsList: CalendarEvent[] = data.events.map(event => {
-      return {
-        ...event, // keep event properties
-        date: typeof event.date === 'string' ? new Date(event.date) : event.date // Convert Date in real Date
-      };
-    });
+  const filterGoogleEvents = (allEvents: ExternalCalendarEvent[], date: Date): ExternalCalendarEvent[] => {
+    return [...allEvents]
+      .filter((event) => isSameDate(parseCalendarDate(event.start), date))
+      .sort((a, b) => getMinutes(a) - getMinutes(b));
+  };
+
+  const refreshGoogleEvents = async (interactive = false) => {
+    if (!isGoogleConfigured()) {
+      setGoogleConnected(false);
+      setGoogleEvents([]);
+      setGoogleEventsOnDate([]);
+      return;
+    }
+
+    setGoogleLoading(true);
+
+    try {
+      const token = await requestGoogleCalendarAccessToken(interactive);
+
+      if (!token) {
+        setGoogleConnected(false);
+        setGoogleEvents([]);
+        setGoogleEventsOnDate([]);
+        return;
+      }
+
+      const timeMin = new Date();
+      timeMin.setMonth(timeMin.getMonth() - 3);
+
+      const timeMax = new Date();
+      timeMax.setFullYear(timeMax.getFullYear() + 1);
+
+      const googleCalendarEvents = await fetchGoogleCalendarEvents(timeMin, timeMax);
+      setGoogleConnected(true);
+      setGoogleEvents(googleCalendarEvents);
+      setGoogleEventsOnDate(filterGoogleEvents(googleCalendarEvents, selectedDate));
+    } catch (googleError) {
+      clearGoogleCalendarSession();
+      setGoogleConnected(false);
+      setGoogleEvents([]);
+      setGoogleEventsOnDate([]);
+      setError(googleError instanceof Error ? googleError.message : "Impossible de recuperer Google Calendar");
+    } finally {
+      setGoogleLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (getStoredGoogleCalendarToken()) {
+      refreshGoogleEvents(false);
+    }
+  }, []);
+
+  const filterEventsWithSelectedDate = async (date?: Date) => {
+    const data = await getEvents();
+    const eventsList: CalendarEvent[] = data.events.map((event) => ({
+      ...event,
+      date: parseCalendarDate(event.date),
+    }));
 
     setEvents(eventsList);
 
     const filterDate = date || selectedDate;
-
-    const selectedDateEvents = eventsList.filter((event) => {
-      const eventDate = typeof event.date === 'string' ? new Date(event.date) : event.date;
-      return isSameDate(eventDate, filterDate);
-    });
-    selectedDateEvents.sort((a, b) => {
-      //sort by hour then priority
-      const minutesDiff = getMinutes(a) - getMinutes(b);
-      if (minutesDiff !== 0) { return minutesDiff; }
-      return b.priorityColor - a.priorityColor;
-    });
-    // Update posts state
-    setEventsOnDate(selectedDateEvents);
-  }, [selectedDate]);
-
-  // Charger les événements au montage du composant
-  useEffect(() => {
-    let mounted = true;
-    const loadEvents = async () => {
-      try {
-        await filterEventsWithSelectedDate();
-      } catch (error) {
-        console.error('Error loading calendar events:', error);
-        setError(error instanceof Error ? error.message : 'Erreur lors du chargement des événements');
-      }
-    };
-
-    loadEvents();
-
-    return () => {
-      mounted = false;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Charger une seule fois au montage
-
-  const updatePopup = (key: string, value: string | number | Date) => {
-    setPopupEvent(prevState => ({
-      ...prevState,
-      [key]: value
-    }));
+    setEventsOnDate(filterLocalEvents(eventsList, filterDate));
   };
 
+  useEffect(() => {
+    if (hasLoadedEvents.current) {
+      return;
+    }
+
+    hasLoadedEvents.current = true;
+    void filterEventsWithSelectedDate(selectedDate);
+  }, []);
+
+  const updatePopup = (key: string, value: string | number | Date) => {
+    setPopupEvent((prevState) => ({
+      ...prevState,
+      [key]: value,
+    }));
+  };
 
   const setTitle = (title: string) => {
     updatePopup("title", title);
@@ -109,7 +174,8 @@ const CalendarTab = () => {
 
   const handleDateChange = (newDate: Date) => {
     setSelectedDate(newDate);
-    filterEventsWithSelectedDate(newDate);
+    setEventsOnDate(filterLocalEvents(events, newDate));
+    setGoogleEventsOnDate(filterGoogleEvents(googleEvents, newDate));
   };
 
   const resetAllFields = () => {
@@ -117,146 +183,222 @@ const CalendarTab = () => {
   };
 
   const setAllFields = (post: CalendarEvent) => {
-    const postDate = typeof post.date === 'string' ? new Date(post.date) : post.date;
+    const postDate = parseCalendarDate(post.date);
     setPopupEvent({ eventId: post._id, title: post.title, date: postDate, duration: post.duration || "", priorityColor: post.priorityColor });
   };
 
   const handleCreate = async () => {
-    await handleAsyncOperation(
-      async () => {
-        const msg = await createEvent(popupEvent.title, popupEvent.date, popupEvent.duration, popupEvent.priorityColor);
-        filterEventsWithSelectedDate(selectedDate);
-        return msg;
-      },
-      null
-    ).then((msg) => {
-      if (msg?.success) setSuccess(msg.success);
-    });
+    await handleAsyncOperation(async () => {
+      const response = await createEvent(popupEvent.title, popupEvent.date, popupEvent.duration, popupEvent.priorityColor);
+      await filterEventsWithSelectedDate(selectedDate);
+      if (response.success) {
+        setSuccess(response.success);
+      }
+    }, null);
   };
 
   const handleUpdate = async () => {
-    await handleAsyncOperation(
-      async () => {
-        const msg = await updateEvent(popupEvent.eventId, popupEvent.title, popupEvent.date, popupEvent.duration, popupEvent.priorityColor);
-        filterEventsWithSelectedDate(selectedDate);
-        return msg;
-      },
-      null
-    ).then((msg) => {
-      if (msg?.success) setSuccess(msg.success);
-    });
+    await handleAsyncOperation(async () => {
+      const response = await updateEvent(
+        popupEvent.eventId,
+        popupEvent.title,
+        popupEvent.date,
+        popupEvent.duration,
+        popupEvent.priorityColor
+      );
+      await filterEventsWithSelectedDate(selectedDate);
+      if (response.success) {
+        setSuccess(response.success);
+      }
+    }, null);
   };
 
   const handleDelete = async (_id: string) => {
-    if (confirm("Confirmer la suppression ?")) {
-      await handleAsyncOperation(
-        async () => {
-          const msg = await deleteEvent(_id);
-          filterEventsWithSelectedDate(selectedDate);
-          return msg;
-        },
-        null
-      ).then((msg) => {
-        if (msg?.success) setSuccess(msg.success);
-      });
+    if (!confirm("Confirmer la suppression ?")) {
+      return;
     }
+
+    await handleAsyncOperation(async () => {
+      const response = await deleteEvent(_id);
+      await filterEventsWithSelectedDate(selectedDate);
+      if (response.success) {
+        setSuccess(response.success);
+      }
+    }, null);
   };
 
   const handleClearDay = async () => {
-    if (confirm("Confirmer la suppression de tous les événements du jour ?")) {
-      await handleAsyncOperation(
-        async () => {
-          for (const event of eventsOnDate) {
-            await deleteEvent(event._id);
-          }
-          filterEventsWithSelectedDate(selectedDate);
-          return { success: "Tous les événements du jour ont été supprimés !" };
-        },
-        null
-      ).then((msg) => {
-        if (msg?.success) setSuccess(msg.success);
-      });
+    if (!confirm("Confirmer la suppression de tous les evenements du jour ?")) {
+      return;
     }
+
+    await handleAsyncOperation(async () => {
+      for (const event of eventsOnDate) {
+        await deleteEvent(event._id);
+      }
+
+      await filterEventsWithSelectedDate(selectedDate);
+      setSuccess("Tous les evenements du jour ont ete supprimes");
+    }, null);
   };
 
   const dateInput = (): ReactNode => {
-    return <div className="flex flex-col relative">
-      <span className="absolute left-2 top-2 text-gray-400 pointer-events-none text-xs z-10">
-        Date :
-      </span>
-      <DatePicker
-        selected={popupEvent.date}
-        onChange={(date: Date | null) => {
-          if (date) updatePopup("date", date);
-        }}
-        showTimeSelect
-        dateFormat="Pp" // Format date et heure
-        locale={fr}
-        className="calendar-datepicker-input"
-        placeholderText="Choose a date"
-      />
-      <span className="absolute left-2 bottom-1 text-gray-400 pointer-events-none text-xs">
-        Duration :
-      </span>
-      <TimePicker
-        onChange={(duration: string | null) => {
-          if (duration) updatePopup("duration", duration);
-        }}
-        value={popupEvent.duration}
-        disableClock={true}
-        format="HH:mm"
-        className="calendar-popup-time-picker"
-      />
-    </div>;
+    return (
+      <div className="calendar-popup-stack">
+        <label className="post-popup-field">
+          <span className="post-popup-label">Date</span>
+          <DatePicker
+            selected={popupEvent.date}
+            onChange={(date: Date | null) => {
+              if (date) {
+                updatePopup("date", date);
+              }
+            }}
+            showTimeSelect
+            dateFormat="Pp"
+            locale={fr}
+            className="calendar-datepicker-input"
+            calendarClassName="theme-datepicker"
+            popperClassName="theme-datepicker-popper"
+            placeholderText="Choisir une date"
+          />
+        </label>
+
+        <label className="post-popup-field">
+          <span className="post-popup-label">Duree</span>
+          <TimePicker
+            onChange={(duration: string | null) => {
+              if (duration) {
+                updatePopup("duration", duration);
+              }
+            }}
+            value={popupEvent.duration}
+            disableClock={true}
+            format="HH:mm"
+            className="calendar-popup-time-picker"
+          />
+        </label>
+      </div>
+    );
   };
 
+  const combinedCalendarEvents: CalendarEvent[] = [
+    ...events,
+    ...googleEvents.map((event) => ({
+      _id: `google-${event.id}`,
+      user: "google",
+      username: "Google Calendar",
+      title: event.title,
+      date: parseCalendarDate(event.start),
+      duration: event.isAllDay ? "Journee" : undefined,
+      priorityColor: 0,
+    })),
+  ];
+  const selectedDateLabel = selectedDate.toLocaleDateString("fr-FR", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+  const localEventLabel = `${eventsOnDate.length} ${eventsOnDate.length > 1 ? "evenements locaux" : "evenement local"}`;
+
   return (
-    <section className="card">
+    <section className="card calendar-shell">
       {success && <Success msg={success} setMsg={setSuccess} />}
       {error && <Alert msg={error} setMsg={setError} />}
 
-      <h1 className="font-bold text-xl text-text-heading flex items-center gap-2">
-        <i className="fa-solid fa-calendar-days text-primary"></i>
-        Calendrier partagé
-      </h1>
+      <div className="calendar-page-header">
+        <h1 className="calendar-page-title">
+          <i className="fa-solid fa-calendar-days text-primary"></i>
+          Calendrier partage
+        </h1>
+      </div>
 
       <div className="calendar-tab">
-
         <div className="calendar-div">
-          <EditableCalendar
-            allEvents={events}
-            handleDateChange={handleDateChange}
-          />
-          <div className="bg-bg-panel border border-theme rounded-xl p-4 mt-4 flex flex-wrap items-center gap-4">
-            <span className="font-semibold text-text-heading flex items-center gap-2">
+          <EditableCalendar allEvents={combinedCalendarEvents} handleDateChange={handleDateChange} />
+
+          <div className="calendar-info-card calendar-legend-card">
+            <span className="calendar-card-heading">
               <i className="fa-solid fa-info-circle text-primary"></i>
-              Légende:
+              Legende:
             </span>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-green-500 rounded-full"></div>
-              <span className="text-sm text-text-main">Validé</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-yellow-500 rounded-full"></div>
-              <span className="text-sm text-text-main">Envisagé</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-red-500 rounded-full"></div>
-              <span className="text-sm text-text-main">En attente d'une action</span>
+            <div className="calendar-legend">
+              {legendItems.map((item) => (
+                <div key={item.label} className="calendar-legend-item">
+                  <span className={`priority-dot ${item.colorClass}`}></span>
+                  <span>{item.label}</span>
+                </div>
+              ))}
             </div>
           </div>
+
+          <div className="calendar-info-card calendar-sync-card">
+            <div className="calendar-sync-head">
+              <div>
+                <p className="eyebrow">Google Calendar</p>
+                <h2 className="calendar-card-title">Agenda Gmail</h2>
+                <p className="calendar-card-copy">
+                  Les evenements Google sont importes en lecture seule dans cet onglet.
+                </p>
+              </div>
+              <span
+                className={`calendar-status-pill ${
+                  googleConnected ? "connected" : "disconnected"
+                }`}
+              >
+                {googleConnected ? "Connecte" : "Non connecte"}
+              </span>
+            </div>
+
+            {!isGoogleConfigured() ? (
+              <p className="calendar-sync-note">
+                Ajoute `VITE_GOOGLE_CLIENT_ID` pour activer la connexion Google sur le client.
+              </p>
+            ) : (
+              <div className="calendar-sync-actions">
+                <button className="ghost-button" onClick={() => refreshGoogleEvents(true)} disabled={googleLoading}>
+                  {googleLoading ? "Connexion..." : googleConnected ? "Reconnecter Google" : "Connecter Google"}
+                </button>
+                {googleConnected && (
+                  <>
+                    <button className="ghost-button" onClick={() => refreshGoogleEvents(false)} disabled={googleLoading}>
+                      Actualiser
+                    </button>
+                    <button
+                      className="danger-button"
+                      onClick={async () => {
+                        await disconnectGoogleCalendar();
+                        setGoogleConnected(false);
+                        setGoogleEvents([]);
+                        setGoogleEventsOnDate([]);
+                        setSuccess("Google Calendar deconnecte");
+                      }}
+                    >
+                      Deconnecter
+                    </button>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
         </div>
-      
-        <div className="events-calendar flex justify-center">
-          <div className="calendar-list-event w-full max-w-2xl">
+
+        <div className="events-calendar">
+          <div className="calendar-list-event">
             <PostList
+              popupEntityName="evenement"
               PostComposant={CalendarPost}
-              title={<h1 className="font-bold text-2xl text-text-heading flex items-center gap-2">
-                <i className="fa-solid fa-calendar-check text-primary"></i>
-                {selectedDate.toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-              </h1>}
+              title={
+                <div className="calendar-day-heading">
+                  <h1 className="calendar-day-title">
+                    <i className="fa-solid fa-calendar-check text-primary"></i>
+                    {selectedDateLabel}
+                  </h1>
+                  <span className="calendar-day-count">{localEventLabel}</span>
+                </div>
+              }
               posts={eventsOnDate}
-              sortPosts={filterEventsWithSelectedDate}
               popupPost={popupEvent}
               handleCreate={handleCreate}
               handleUpdate={handleUpdate}
@@ -267,17 +409,58 @@ const CalendarTab = () => {
               resetAllFields={resetAllFields}
               popupInputs={dateInput()}
             />
+
             {eventsOnDate.length > 0 && (
-              <div className="mt-4 flex justify-center">
-                <button 
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-bg-panel border border-theme text-text-main rounded-lg hover:bg-hover hover:border-red-500/50 hover:text-red-500 dark:hover:text-red-400 transition-all duration-200 font-medium text-sm" 
-                  onClick={handleClearDay}
-                >
+              <div className="calendar-clear-bar">
+                <button className="calendar-clear-button" onClick={handleClearDay}>
                   <i className="fa-solid fa-trash-can"></i>
-                  Vider la journée
+                  Vider la journee
                 </button>
               </div>
             )}
+
+            <div className="calendar-external-panel">
+              <div className="calendar-external-head">
+                <div>
+                  <p className="eyebrow">Agenda externe</p>
+                  <h2 className="calendar-card-title">Google Calendar</h2>
+                </div>
+                <span className="calendar-external-count">{googleEventsOnDate.length} evenement(s)</span>
+              </div>
+
+              {googleEventsOnDate.length === 0 ? (
+                <p className="calendar-empty-copy">Aucun evenement Google pour cette date.</p>
+              ) : (
+                <div className="calendar-external-list">
+                  {googleEventsOnDate.map((event) => (
+                    <article key={event.id} className="calendar-external-event">
+                      <div className="calendar-external-event-head">
+                        <div>
+                          <div className="calendar-external-meta">
+                            <span className="priority-dot priority-0"></span>
+                            <span>Google Calendar</span>
+                            <span className="meta-separator">|</span>
+                            <span>
+                              {event.isAllDay
+                                ? "Journee entiere"
+                                : parseCalendarDate(event.start).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}
+                            </span>
+                          </div>
+                          <h3 className="calendar-external-title">{event.title}</h3>
+                          {event.location && <p className="calendar-external-location">{event.location}</p>}
+                        </div>
+
+                        {event.htmlLink && (
+                          <a className="ghost-button" href={event.htmlLink} target="_blank" rel="noreferrer">
+                            Ouvrir
+                          </a>
+                        )}
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -286,4 +469,3 @@ const CalendarTab = () => {
 };
 
 export default CalendarTab;
-

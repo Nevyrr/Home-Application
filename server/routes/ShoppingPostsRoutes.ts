@@ -16,7 +16,7 @@ import { asyncHandler } from "../middlewares/errorHandler.js";
 // Creating an instance of Express router
 const router = express.Router();
 
-router.get("/", asyncHandler(getPosts));
+router.get("/", auth, asyncHandler(getPosts));
 router.post("/", auth, validate(shoppingPostSchema), asyncHandler(addPost));
 router.post("/date", auth, asyncHandler(addDate));
 router.put("/date", auth, asyncHandler(updateDateItem));

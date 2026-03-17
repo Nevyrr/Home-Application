@@ -1,7 +1,15 @@
 import { useEffect, useState } from "react";
 import { Alert, Success } from "../../components/index.ts";
 import ImageUpload from "../../components/ImageUpload.tsx";
-import { getTacoData, updateVermifugeDate, updateVermifugeReminder, updateAntiPuceDate, updateAntiPuceReminder} from "../../controllers/TacoController.ts";
+import {
+  getTacoData,
+  updateVermifugeDate,
+  updateVermifugeReminder,
+  updateAntiPuceDate,
+  updateAntiPuceReminder,
+  updateAnnualVaccineDate,
+  updateAnnualVaccineReminder,
+} from "../../controllers/TacoController.ts";
 import { useApp } from "../../contexts/AppContext.tsx";
 import { useErrorHandler, useDateConverter } from "../../hooks/index.ts";
 import DatePicker, { registerLocale } from 'react-datepicker';
@@ -93,6 +101,32 @@ const TacoTab = () => {
     });
   };
 
+  const handleUpdateAnnualVaccineDate = async (date: string) => {
+    await handleAsyncOperation(
+      async () => {
+        const msg = await updateAnnualVaccineDate(date);
+        getTaco();
+        return msg;
+      },
+      null
+    ).then((msg) => {
+      if (msg?.success) setSuccess(msg.success);
+    });
+  };
+
+  const handleUpdateAnnualVaccineReminder = async (date: string) => {
+    await handleAsyncOperation(
+      async () => {
+        const msg = await updateAnnualVaccineReminder(date);
+        getTaco();
+        return msg;
+      },
+      null
+    ).then((msg) => {
+      if (msg?.success) setSuccess(msg.success);
+    });
+  };
+
   return (
     <section className="card">
       {success && <Success msg={success} setMsg={setSuccess} />}
@@ -100,7 +134,7 @@ const TacoTab = () => {
 
       <h1 className="title">TACO</h1>
 
-      {taco && (taco.vermifugeDate || taco.antiPuceDate) && (
+      {taco && (taco.vermifugeDate || taco.antiPuceDate || taco.annualVaccineDate) && (
         <div className="space-y-8">
           {/* Section Traitements - Vermifuge et Anti-Puce fusionnés */}
           <div className="bg-bg-panel rounded-lg border border-theme p-6">
@@ -109,7 +143,7 @@ const TacoTab = () => {
               Traitements
             </h2>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
               {/* Carte Vermifuge */}
               <div className="bg-bg-panel rounded-lg border border-theme p-5 hover:shadow-lg transition-shadow" style={{ borderLeft: '4px solid #3b82f6' }}>
                 <div className="flex items-center gap-3 mb-4">
@@ -135,6 +169,8 @@ const TacoTab = () => {
                       locale="fr"
                       dateFormat="P"
                       className="datepicker-input w-full"
+                      calendarClassName="theme-datepicker"
+                      popperClassName="theme-datepicker-popper"
                     />
                   </div>
                   
@@ -153,6 +189,8 @@ const TacoTab = () => {
                       locale="fr"
                       dateFormat="P"
                       className="datepicker-input w-full"
+                      calendarClassName="theme-datepicker"
+                      popperClassName="theme-datepicker-popper"
                     />
                   </div>
                 </div>
@@ -183,6 +221,8 @@ const TacoTab = () => {
                       locale="fr"
                       dateFormat="P"
                       className="datepicker-input w-full"
+                      calendarClassName="theme-datepicker"
+                      popperClassName="theme-datepicker-popper"
                     />
                   </div>
                   
@@ -201,6 +241,60 @@ const TacoTab = () => {
                       locale="fr"
                       dateFormat="P"
                       className="datepicker-input w-full"
+                      calendarClassName="theme-datepicker"
+                      popperClassName="theme-datepicker-popper"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Carte Vaccin annuel */}
+              <div className="bg-bg-panel rounded-lg border border-theme p-5 hover:shadow-lg transition-shadow" style={{ borderLeft: '4px solid #f59e0b' }}>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="bg-amber-500 dark:bg-amber-600 text-white rounded-full p-3 shadow-md">
+                    <i className="fa-solid fa-shield-dog text-xl"></i>
+                  </div>
+                  <h3 className="text-xl font-bold text-text-heading">Vaccin annuel</h3>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-text-muted mb-2">
+                      <i className="fa-solid fa-calendar-check mr-2 text-amber-500 dark:text-amber-400"></i>
+                      Dernier vaccin
+                    </label>
+                    <DatePicker
+                      selected={convertStringToDate(taco.annualVaccineDate)}
+                      onChange={(date: Date | null) => {
+                        if (date && !isNaN(date.getTime())) {
+                          handleUpdateAnnualVaccineDate(date.toLocaleDateString());
+                        }
+                      }}
+                      locale="fr"
+                      dateFormat="P"
+                      className="datepicker-input w-full"
+                      calendarClassName="theme-datepicker"
+                      popperClassName="theme-datepicker-popper"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-text-muted mb-2">
+                      <i className="fa-solid fa-bell mr-2 text-amber-500 dark:text-amber-400"></i>
+                      Prochain rappel
+                    </label>
+                    <DatePicker
+                      selected={convertStringToDate(taco.annualVaccineReminder)}
+                      onChange={(date: Date | null) => {
+                        if (date && !isNaN(date.getTime())) {
+                          handleUpdateAnnualVaccineReminder(date.toLocaleDateString());
+                        }
+                      }}
+                      locale="fr"
+                      dateFormat="P"
+                      className="datepicker-input w-full"
+                      calendarClassName="theme-datepicker"
+                      popperClassName="theme-datepicker-popper"
                     />
                   </div>
                 </div>
@@ -223,4 +317,6 @@ const TacoTab = () => {
 };
 
 export default TacoTab;
+
+
 

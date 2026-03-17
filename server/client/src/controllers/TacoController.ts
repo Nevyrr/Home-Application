@@ -1,4 +1,5 @@
 import { Taco } from "../types/index.ts";
+import { fetchWithAuth } from "../utils/authClient.ts";
 
 interface ApiResponse {
   taco?: Taco[];
@@ -6,13 +7,21 @@ interface ApiResponse {
   error?: string;
 }
 
+const emptyTacoData: Taco = {
+  vermifugeDate: "",
+  vermifugeReminder: "",
+  antiPuceDate: "",
+  antiPuceReminder: "",
+  annualVaccineDate: "",
+  annualVaccineReminder: "",
+};
+
 /**************************** Get Taco Data  ********************************/
 const getTacoData = async (): Promise<Taco> => {
-  const res = await fetch("/api/taco/", {
+  const res = await fetchWithAuth("/api/taco/", {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
     },
   });
 
@@ -22,26 +31,20 @@ const getTacoData = async (): Promise<Taco> => {
     throw Error(data.error || "Failed to fetch taco data");
   }
 
-  // Gérer le nouveau format de réponse (data.data.taco) ou l'ancien (data.taco)
   const tacoArray = data.data?.taco || data.taco || [];
-  const tacoData = Array.isArray(tacoArray) && tacoArray.length > 0 
-    ? tacoArray[0] 
-    : {
-        vermifugeDate: "",
-        vermifugeReminder: "",
-        antiPuceDate: "",
-        antiPuceReminder: "",
-      } as Taco;
-  
+  const tacoData =
+    Array.isArray(tacoArray) && tacoArray.length > 0
+      ? ({ ...emptyTacoData, ...tacoArray[0] } as Taco)
+      : emptyTacoData;
+
   return tacoData;
 };
 
 const updateVermifugeDate = async (date: string): Promise<ApiResponse> => {
-  const res = await fetch("/api/taco/vermifuge/date", {
+  const res = await fetchWithAuth("/api/taco/vermifuge/date", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
     },
     body: JSON.stringify({ date }),
   });
@@ -56,11 +59,10 @@ const updateVermifugeDate = async (date: string): Promise<ApiResponse> => {
 };
 
 const updateVermifugeReminder = async (date: string): Promise<ApiResponse> => {
-  const res = await fetch("/api/taco/vermifuge/reminder", {
+  const res = await fetchWithAuth("/api/taco/vermifuge/reminder", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
     },
     body: JSON.stringify({ date }),
   });
@@ -75,11 +77,10 @@ const updateVermifugeReminder = async (date: string): Promise<ApiResponse> => {
 };
 
 const updateAntiPuceDate = async (date: string): Promise<ApiResponse> => {
-  const res = await fetch("/api/taco/antipuce/date", {
+  const res = await fetchWithAuth("/api/taco/antipuce/date", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
     },
     body: JSON.stringify({ date }),
   });
@@ -94,11 +95,10 @@ const updateAntiPuceDate = async (date: string): Promise<ApiResponse> => {
 };
 
 const updateAntiPuceReminder = async (date: string): Promise<ApiResponse> => {
-  const res = await fetch("/api/taco/antipuce/reminder", {
+  const res = await fetchWithAuth("/api/taco/antipuce/reminder", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
     },
     body: JSON.stringify({ date }),
   });
@@ -112,12 +112,45 @@ const updateAntiPuceReminder = async (date: string): Promise<ApiResponse> => {
   return data;
 };
 
-const getFile = async (filename: string): Promise<Blob> => {
-  const res = await fetch(`/api/taco/image/${filename}`, {
-    method: "GET",
+const updateAnnualVaccineDate = async (date: string): Promise<ApiResponse> => {
+  const res = await fetchWithAuth("/api/taco/vaccine/date", {
+    method: "POST",
     headers: {
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
+      "Content-Type": "application/json",
     },
+    body: JSON.stringify({ date }),
+  });
+
+  const data: ApiResponse = await res.json();
+
+  if (!res.ok) {
+    throw Error(data.error || "Failed to update annual vaccine date");
+  }
+
+  return data;
+};
+
+const updateAnnualVaccineReminder = async (date: string): Promise<ApiResponse> => {
+  const res = await fetchWithAuth("/api/taco/vaccine/reminder", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ date }),
+  });
+
+  const data: ApiResponse = await res.json();
+
+  if (!res.ok) {
+    throw Error(data.error || "Failed to update annual vaccine reminder");
+  }
+
+  return data;
+};
+
+const getFile = async (filename: string): Promise<Blob> => {
+  const res = await fetchWithAuth(`/api/taco/image/${filename}`, {
+    method: "GET",
   });
 
   if (!res.ok) {
@@ -128,34 +161,28 @@ const getFile = async (filename: string): Promise<Blob> => {
 };
 
 const uploadFile = async (selectedFile: File): Promise<ApiResponse> => {
-  console.log('uploadFile appelé avec:', selectedFile.name, selectedFile.type, selectedFile.size);
-  
+  console.log("uploadFile appelÃ© avec:", selectedFile.name, selectedFile.type, selectedFile.size);
+
   if (!selectedFile) {
-    throw Error("Veuillez sélectionner un fichier");
+    throw Error("Veuillez sÃ©lectionner un fichier");
   }
 
-  // Vérifier que c'est un PNG ou JPG
-  if (selectedFile.type !== 'image/png' && selectedFile.type !== 'image/jpeg' && selectedFile.type !== 'image/jpg') {
-    throw Error("Seuls les fichiers PNG et JPG sont acceptés");
+  if (selectedFile.type !== "image/png" && selectedFile.type !== "image/jpeg" && selectedFile.type !== "image/jpg") {
+    throw Error("Seuls les fichiers PNG et JPG sont acceptÃ©s");
   }
 
   const formData = new FormData();
   formData.append("image", selectedFile);
-  
-  const token = localStorage.getItem("token");
-  console.log('Envoi de la requête POST vers /api/taco/upload', { hasToken: !!token });
-  
-  const res = await fetch("/api/taco/upload", {
+
+  console.log("Envoi de la requÃªte POST vers /api/taco/upload");
+
+  const res = await fetchWithAuth("/api/taco/upload", {
     method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
     body: formData,
   });
-  
-  console.log('Réponse reçue:', res.status, res.statusText);
 
-  // Vérifier que la réponse contient du contenu avant de parser le JSON
+  console.log("RÃ©ponse reÃ§ue:", res.status, res.statusText);
+
   const contentType = res.headers.get("content-type");
   if (!contentType || !contentType.includes("application/json")) {
     const text = await res.text();
@@ -166,15 +193,15 @@ const uploadFile = async (selectedFile: File): Promise<ApiResponse> => {
   try {
     const text = await res.text();
     if (!text) {
-      throw Error("Réponse vide du serveur");
+      throw Error("RÃ©ponse vide du serveur");
     }
     data = JSON.parse(text);
-  } catch (error) {
-    throw Error("Erreur lors de la lecture de la réponse du serveur");
+  } catch {
+    throw Error("Erreur lors de la lecture de la rÃ©ponse du serveur");
   }
 
   if (!res.ok) {
-    throw Error(data.error || data.message || "Échec de l'upload du fichier");
+    throw Error(data.error || data.message || "Ã‰chec de l'upload du fichier");
   }
 
   return { success: data.message || data.success, filename: data.data?.filename, ...data };
@@ -187,18 +214,17 @@ interface ImageInfo {
 }
 
 const listImages = async (): Promise<{ images: ImageInfo[] }> => {
-  const res = await fetch("/api/taco/images", {
+  const res = await fetchWithAuth("/api/taco/images", {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
     },
   });
 
   const data: any = await res.json();
 
   if (!res.ok) {
-    throw Error(data.error || "Échec de la récupération des images");
+    throw Error(data.error || "Ã‰chec de la rÃ©cupÃ©ration des images");
   }
 
   const images = data.data?.images || data.images || [];
@@ -206,20 +232,30 @@ const listImages = async (): Promise<{ images: ImageInfo[] }> => {
 };
 
 const deleteImage = async (filename: string): Promise<void> => {
-  const res = await fetch(`/api/taco/image/${filename}`, {
+  const res = await fetchWithAuth(`/api/taco/image/${filename}`, {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
     },
   });
 
   const data: any = await res.json();
 
   if (!res.ok) {
-    throw Error(data.error || "Échec de la suppression de l'image");
+    throw Error(data.error || "Ã‰chec de la suppression de l'image");
   }
 };
 
-export { getTacoData, getFile, updateVermifugeDate, updateVermifugeReminder, updateAntiPuceDate, updateAntiPuceReminder, uploadFile, listImages, deleteImage };
-
+export {
+  getTacoData,
+  getFile,
+  updateVermifugeDate,
+  updateVermifugeReminder,
+  updateAntiPuceDate,
+  updateAntiPuceReminder,
+  updateAnnualVaccineDate,
+  updateAnnualVaccineReminder,
+  uploadFile,
+  listImages,
+  deleteImage,
+};

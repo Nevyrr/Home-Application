@@ -1,5 +1,5 @@
 import express from 'express';
-import { registerUser, loginUser, updateUser, refreshToken, verifyAuth, logout } from '../controllers/UsersController.js';
+import { registerUser, loginUser, loginWithGoogle, updateUser, refreshToken, verifyAuth, logout } from '../controllers/UsersController.js';
 import { validate } from '../utils/validation.js';
 import { registerSchema, loginSchema, updateUserSchema } from '../utils/validation.js';
 import { asyncHandler } from '../middlewares/errorHandler.js';
@@ -12,6 +12,7 @@ const router = express.Router();
 // Public routes
 router.post('/', validate(registerSchema), asyncHandler(registerUser));
 router.post('/login', validate(loginSchema), asyncHandler(loginUser));
+router.post('/google', validate(z.object({ credential: z.string().min(1) })), asyncHandler(loginWithGoogle));
 router.post('/refresh', validate(z.object({ refreshToken: z.string() })), asyncHandler(refreshToken));
 
 // Protected routes

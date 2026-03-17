@@ -18,11 +18,27 @@ const ReminderPostSchema = new Schema<IReminderPost>({
     },
     body: {
         type: String,
-        required: true,
+        default: "",
     },
     priorityColor: {
         type: Number,
-        required: true
+        required: true,
+        default: 0,
+    },
+    status: {
+        type: String,
+        enum: ["todo", "doing", "done"],
+        default: "todo",
+        required: true,
+    },
+    dueDate: {
+        type: Date,
+        default: null,
+    },
+    sortOrder: {
+        type: Number,
+        required: true,
+        default: 0,
     }
 }, { timestamps: true })
 

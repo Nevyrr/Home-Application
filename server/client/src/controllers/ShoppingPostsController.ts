@@ -1,4 +1,5 @@
 import { ShoppingDay } from "../types/index.ts";
+import { fetchWithAuth } from "../utils/authClient.ts";
 
 interface ApiResponse {
   posts?: ShoppingDay[];
@@ -8,7 +9,7 @@ interface ApiResponse {
 
 /**************************** Get all shopping-posts  ********************************/
 const getPosts = async (): Promise<{ posts: ShoppingDay[] }> => {
-  const res = await fetch("/api/shopping-posts");
+  const res = await fetchWithAuth("/api/shopping-posts");
   const data: ApiResponse = await res.json();
 
   if (!res.ok) {
@@ -24,11 +25,10 @@ const createDate = async (date: string, name: string): Promise<ApiResponse> => {
     throw Error("All fields are required");
   }
 
-  const res = await fetch("/api/shopping-posts/date", {
+  const res = await fetchWithAuth("/api/shopping-posts/date", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
     },
     body: JSON.stringify({ date, name }),
   });
@@ -48,11 +48,10 @@ const updateDateItem = async (shoppingListId: string, name: string, date: string
     throw Error("All fields are required");
   }
 
-  const res = await fetch("/api/shopping-posts/date", {
+  const res = await fetchWithAuth("/api/shopping-posts/date", {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
     },
     body: JSON.stringify({ shoppingListId, name, date }),
   });
@@ -66,18 +65,22 @@ const updateDateItem = async (shoppingListId: string, name: string, date: string
   return data;
 };
 
-
 /**************************** Create shopping-posts  ******************************/
-const createPost = async (shoppingListId: string, title: string, count: number, unit: string, priorityColor: number): Promise<ApiResponse> => {
+const createPost = async (
+  shoppingListId: string,
+  title: string,
+  count: number,
+  unit: string,
+  priorityColor: number
+): Promise<ApiResponse> => {
   if (!shoppingListId || !title || !count || priorityColor === undefined) {
     throw Error("All fields are required");
   }
 
-  const res = await fetch("/api/shopping-posts", {
+  const res = await fetchWithAuth("/api/shopping-posts", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
     },
     body: JSON.stringify({ shoppingListId, title, count, unit, priorityColor }),
   });
@@ -93,11 +96,8 @@ const createPost = async (shoppingListId: string, title: string, count: number, 
 
 /**************************** Delete shopping-posts  ******************************/
 const deletePost = async (_id: string): Promise<ApiResponse> => {
-  const res = await fetch(`/api/shopping-posts/${_id}`, {
+  const res = await fetchWithAuth(`/api/shopping-posts/${_id}`, {
     method: "DELETE",
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
-    },
   });
 
   const data: ApiResponse = await res.json();
@@ -111,11 +111,8 @@ const deletePost = async (_id: string): Promise<ApiResponse> => {
 
 /**************************** Delete all shopping-posts  ******************************/
 const deletePosts = async (shoppingListId: string): Promise<ApiResponse> => {
-  const res = await fetch(`/api/shopping-posts/list/${shoppingListId}`, {
+  const res = await fetchWithAuth(`/api/shopping-posts/list/${shoppingListId}`, {
     method: "DELETE",
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
-    },
   });
 
   const data: ApiResponse = await res.json();
@@ -128,16 +125,21 @@ const deletePosts = async (shoppingListId: string): Promise<ApiResponse> => {
 };
 
 /**************************** Update shopping-posts  ******************************/
-const updatePost = async (_id: string, title: string, count: number, unit: string, priorityColor: number): Promise<ApiResponse> => {
+const updatePost = async (
+  _id: string,
+  title: string,
+  count: number,
+  unit: string,
+  priorityColor: number
+): Promise<ApiResponse> => {
   if (!title || !count || priorityColor === undefined) {
     throw Error("All fields are required");
   }
 
-  const res = await fetch(`/api/shopping-posts/${_id}`, {
+  const res = await fetchWithAuth(`/api/shopping-posts/${_id}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
     },
     body: JSON.stringify({ title, count, unit, priorityColor }),
   });
@@ -152,4 +154,3 @@ const updatePost = async (_id: string, title: string, count: number, unit: strin
 };
 
 export { getPosts, createDate, updateDateItem, createPost, deletePost, deletePosts, updatePost };
-

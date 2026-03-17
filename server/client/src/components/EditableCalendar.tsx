@@ -16,6 +16,13 @@ const EditableCalendar = ({ allEvents, handleDateChange }: EditableCalendarProps
 
     const [date, setDate] = useState<Date>(new Date());
 
+    const getEventsForDate = (tileDate: Date) => {
+        return allEvents.filter((event) => {
+            const eventDate = typeof event.date === 'string' ? new Date(event.date) : event.date;
+            return isSameDate(eventDate, tileDate);
+        });
+    };
+
     const changeDate = (newDate: Value) => {
         const selectedDate = newDate instanceof Date ? newDate : new Date();
         setDate(selectedDate);
@@ -23,28 +30,57 @@ const EditableCalendar = ({ allEvents, handleDateChange }: EditableCalendarProps
     };
 
     const tileContent = ({ date, view }: { date: Date; view: string }) => {
-        const eventsSelected = allEvents.filter((event) => {
-            const eventDate = typeof event.date === 'string' ? new Date(event.date) : event.date;
-            return isSameDate(eventDate, date);
-        });
+        const eventsSelected = getEventsForDate(date);
         const priorityCounts = eventsSelected.reduce((groupedEvents, event) => {
             groupedEvents[event.priorityColor]++;
             return groupedEvents;
         }, [0, 0, 0, 0]);
 
         if (view === 'month') {
-            return <div className="calendar-dot-list">
-                {priorityCounts.map((item, index) => (
-                    item !== 0 && (
-                        <div key={index} className={getCssColor(index) + " dot text-white text-xs"}>
-                            {item}
-                        </div>
-                    )
-                ))}
-            </div>;
+            return <>
+                {eventsSelected.length > 0 && <span className="calendar-tile-count">{eventsSelected.length}</span>}
+                <div className="calendar-dot-list">
+                    {priorityCounts.map((item, index) => (
+                        item !== 0 && (
+                            <div key={index} className={getCssColor(index) + " dot text-white text-xs"}>
+                                {item}
+                            </div>
+                        )
+                    ))}
+                </div>
+            </>;
         }
 
         return null;
+    };
+
+    const tileClassName = ({ date, view }: { date: Date; view: string }) => {
+        if (view !== 'month') {
+            return undefined;
+        }
+
+        const eventsSelected = getEventsForDate(date);
+        if (eventsSelected.length === 0) {
+            return undefined;
+        }
+
+        const hasLocalEvents = eventsSelected.some((event) => event.user !== 'google');
+        const hasGoogleEvents = eventsSelected.some((event) => event.user === 'google');
+        const classes = ['calendar-tile-has-events'];
+
+        if (hasLocalEvents) {
+            classes.push('calendar-tile-has-local');
+        }
+
+        if (hasGoogleEvents) {
+            classes.push('calendar-tile-has-google');
+        }
+
+        if (eventsSelected.length >= 3) {
+            classes.push('calendar-tile-busy');
+        }
+
+        return classes.join(' ');
     };
 
     return (
@@ -52,7 +88,9 @@ const EditableCalendar = ({ allEvents, handleDateChange }: EditableCalendarProps
             <Calendar className="leading-[3rem] w-full relative"
                 onChange={changeDate}
                 value={date}
+                locale="fr-FR"
                 tileContent={tileContent}
+                tileClassName={tileClassName}
             />
         </div>
     );

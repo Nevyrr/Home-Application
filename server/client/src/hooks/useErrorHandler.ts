@@ -3,6 +3,7 @@
  */
 
 import { useState, useCallback } from "react";
+import { AUTH_REDIRECT_ERROR } from "../utils/authClient.ts";
 
 export const useErrorHandler = () => {
   const [error, setError] = useState<string | null>(null);
@@ -35,6 +36,9 @@ export const useErrorHandler = () => {
       return result;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Une erreur est survenue";
+      if (errorMessage === AUTH_REDIRECT_ERROR) {
+        throw err;
+      }
       handleError(errorMessage);
       throw err;
     }
