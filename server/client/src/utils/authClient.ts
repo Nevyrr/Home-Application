@@ -1,4 +1,12 @@
-import { clearStoredSession, getAccessToken, getRefreshToken, isTokenExpired, storeSession } from "./session.ts";
+import { parseOptionalApiResponse } from "./api.ts";
+import {
+  clearStoredSession,
+  getAccessToken,
+  getRefreshToken,
+  isTokenExpired,
+  SessionResponse,
+  storeSession,
+} from "./session.ts";
 
 export const AUTH_REDIRECT_ERROR = "__AUTH_REDIRECT__";
 
@@ -41,13 +49,7 @@ const refreshSession = async (): Promise<string> => {
         body: JSON.stringify({ refreshToken }),
       });
 
-      let payload: any = null;
-
-      try {
-        payload = await response.json();
-      } catch {
-        payload = null;
-      }
+      const payload = await parseOptionalApiResponse<SessionResponse>(response);
 
       if (!response.ok || !payload) {
         return redirectToLogin();

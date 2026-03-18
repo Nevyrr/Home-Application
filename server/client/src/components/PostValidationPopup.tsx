@@ -13,6 +13,7 @@ interface PostValidationPopupProps {
   setPriorityColor: (priority: number) => void;
   inputs?: ReactNode;
   isFieldValid?: boolean;
+  compactPriorityPicker?: boolean;
 }
 
 const PostValidationPopup = ({ 
@@ -25,7 +26,8 @@ const PostValidationPopup = ({
   setPopupPost: setPopupPostTitle, 
   setPriorityColor, 
   inputs, 
-  isFieldValid = true 
+  isFieldValid = true,
+  compactPriorityPicker = false,
 }: PostValidationPopupProps) => {
   const [isTitle, setIsTitleValid] = useState<boolean>(popupPost.title !== undefined && popupPost.title !== "");
   const popupTitle = `${actionType} ${postName}`;
@@ -67,16 +69,29 @@ const PostValidationPopup = ({
 
           {inputs}
 
-          <div className="post-popup-priority">
-            <div>
-              <p className="post-popup-label">Priorite</p>
-              <p className="post-popup-priority-copy">Un clic pour changer la couleur du drapeau.</p>
-            </div>
-            <PriorityFlag
-              handlePriorityChangeCb={setPriorityColor}
-              priorityColor={popupPost.priorityColor || 0}
-              className="post-popup-priority-flag"
-            />
+          <div className={`post-popup-priority ${compactPriorityPicker ? "compact" : ""}`}>
+            {compactPriorityPicker ? (
+              <>
+                <span className="post-popup-label">Priorite</span>
+                <PriorityFlag
+                  handlePriorityChangeCb={setPriorityColor}
+                  priorityColor={popupPost.priorityColor || 0}
+                  className="post-popup-priority-flag"
+                />
+              </>
+            ) : (
+              <>
+                <div>
+                  <p className="post-popup-label">Priorite</p>
+                  <p className="post-popup-priority-copy">Un clic pour changer la couleur du drapeau.</p>
+                </div>
+                <PriorityFlag
+                  handlePriorityChangeCb={setPriorityColor}
+                  priorityColor={popupPost.priorityColor || 0}
+                  className="post-popup-priority-flag"
+                />
+              </>
+            )}
           </div>
         </div>
       }

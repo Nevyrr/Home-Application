@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import '../style/calendar-override.css';
 import { getCssColor } from './PriorityFlag.tsx';
 import { isSameDate } from '../utils/index.ts';
 import { CalendarEvent } from '../types/index.ts';
-import { Value } from 'react-calendar/dist/cjs/shared/types';
+
+type CalendarValue = Date | [Date | null, Date | null] | null;
 
 interface EditableCalendarProps {
   allEvents: CalendarEvent[];
@@ -23,7 +24,7 @@ const EditableCalendar = ({ allEvents, handleDateChange }: EditableCalendarProps
         });
     };
 
-    const changeDate = (newDate: Value) => {
+    const changeDate = (newDate: CalendarValue) => {
         const selectedDate = newDate instanceof Date ? newDate : new Date();
         setDate(selectedDate);
         handleDateChange(selectedDate);

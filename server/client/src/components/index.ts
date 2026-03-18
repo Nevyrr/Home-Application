@@ -17,4 +17,6 @@ export { default as Icon } from "./Icon.tsx";
 export { default as ErrorBoundary } from "./ErrorBoundary.tsx";
 export { default as ThemeToggle } from "./ThemeToggle.tsx";
 export { default as GoogleSignInButton } from "./GoogleSignInButton.tsx";
+export { default as OverviewHero } from "./OverviewHero.tsx";
+export { default as OverviewHighlightsPanel } from "./OverviewHighlightsPanel.tsx";
 

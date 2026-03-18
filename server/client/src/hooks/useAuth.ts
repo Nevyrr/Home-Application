@@ -13,6 +13,7 @@ interface LoginUserData {
   email: string;
   receiveEmail: boolean;
   isAdmin: boolean;
+  accessLevel: "writable" | "readonly";
 }
 
 export const useAuth = () => {
@@ -28,6 +29,7 @@ export const useAuth = () => {
       email: userData.email,
       receiveEmail: String(userData.receiveEmail),
       isAdmin: String(userData.isAdmin),
+      accessLevel: userData.accessLevel,
     });
   };
 

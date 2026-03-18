@@ -1,23 +1,331 @@
-import { useCallback, useEffect, useRef, useState, ReactNode } from "react";
-import { Alert, ShoppingPost, Success, PostList } from "../../components/index.ts";
+import { CSSProperties, FormEvent, useCallback, useEffect, useRef, useState, ReactNode } from "react";
+import { Alert, PostValidationPopup, ShoppingPost, Success } from "../../components/index.ts";
 import { getPosts, createDate, updateDateItem, deletePost, deletePosts, createPost, updatePost } from "../../controllers/ShoppingPostsController.ts";
 import { useApp } from "../../contexts/AppContext.tsx";
-import { useErrorHandler } from "../../hooks/index.ts";
+import { useAuth, useErrorHandler } from "../../hooks/index.ts";
 import { convertStringToDate } from "../../utils/index.ts";
 import DatePicker, { registerLocale } from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import fr from "date-fns/locale/fr";
+import { fr } from "date-fns/locale/fr";
 import QuantityInput from "../../components/QuantityInput.tsx";
+import { DEFAULT_COMMON_GROCERY_PRESETS } from "../../constants/defaultShoppingHistory.ts";
 import { ShoppingDay, ShoppingPost as ShoppingPostType } from "../../types/index.ts";
+import { canUserWrite } from "../../utils/permissions.ts";
+import "../../style/shopping-board.css";
 
 registerLocale("fr", fr);
 
 const formatShoppingDate = (date: Date): string => date.toLocaleDateString("fr-FR");
+const SHOPPING_HISTORY_KEY = "shopping-history-v1";
+const SHOPPING_HISTORY_VERSION_KEY = "shopping-history-defaults-version";
+const SHOPPING_HISTORY_VERSION = "3";
+const SHOPPING_HISTORY_LIMIT = 500;
+
+interface ShoppingHistoryEntry {
+  key: string;
+  title: string;
+  normalizedTitle: string;
+  count: number;
+  unit: string;
+  priorityColor: number;
+  frequency: number;
+  lastAddedAt: string;
+  seedRank?: number;
+}
+
+const normalizeShoppingTitle = (title: string): string => title.trim().toLowerCase();
+
+const loadShoppingHistoryVersion = (): string => {
+  if (typeof window === "undefined") {
+    return "";
+  }
+
+  return window.localStorage.getItem(SHOPPING_HISTORY_VERSION_KEY) || "";
+};
+
+const hasStoredShoppingHistory = (): boolean => {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  return window.localStorage.getItem(SHOPPING_HISTORY_KEY) !== null;
+};
+
+const loadShoppingHistory = (): ShoppingHistoryEntry[] => {
+  if (typeof window === "undefined") {
+    return [];
+  }
+
+  try {
+    const rawHistory = window.localStorage.getItem(SHOPPING_HISTORY_KEY);
+
+    if (!rawHistory) {
+      return [];
+    }
+
+    const parsedHistory = JSON.parse(rawHistory);
+
+    if (!Array.isArray(parsedHistory)) {
+      return [];
+    }
+
+    return parsedHistory
+      .filter((entry): entry is Partial<ShoppingHistoryEntry> => typeof entry === "object" && entry !== null)
+      .map((entry) => ({
+        key: String(entry.key || normalizeShoppingTitle(String(entry.title || ""))),
+        title: String(entry.title || ""),
+        normalizedTitle: String(entry.normalizedTitle || normalizeShoppingTitle(String(entry.title || ""))),
+        count: Number(entry.count || 1),
+        unit: String(entry.unit || ""),
+        priorityColor: Number(entry.priorityColor || 0),
+        frequency: Number(entry.frequency ?? 1),
+        lastAddedAt: String(entry.lastAddedAt || ""),
+        seedRank: Number(entry.seedRank || 0),
+      }))
+      .filter((entry) => entry.normalizedTitle !== "")
+      .sort(sortShoppingHistory)
+      .slice(0, SHOPPING_HISTORY_LIMIT);
+  } catch {
+    return [];
+  }
+};
+
+const saveShoppingHistory = (history: ShoppingHistoryEntry[]): void => {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  window.localStorage.setItem(SHOPPING_HISTORY_KEY, JSON.stringify(trimShoppingHistory(history)));
+  window.localStorage.setItem(SHOPPING_HISTORY_VERSION_KEY, SHOPPING_HISTORY_VERSION);
+};
+
+const sortShoppingHistory = (leftEntry: ShoppingHistoryEntry, rightEntry: ShoppingHistoryEntry): number => {
+  if (rightEntry.frequency !== leftEntry.frequency) {
+    return rightEntry.frequency - leftEntry.frequency;
+  }
+
+  if (rightEntry.lastAddedAt !== leftEntry.lastAddedAt) {
+    return rightEntry.lastAddedAt.localeCompare(leftEntry.lastAddedAt);
+  }
+
+  if ((rightEntry.seedRank || 0) !== (leftEntry.seedRank || 0)) {
+    return (rightEntry.seedRank || 0) - (leftEntry.seedRank || 0);
+  }
+
+  return leftEntry.title.localeCompare(rightEntry.title, "fr-FR");
+};
+
+const trimShoppingHistory = (history: ShoppingHistoryEntry[]): ShoppingHistoryEntry[] =>
+  [...history].sort(sortShoppingHistory).slice(0, SHOPPING_HISTORY_LIMIT);
+
+const mergeShoppingHistory = (...collections: ShoppingHistoryEntry[][]): ShoppingHistoryEntry[] => {
+  const historyMap = new Map<string, ShoppingHistoryEntry>();
+
+  collections.flat().forEach((entry) => {
+    const normalizedTitle = normalizeShoppingTitle(entry.normalizedTitle || entry.title);
+
+    if (!normalizedTitle) {
+      return;
+    }
+
+    const currentEntry = historyMap.get(normalizedTitle);
+
+    if (!currentEntry) {
+      historyMap.set(normalizedTitle, {
+        ...entry,
+        key: normalizedTitle,
+        normalizedTitle,
+        title: entry.title.trim(),
+        count: entry.count || 1,
+        unit: entry.unit || "",
+        priorityColor: entry.priorityColor ?? 0,
+        frequency: entry.frequency ?? 1,
+        lastAddedAt: entry.lastAddedAt || "",
+        seedRank: entry.seedRank || 0,
+      });
+      return;
+    }
+
+    historyMap.set(normalizedTitle, {
+      ...currentEntry,
+      ...entry,
+      key: normalizedTitle,
+      normalizedTitle,
+      title: entry.title.trim() || currentEntry.title,
+      count: entry.count || currentEntry.count,
+      unit: entry.unit || currentEntry.unit,
+      priorityColor: entry.priorityColor ?? currentEntry.priorityColor,
+      frequency: Math.max(currentEntry.frequency, entry.frequency ?? 1),
+      lastAddedAt: entry.lastAddedAt || currentEntry.lastAddedAt,
+      seedRank: Math.max(currentEntry.seedRank || 0, entry.seedRank || 0),
+    });
+  });
+
+  return trimShoppingHistory([...historyMap.values()]);
+};
+
+const buildDefaultShoppingHistory = (): ShoppingHistoryEntry[] =>
+  DEFAULT_COMMON_GROCERY_PRESETS.map((preset, index) => {
+    const title = preset.title;
+    const normalizedTitle = normalizeShoppingTitle(title);
+
+    return {
+      key: normalizedTitle,
+      title,
+      normalizedTitle,
+      count: preset.count,
+      unit: preset.unit,
+      priorityColor: 0,
+      frequency: 1,
+      lastAddedAt: "",
+      seedRank: DEFAULT_COMMON_GROCERY_PRESETS.length - index,
+    };
+  });
+
+const upsertShoppingHistory = (
+  history: ShoppingHistoryEntry[],
+  item: { title: string; count: number; unit: string; priorityColor: number }
+): ShoppingHistoryEntry[] => {
+  const normalizedTitle = normalizeShoppingTitle(item.title);
+
+  if (!normalizedTitle) {
+    return history;
+  }
+
+  const nextHistory = [...history];
+  const historyIndex = nextHistory.findIndex((entry) => entry.normalizedTitle === normalizedTitle);
+  const lastAddedAt = new Date().toISOString();
+
+  if (historyIndex >= 0) {
+    const currentEntry = nextHistory[historyIndex];
+    nextHistory[historyIndex] = {
+      ...currentEntry,
+      title: item.title.trim(),
+      count: item.count,
+      unit: item.unit,
+      priorityColor: item.priorityColor,
+      frequency: currentEntry.frequency + 1,
+      lastAddedAt,
+      seedRank: currentEntry.seedRank || 0,
+    };
+  } else {
+    nextHistory.push({
+      key: normalizedTitle,
+      title: item.title.trim(),
+      normalizedTitle,
+      count: item.count,
+      unit: item.unit,
+      priorityColor: item.priorityColor,
+      frequency: 1,
+      lastAddedAt,
+      seedRank: 0,
+    });
+  }
+
+  return trimShoppingHistory(nextHistory);
+};
+
+const buildInitialHistory = (shoppingItems: ShoppingDay[]): ShoppingHistoryEntry[] => {
+  const historyMap = new Map<string, ShoppingHistoryEntry>();
+
+  shoppingItems.forEach((shoppingItem) => {
+    shoppingItem.shoppingList.forEach((post) => {
+      const normalizedTitle = normalizeShoppingTitle(post.title);
+
+      if (!normalizedTitle) {
+        return;
+      }
+
+      const currentEntry = historyMap.get(normalizedTitle);
+      const createdAt = post.createdAt || "";
+
+      if (currentEntry) {
+        currentEntry.frequency += 1;
+
+        if (createdAt >= currentEntry.lastAddedAt) {
+          currentEntry.title = post.title;
+          currentEntry.count = post.count;
+          currentEntry.unit = post.unit || "";
+          currentEntry.priorityColor = post.priorityColor;
+          currentEntry.lastAddedAt = createdAt;
+        }
+
+        return;
+      }
+
+      historyMap.set(normalizedTitle, {
+        key: normalizedTitle,
+        title: post.title,
+        normalizedTitle,
+        count: post.count,
+        unit: post.unit || "",
+        priorityColor: post.priorityColor,
+        frequency: 1,
+        lastAddedAt: createdAt,
+        seedRank: 0,
+      });
+    });
+  });
+
+  return trimShoppingHistory([...historyMap.values()]);
+};
+
+const PRIORITY_OPTIONS = [
+  { value: 0, label: "Essentiel" },
+  { value: 1, label: "Faible" },
+  { value: 2, label: "A prevoir" },
+  { value: 3, label: "Urgent" },
+];
+
+const DEFAULT_QUICK_ADD = { title: "", count: 1, unit: "", priorityColor: 0 };
+
+const SHOPPING_ACCENTS = [
+  {
+    accent: "rgba(20, 108, 148, 0.92)",
+    soft: "rgba(20, 108, 148, 0.16)",
+    glow: "rgba(20, 108, 148, 0.28)",
+  },
+  {
+    accent: "rgba(31, 138, 112, 0.92)",
+    soft: "rgba(31, 138, 112, 0.16)",
+    glow: "rgba(31, 138, 112, 0.28)",
+  },
+  {
+    accent: "rgba(207, 106, 39, 0.92)",
+    soft: "rgba(207, 106, 39, 0.16)",
+    glow: "rgba(207, 106, 39, 0.28)",
+  },
+  {
+    accent: "rgba(188, 83, 85, 0.92)",
+    soft: "rgba(188, 83, 85, 0.16)",
+    glow: "rgba(188, 83, 85, 0.28)",
+  },
+];
 
 const ShoppingTab = () => {
   const { shoppingItems, setShoppingItems } = useApp();
+  const { user } = useAuth();
   const { error, success, setError, setSuccess, handleAsyncOperation } = useErrorHandler();
+  const canWrite = canUserWrite(user);
+  const hasStoredHistoryKeyRef = useRef<boolean | null>(null);
+  const initialStoredHistoryRef = useRef<ShoppingHistoryEntry[] | null>(null);
+  const shouldSeedDefaultHistoryRef = useRef<boolean | null>(null);
   const hasLoadedLists = useRef(false);
+  const hasSeededHistory = useRef(false);
+  const quickAddInputRef = useRef<HTMLInputElement | null>(null);
+
+  if (hasStoredHistoryKeyRef.current === null) {
+    hasStoredHistoryKeyRef.current = hasStoredShoppingHistory();
+  }
+
+  if (initialStoredHistoryRef.current === null) {
+    initialStoredHistoryRef.current = loadShoppingHistory();
+  }
+
+  if (shouldSeedDefaultHistoryRef.current === null) {
+    shouldSeedDefaultHistoryRef.current =
+      !hasStoredHistoryKeyRef.current || loadShoppingHistoryVersion() !== SHOPPING_HISTORY_VERSION;
+  }
 
   const countRegex = /^[1-9]([0-9]{0,2})([.,][0-9]+)?$/;
 
@@ -37,6 +345,15 @@ const ShoppingTab = () => {
   const [isCountValid, setIsCountValid] = useState<boolean>(true);
   const [isLoadingLists, setIsLoadingLists] = useState<boolean>(true);
   const [isCreatingList, setIsCreatingList] = useState<boolean>(false);
+  const [selectedListId, setSelectedListId] = useState<string | null>(null);
+  const [quickAddItem, setQuickAddItem] = useState<{ title: string; count: number; unit: string; priorityColor: number }>(DEFAULT_QUICK_ADD);
+  const [isQuickAddCountValid, setIsQuickAddCountValid] = useState<boolean>(true);
+  const [showUpdatePopup, setShowUpdatePopup] = useState<boolean>(false);
+  const [shoppingHistory, setShoppingHistory] = useState<ShoppingHistoryEntry[]>(() =>
+    shouldSeedDefaultHistoryRef.current
+      ? mergeShoppingHistory(buildDefaultShoppingHistory(), initialStoredHistoryRef.current || [])
+      : trimShoppingHistory(initialStoredHistoryRef.current || [])
+  );
 
   const sortShoppingPosts = useCallback(async (showLoader = false) => {
     if (showLoader) {
@@ -45,14 +362,21 @@ const ShoppingTab = () => {
 
     try {
       const data = await getPosts();
-      const sortedShoppingDays = data.posts.map((shoppingDay) => ({
-        ...shoppingDay,
-        shoppingList: [...shoppingDay.shoppingList].sort((a, b) => b.priorityColor - a.priorityColor),
-      }));
+      const sortedShoppingDays = data.posts
+        .map((shoppingDay) => ({
+          ...shoppingDay,
+          shoppingList: [...shoppingDay.shoppingList].sort((a, b) => b.priorityColor - a.priorityColor),
+        }))
+        .sort((a, b) => convertStringToDate(b.date).getTime() - convertStringToDate(a.date).getTime());
 
       setShoppingItems(sortedShoppingDays);
+      setSelectedListId((currentListId) =>
+        currentListId && sortedShoppingDays.some((shoppingDay) => shoppingDay._id === currentListId)
+          ? currentListId
+          : sortedShoppingDays[0]?._id || null
+      );
     } catch (shoppingError) {
-      const errorMessage = shoppingError instanceof Error ? shoppingError.message : "Impossible de charger les listes";
+      const errorMessage = shoppingError instanceof Error ? shoppingError.message : "Impossible de charger les paniers";
       setError(errorMessage);
     } finally {
       if (showLoader) {
@@ -70,18 +394,27 @@ const ShoppingTab = () => {
     void sortShoppingPosts(true);
   }, [sortShoppingPosts]);
 
-  const unrollPanel = (event: React.MouseEvent<HTMLDivElement>) => {
-    const panel = event.currentTarget;
-    panel.classList.toggle("rolled");
+  useEffect(() => {
+    saveShoppingHistory(shoppingHistory);
+  }, [shoppingHistory]);
 
-    if (panel.classList.contains("rolled")) {
-      panel.classList.remove("fa-chevron-down");
-      panel.classList.add("fa-chevron-right");
-    } else {
-      panel.classList.remove("fa-chevron-right");
-      panel.classList.add("fa-chevron-down");
+  useEffect(() => {
+    if (hasSeededHistory.current) {
+      return;
     }
-  };
+
+    if (hasStoredHistoryKeyRef.current) {
+      hasSeededHistory.current = true;
+      return;
+    }
+
+    if (shoppingItems.length === 0) {
+      return;
+    }
+
+    setShoppingHistory((currentHistory) => mergeShoppingHistory(currentHistory, buildInitialHistory(shoppingItems)));
+    hasSeededHistory.current = true;
+  }, [shoppingItems]);
 
   const updatePopup = (key: string, value: string | number) => {
     setPopupShopping((prevState) => ({
@@ -106,9 +439,24 @@ const ShoppingTab = () => {
     updatePopup("priorityColor", priorityColor);
   };
 
-  const resetAllFields = () => {
-    setPopupShopping({ shoppingId: "", title: "", count: 1, unit: "", priorityColor: 0 });
-  };
+  const activeList = shoppingItems.find((shoppingItem) => shoppingItem._id === selectedListId) || shoppingItems[0] || null;
+  const activeListIndex = activeList ? shoppingItems.findIndex((shoppingItem) => shoppingItem._id === activeList._id) : 0;
+  const quickAddQuery = normalizeShoppingTitle(quickAddItem.title);
+  const quickSuggestions = shoppingHistory
+    .filter((entry) => !quickAddQuery || entry.normalizedTitle.includes(quickAddQuery))
+    .sort((leftEntry, rightEntry) => {
+      if (quickAddQuery) {
+        const rightStartsWithQuery = Number(rightEntry.normalizedTitle.startsWith(quickAddQuery));
+        const leftStartsWithQuery = Number(leftEntry.normalizedTitle.startsWith(quickAddQuery));
+
+        if (rightStartsWithQuery !== leftStartsWithQuery) {
+          return rightStartsWithQuery - leftStartsWithQuery;
+        }
+      }
+
+      return sortShoppingHistory(leftEntry, rightEntry);
+    })
+    .slice(0, 10);
 
   const setAllFields = (post: ShoppingPostType) => {
     setPopupShopping({
@@ -120,7 +468,24 @@ const ShoppingTab = () => {
     });
   };
 
+  const openUpdatePopup = (post: ShoppingPostType) => {
+    if (!canWrite) {
+      return;
+    }
+
+    setAllFields(post);
+    setShowUpdatePopup(true);
+  };
+
+  const closeUpdatePopup = () => {
+    setShowUpdatePopup(false);
+  };
+
   const handleCreateDate = async () => {
+    if (!canWrite) {
+      return;
+    }
+
     if (isCreatingList) {
       return;
     }
@@ -128,9 +493,10 @@ const ShoppingTab = () => {
     setIsCreatingList(true);
 
     try {
+      setSelectedListId(null);
       const msg = await handleAsyncOperation(
         async () => {
-          const created = await createDate(formatShoppingDate(new Date()), "Shopping Title");
+          const created = await createDate(formatShoppingDate(new Date()), "Panier du moment");
           await sortShoppingPosts();
           return created;
         },
@@ -146,6 +512,10 @@ const ShoppingTab = () => {
   };
 
   const handleUpdateDateItem = async (shoppingListId: string, name: string, date: string) => {
+    if (!canWrite) {
+      return;
+    }
+
     const trimmedName = name.trim();
 
     await handleAsyncOperation(
@@ -162,22 +532,11 @@ const ShoppingTab = () => {
     });
   };
 
-  const handleCreatePost = async (id: string) => {
-    await handleAsyncOperation(
-      async () => {
-        const msg = await createPost(id, popupShopping.title, popupShopping.count, popupShopping.unit, popupShopping.priorityColor);
-        await sortShoppingPosts();
-        return msg;
-      },
-      null
-    ).then((msg) => {
-      if (msg?.success) {
-        setSuccess(msg.success);
-      }
-    });
-  };
-
   const handleUpdate = async () => {
+    if (!canWrite) {
+      return;
+    }
+
     await handleAsyncOperation(
       async () => {
         const msg = await updatePost(popupShopping.shoppingId, popupShopping.title, popupShopping.count, popupShopping.unit, popupShopping.priorityColor);
@@ -192,7 +551,16 @@ const ShoppingTab = () => {
     });
   };
 
+  const handleUpdatePost = async () => {
+    await handleUpdate();
+    closeUpdatePopup();
+  };
+
   const handleDelete = async (_id: string) => {
+    if (!canWrite) {
+      return;
+    }
+
     if (confirm("Confirmer la suppression ?")) {
       await handleAsyncOperation(
         async () => {
@@ -209,7 +577,11 @@ const ShoppingTab = () => {
     }
   };
 
-  const handleCleanDate = async (shoppingListId: string) => {
+  const handleDeleteList = async (shoppingListId: string) => {
+    if (!canWrite) {
+      return;
+    }
+
     if (confirm("Confirmer la suppression ?")) {
       await handleAsyncOperation(
         async () => {
@@ -232,7 +604,69 @@ const ShoppingTab = () => {
     setUnit(quantity.unit);
   };
 
+  const handleQuickAddCountChange = (quantity: { count: number; unit: string }) => {
+    setIsQuickAddCountValid(countRegex.test(String(quantity.count)));
+    setQuickAddItem((prevItem) => ({
+      ...prevItem,
+      count: quantity.count,
+      unit: quantity.unit,
+    }));
+  };
+
+  const handleQuickAddPriorityChange = (priorityColor: number) => {
+    setQuickAddItem((prevItem) => ({
+      ...prevItem,
+      priorityColor,
+    }));
+  };
+
+  const handleQuickAddSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (!canWrite) {
+      return;
+    }
+
+    if (!activeList) {
+      return;
+    }
+
+    const trimmedTitle = quickAddItem.title.trim();
+
+    if (!trimmedTitle || !isQuickAddCountValid) {
+      return;
+    }
+
+    await handleAsyncOperation(
+      async () => {
+        const msg = await createPost(activeList._id, trimmedTitle, quickAddItem.count, quickAddItem.unit, quickAddItem.priorityColor);
+        await sortShoppingPosts();
+        return msg;
+      },
+      null
+    ).then((msg) => {
+      if (msg?.success) {
+        setSuccess(msg.success);
+        setShoppingHistory((currentHistory) =>
+          upsertShoppingHistory(currentHistory, {
+            title: trimmedTitle,
+            count: quickAddItem.count,
+            unit: quickAddItem.unit,
+            priorityColor: quickAddItem.priorityColor,
+          })
+        );
+        setQuickAddItem(DEFAULT_QUICK_ADD);
+        setIsQuickAddCountValid(true);
+        quickAddInputRef.current?.focus();
+      }
+    });
+  };
+
   const handleNameChange = (shoppingItemId: string, name: string) => {
+    if (!canWrite) {
+      return;
+    }
+
     setShoppingItems((oldShoppingItems) =>
       oldShoppingItems.map((shoppingItem) =>
         shoppingItem._id === shoppingItemId ? { ...shoppingItem, name } : shoppingItem
@@ -240,15 +674,39 @@ const ShoppingTab = () => {
     );
   };
 
+  const handleSuggestionClick = (suggestion: { title: string; count: number; unit: string; priorityColor: number }) => {
+    if (!canWrite) {
+      return;
+    }
+
+    setQuickAddItem({
+      title: suggestion.title,
+      count: suggestion.count || 1,
+      unit: suggestion.unit,
+      priorityColor: suggestion.priorityColor ?? 0,
+    });
+    setIsQuickAddCountValid(true);
+    quickAddInputRef.current?.focus();
+  };
+
+  const handleDeleteHistoryEntry = (historyKey: string) => {
+    if (!canWrite) {
+      return;
+    }
+
+    setShoppingHistory((currentHistory) => currentHistory.filter((entry) => entry.key !== historyKey));
+  };
+
   const nameInput = (shoppingItem: ShoppingDay): ReactNode => {
     return (
       <input
         type="text"
-        className="input-field shopping-list-name font-semibold"
+        className="input-field shopping-basket-name-input font-semibold"
+        disabled={!canWrite}
         value={shoppingItem.name}
         onChange={(e) => handleNameChange(shoppingItem._id, e.target.value)}
         onBlur={() => handleUpdateDateItem(shoppingItem._id, shoppingItem.name, shoppingItem.date)}
-        placeholder="Nom de la liste"
+        placeholder="Nom du panier"
       />
     );
   };
@@ -257,109 +715,278 @@ const ShoppingTab = () => {
     return (
       <div className="post-popup-field">
         <span className="post-popup-label">Quantite</span>
-        <QuantityInput count={popupShopping.count} unit={popupShopping.unit} onChange={handleCountChange} />
+        <QuantityInput count={popupShopping.count} unit={popupShopping.unit} onChange={handleCountChange} disabled={!canWrite} />
       </div>
     );
   };
 
+  const getDisplayListName = (shoppingItem: ShoppingDay): string => {
+    const trimmedName = shoppingItem.name.trim();
+
+    if (!trimmedName || trimmedName.toLowerCase() === "shopping title" || trimmedName.toLowerCase() === "panier du moment") {
+      return `Panier ${shoppingItem.date}`;
+    }
+
+    return trimmedName;
+  };
+
+  const getListAccentStyle = (index: number): CSSProperties => {
+    const accent = SHOPPING_ACCENTS[index % SHOPPING_ACCENTS.length];
+
+    return {
+      ["--shopping-accent" as string]: accent.accent,
+      ["--shopping-accent-soft" as string]: accent.soft,
+      ["--shopping-accent-glow" as string]: accent.glow,
+    };
+  };
+
+  const renderBasketPanel = (shoppingItem: ShoppingDay, index: number): ReactNode => (
+    <div className="shopping-basket-panel" key={shoppingItem._id} data-basket-index={index} style={getListAccentStyle(index)}>
+      <div className="shopping-basket-header">
+        <div className="shopping-basket-topline">
+          {nameInput(shoppingItem)}
+
+          <div className="shopping-basket-tools">
+            <div className="shopping-basket-date-wrap">
+              <DatePicker
+                selected={convertStringToDate(shoppingItem.date)}
+                disabled={!canWrite}
+                onChange={(date: Date | null) => {
+                  if (date && !isNaN(date.getTime())) {
+                    void handleUpdateDateItem(shoppingItem._id, shoppingItem.name, formatShoppingDate(date));
+                  }
+                }}
+                locale="fr"
+                dateFormat="P"
+                className="datepicker-input shopping-basket-date-input"
+                calendarClassName="theme-datepicker"
+                popperClassName="theme-datepicker-popper"
+              />
+            </div>
+
+            <button
+              type="button"
+              className="shopping-basket-delete"
+              title="Supprimer le panier"
+              disabled={!canWrite}
+              onClick={() => {
+                void handleDeleteList(shoppingItem._id);
+              }}
+            >
+              <i className="fa-solid fa-trash-can"></i>
+              <span>Supprimer</span>
+            </button>
+          </div>
+        </div>
+
+        <p className="shopping-basket-caption">
+          <i className="fa-solid fa-basket-shopping text-primary"></i>
+          {shoppingItem.shoppingList.length} {shoppingItem.shoppingList.length > 1 ? "articles" : "article"} dans ce panier
+        </p>
+      </div>
+
+      <PostValidationPopup
+        postName="article"
+        actionType="Update"
+        showPopup={showUpdatePopup}
+        togglePopup={closeUpdatePopup}
+        handleValidate={handleUpdatePost}
+        popupPost={popupShopping}
+        setPopupPost={setTitle}
+        setPriorityColor={setPriorityColor}
+        inputs={countInput()}
+        isFieldValid={isCountValid}
+        compactPriorityPicker={true}
+      />
+
+      <div className="shopping-basket-items">
+        {shoppingItem.shoppingList.length === 0 && (
+          <div className="shopping-basket-empty">
+            <i className="fa-solid fa-cart-flatbed"></i>
+            <p>Panier vide pour l'instant.</p>
+            <span>Ajoute ton premier article pour commencer ce panier.</span>
+          </div>
+        )}
+
+        {shoppingItem.shoppingList.length > 0 &&
+          shoppingItem.shoppingList.map((post) => (
+            <div key={post._id}>
+              <ShoppingPost post={post} onUpdate={openUpdatePopup} onDelete={handleDelete} />
+            </div>
+          ))}
+      </div>
+    </div>
+  );
+
+  const isQuickAddReady = !!activeList && quickAddItem.title.trim() !== "" && quickAddItem.count > 0 && isQuickAddCountValid;
+
   return (
-    <section className="card shopping-card">
+    <section className="card shopping-board-shell">
       {success && <Success msg={success} setMsg={setSuccess} />}
       {error && <Alert msg={error} setMsg={setError} />}
 
-      <div className="shopping-toolbar">
-        <h1 className="shopping-toolbar-title text-text-heading">
-          <i className="fa-solid fa-shopping-cart text-primary"></i>
-          Shopping Board
-        </h1>
+      <div className="shopping-board-hero">
+        <div className="shopping-board-head">
+            <div className="shopping-board-copy">
+              <p className="eyebrow">Courses du quotidien</p>
+              <h1 className="shopping-board-title text-text-heading">
+                <i className="fa-solid fa-basket-shopping text-primary"></i>
+                Panier de courses
+              </h1>
+              <p className="shopping-board-description">
+              Un panier actif clair, un ajout rapide, et un historique d'articles separe pour gagner du temps.
+              </p>
+            </div>
 
-        <button
-          onClick={handleCreateDate}
-          disabled={isCreatingList}
-          className="shopping-create-button inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 font-semibold text-white shadow-sm transition-all duration-200 hover:scale-105 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100"
-        >
-          <i className="fa-solid fa-plus"></i>
-          {isCreatingList ? "Creation..." : "Nouvelle liste"}
-        </button>
+          <button
+            onClick={handleCreateDate}
+            disabled={!canWrite || isCreatingList}
+            className="shopping-board-create inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 font-semibold text-white shadow-sm transition-all duration-200 hover:scale-105 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100"
+          >
+            <i className="fa-solid fa-plus"></i>
+            {isCreatingList ? "Creation..." : "Nouveau panier"}
+          </button>
+        </div>
+
+        {!isLoadingLists && shoppingItems.length > 0 && activeList && (
+          <>
+            <div className="shopping-board-toolbar">
+              <div className="shopping-board-switcher">
+                <div className="shopping-board-switcher-copy">
+                  <p className="shopping-board-switcher-label">Panier actif</p>
+                  <p className="shopping-board-switcher-note">Un seul panier visible pour aller plus vite, surtout a deux en magasin.</p>
+                </div>
+
+                <div className="shopping-board-basket-rail" role="tablist" aria-label="Choisir le panier actif">
+                  {shoppingItems.map((shoppingItem, index) => (
+                    <button
+                      key={shoppingItem._id}
+                      type="button"
+                      role="tab"
+                      aria-selected={shoppingItem._id === activeList._id}
+                      className={["shopping-basket-tab", shoppingItem._id === activeList._id ? "active" : ""].filter(Boolean).join(" ")}
+                      style={getListAccentStyle(index)}
+                      onClick={() => setSelectedListId(shoppingItem._id)}
+                    >
+                      <span className="shopping-basket-tab-name">{getDisplayListName(shoppingItem)}</span>
+                      <span className="shopping-basket-tab-meta">
+                        {shoppingItem.shoppingList.length} {shoppingItem.shoppingList.length > 1 ? "articles" : "article"}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <form className="shopping-quick-add" onSubmit={handleQuickAddSubmit}>
+                <div className="shopping-quick-add-head">
+                  <div>
+                    <p className="eyebrow">Ajout rapide</p>
+                    <h2 className="shopping-quick-add-title">Ajouter dans {getDisplayListName(activeList)}</h2>
+                  </div>
+                  <span className="shopping-quick-add-date">{activeList.date}</span>
+                </div>
+
+                <div className="shopping-quick-add-fields">
+                  <label className="shopping-quick-add-field shopping-quick-add-field-title">
+                    <span className="shopping-quick-add-label">Article</span>
+                    <input
+                      ref={quickAddInputRef}
+                      type="text"
+                      className="input shopping-quick-add-input"
+                      disabled={!canWrite}
+                      value={quickAddItem.title}
+                      onChange={(event) => setQuickAddItem((prevItem) => ({ ...prevItem, title: event.target.value }))}
+                      placeholder="Lait, tomates, lessive..."
+                    />
+                  </label>
+
+                  <div className="shopping-quick-add-field shopping-quick-add-field-qty">
+                    <span className="shopping-quick-add-label">Quantite</span>
+                    <QuantityInput
+                      count={quickAddItem.count}
+                      unit={quickAddItem.unit}
+                      onChange={handleQuickAddCountChange}
+                      disabled={!canWrite}
+                    />
+                  </div>
+
+                  <label className="shopping-quick-add-field shopping-quick-add-field-priority">
+                    <span className="shopping-quick-add-label">Priorite</span>
+                    <select
+                      className="input shopping-quick-add-select"
+                      disabled={!canWrite}
+                      value={quickAddItem.priorityColor}
+                      onChange={(event) => handleQuickAddPriorityChange(Number(event.target.value))}
+                    >
+                      {PRIORITY_OPTIONS.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+
+                  <button type="submit" className="shopping-quick-add-button" disabled={!canWrite || !isQuickAddReady}>
+                    <i className="fa-solid fa-plus"></i>
+                    Ajouter au panier
+                  </button>
+                </div>
+
+                {quickSuggestions.length > 0 && (
+                  <div className="shopping-quick-picks-panel">
+                    <p className="shopping-quick-picks-label">Articles souvent ajoutes</p>
+                    <div className="shopping-quick-picks" aria-label="Historique des articles">
+                      {quickSuggestions.map((suggestion) => (
+                        <div key={suggestion.key} className="shopping-quick-pick">
+                          <button
+                            type="button"
+                            className="shopping-quick-pick-main"
+                            disabled={!canWrite}
+                            onClick={() => handleSuggestionClick(suggestion)}
+                          >
+                            <i className="fa-solid fa-rotate-left"></i>
+                            <span className="shopping-quick-pick-copy">{suggestion.title}</span>
+                            <span className="shopping-quick-pick-count">{suggestion.frequency}x</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            className="shopping-quick-pick-delete"
+                            disabled={!canWrite}
+                            onClick={() => handleDeleteHistoryEntry(suggestion.key)}
+                            aria-label={`Supprimer ${suggestion.title} des articles souvent ajoutes`}
+                            title="Supprimer de l'historique"
+                          >
+                            <i className="fa-solid fa-xmark"></i>
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </form>
+            </div>
+          </>
+        )}
       </div>
 
-      <div className="shopping-tab space-y-4">
+      <div className="shopping-board-main">
         {isLoadingLists && (
-          <div className="shopping-loading-state">
+          <div className="shopping-board-loading">
             <i className="fa-solid fa-spinner animate-spin"></i>
-            <span>Chargement des listes...</span>
+            <span>Chargement des paniers...</span>
           </div>
         )}
 
         {!isLoadingLists && shoppingItems.length === 0 && (
-          <div className="shopping-empty-state">
+          <div className="shopping-board-empty">
             <i className="fa-solid fa-basket-shopping text-primary"></i>
-            <p>Aucune liste pour le moment.</p>
-            <span>Ajoute une nouvelle liste pour commencer.</span>
+            <p>Aucun panier pour le moment.</p>
+            <span>Ajoute un nouveau panier pour commencer.</span>
           </div>
         )}
 
-        {shoppingItems.map((shoppingItem, index) => (
-          <div className="shopping-day-list" key={shoppingItem._id} data-list-index={index}>
-            <div className="shopping-chevron-icon fa-solid fa-chevron-down" onClick={unrollPanel}></div>
-
-            <PostList
-              title={
-                <div className="shopping-list-title">
-                  <div className="shopping-list-title-fields">
-                    {nameInput(shoppingItem)}
-                    <div className="shopping-list-date">
-                      <DatePicker
-                        selected={convertStringToDate(shoppingItem.date)}
-                        onChange={(date: Date | null) => {
-                          if (date && !isNaN(date.getTime())) {
-                            void handleUpdateDateItem(shoppingItem._id, shoppingItem.name, formatShoppingDate(date));
-                          }
-                        }}
-                        locale="fr"
-                        dateFormat="P"
-                        className="datepicker-input shopping-date-input"
-                        calendarClassName="theme-datepicker"
-                        popperClassName="theme-datepicker-popper"
-                      />
-                    </div>
-                  </div>
-                </div>
-              }
-              posts={shoppingItem.shoppingList}
-              PostComposant={ShoppingPost}
-              popupPost={popupShopping}
-              handleCreate={() => handleCreatePost(shoppingItem._id)}
-              handleUpdate={handleUpdate}
-              handleDelete={handleDelete}
-              setTitle={setTitle}
-              setPriorityColor={setPriorityColor}
-              setAllFields={setAllFields}
-              resetAllFields={resetAllFields}
-              popupInputs={countInput()}
-              isFieldValid={isCountValid}
-            />
-
-            {shoppingItems.length !== 0 && (
-              <div className="shopping-total-bar">
-                <button
-                  className="inline-flex items-center gap-2 rounded-lg border border-theme bg-bg-panel px-4 py-2 text-sm font-medium text-text-main transition-all duration-200 hover:border-red-500/50 hover:bg-hover hover:text-red-500 dark:hover:text-red-400"
-                  onClick={() => {
-                    void handleCleanDate(shoppingItem._id);
-                  }}
-                >
-                  <i className="fa-solid fa-trash-can"></i>
-                  Vider la liste
-                </button>
-
-                <p className="shopping-total-text flex items-center gap-2">
-                  <i className="fa-solid fa-list-check text-primary"></i>
-                  {shoppingItem.shoppingList.length} {shoppingItem.shoppingList.length > 1 ? "articles" : "article"}
-                </p>
-              </div>
-            )}
-          </div>
-        ))}
+        {!isLoadingLists && activeList && renderBasketPanel(activeList, activeListIndex)}
       </div>
     </section>
   );

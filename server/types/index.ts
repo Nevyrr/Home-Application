@@ -1,5 +1,8 @@
 import { Document, Types } from "mongoose";
 
+export type UserAccessLevel = "writable" | "readonly";
+export type UserRole = "admin" | UserAccessLevel;
+
 export interface IUser extends Document {
   _id: Types.ObjectId;
   name: string;
@@ -8,7 +11,10 @@ export interface IUser extends Document {
   googleId?: string | null;
   receiveEmail: boolean;
   isAdmin: boolean;
+  accessLevel: UserAccessLevel;
   refreshToken?: string | null;
+  passwordResetToken?: string | null;
+  passwordResetExpiresAt?: Date | null;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -68,6 +74,22 @@ export interface ITaco extends Document {
   antiPuceReminder: string;
   annualVaccineDate: string;
   annualVaccineReminder: string;
+  birthDate: string;
+  weightKg: number;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface INono extends Document {
+  _id: Types.ObjectId;
+  birthDate: string;
+  checkupDate: string;
+  checkupReminder: string;
+  vaccineDate: string;
+  vaccineReminder: string;
+  vitaminReminder: string;
+  administrativeReminder: string;
+  notes: string;
   createdAt?: Date;
   updatedAt?: Date;
 }

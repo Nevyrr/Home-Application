@@ -31,6 +31,19 @@ const UserSchema = new Schema<IUser>(
       type: Boolean,
       default: false
     },
+    accessLevel: {
+      type: String,
+      enum: ["writable", "readonly"],
+      default: "readonly",
+    },
+    passwordResetToken: {
+      type: String,
+      default: null,
+    },
+    passwordResetExpiresAt: {
+      type: Date,
+      default: null,
+    },
     refreshToken: {
       type: String,
       default: null

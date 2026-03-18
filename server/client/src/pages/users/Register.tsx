@@ -3,11 +3,12 @@ import { useNavigate } from "react-router-dom";
 import { GoogleSignInButton } from "../../components/index.ts";
 import { registerUser, loginWithGoogle } from "../../controllers/UsersController.ts";
 import { useAuth, useErrorHandler } from "../../hooks/index.ts";
+import { loadStoredUser } from "../../utils/session.ts";
 
 const Register = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
-  const { error, setError, handleAsyncOperation } = useErrorHandler();
+  const { error, handleAsyncOperation } = useErrorHandler();
 
   const [formData, setFormData] = useState({
     name: "",
@@ -17,12 +18,15 @@ const Register = () => {
   });
 
   const syncUserFromStorage = () => {
+    const storedUser = loadStoredUser();
+
     login({
-      id: localStorage.getItem("id") || "",
-      name: localStorage.getItem("name") || "",
-      email: localStorage.getItem("email") || "",
-      receiveEmail: localStorage.getItem("receiveEmail") === "true",
-      isAdmin: localStorage.getItem("isAdmin") === "true",
+      id: storedUser.id || "",
+      name: storedUser.name || "",
+      email: storedUser.email || "",
+      receiveEmail: storedUser.receiveEmail === "true",
+      isAdmin: storedUser.isAdmin === "true",
+      accessLevel: storedUser.accessLevel || "writable",
     });
   };
 

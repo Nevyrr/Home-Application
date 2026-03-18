@@ -36,6 +36,15 @@ export const loginSchema = z.object({
   password: z.string().min(1, "Le mot de passe est requis"),
 });
 
+export const forgotPasswordSchema = z.object({
+  email: emailSchema,
+});
+
+export const resetPasswordSchema = z.object({
+  token: z.string().min(1, "Le token est requis"),
+  password: passwordSchema,
+});
+
 /**
  * Schema de validation pour la mise a jour d'utilisateur
  */
@@ -44,6 +53,10 @@ export const updateUserSchema = z.object({
   email: emailSchema.optional(),
   password: passwordSchema.optional(),
   receiveEmail: z.boolean().optional(),
+});
+
+export const adminUserRoleSchema = z.object({
+  role: z.enum(["admin", "writable", "readonly"]),
 });
 
 /**

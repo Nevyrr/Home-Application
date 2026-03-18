@@ -1,29 +1,37 @@
 import nodemailer from "nodemailer";
+import { env } from "./env.js";
+import { logger } from "../utils/logger.js";
 
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
+        user: env.EMAIL_USER,
+        pass: env.EMAIL_PASS,
     },
 });
 
-const sendEmail = (emailDest: string, subject: string, text: string): void => {
+const isEmailConfigured = (): boolean => Boolean(env.EMAIL_USER && env.EMAIL_PASS);
+
+const sendEmail = async (emailDest: string, subject: string, text: string): Promise<void> => {
+    if (!isEmailConfigured()) {
+      throw new Error("Configuration email manquante");
+    }
+
     const mailOptions = {
-      from: process.env.EMAIL_USER,
+      from: env.EMAIL_USER,
       to: emailDest,
       subject,
       text,
     };
-  
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        console.log('Error sending email:', error);
-      } else {
-        console.log('Email sent:', info?.response);
-      }
-    });
+
+    try {
+      const info = await transporter.sendMail(mailOptions);
+      logger.info("Email sent", { to: emailDest, response: info.response });
+    } catch (error: unknown) {
+      logger.error("Error sending email", { error, to: emailDest });
+      throw error;
+    }
   };
 
-export { sendEmail };
+export { isEmailConfigured, sendEmail };
 

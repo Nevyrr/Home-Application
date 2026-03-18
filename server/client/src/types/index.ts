@@ -1,9 +1,28 @@
+import type { Dispatch, SetStateAction } from "react";
+
+export type UserAccessLevel = "writable" | "readonly";
+export type UserRole = "admin" | UserAccessLevel;
+
 export interface User {
   id: string | null;
   name: string | null;
   email: string | null;
   receiveEmail: string | null;
   isAdmin: string | null;
+  accessLevel: UserAccessLevel | null;
+  role?: UserRole | null;
+}
+
+export interface ManagedUser {
+  id: string;
+  name: string;
+  email: string;
+  receiveEmail: boolean;
+  isAdmin: boolean;
+  accessLevel: UserAccessLevel;
+  role: UserRole;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface ShoppingPost {
@@ -71,20 +90,38 @@ export interface Taco {
   antiPuceReminder: string;
   annualVaccineDate: string;
   annualVaccineReminder: string;
+  birthDate: string;
+  weightKg: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface Nono {
+  _id?: string;
+  birthDate: string;
+  checkupDate: string;
+  checkupReminder: string;
+  vaccineDate: string;
+  vaccineReminder: string;
+  vitaminReminder: string;
+  administrativeReminder: string;
+  notes: string;
   createdAt?: string;
   updatedAt?: string;
 }
 
 export interface AppState {
   user: User;
-  setUser: (user: User) => void;
+  setUser: Dispatch<SetStateAction<User>>;
   shoppingItems: ShoppingDay[];
-  setShoppingItems: (items: ShoppingDay[]) => void;
+  setShoppingItems: Dispatch<SetStateAction<ShoppingDay[]>>;
   reminderPosts: ReminderPost[];
-  setReminderPosts: (posts: ReminderPost[]) => void;
+  setReminderPosts: Dispatch<SetStateAction<ReminderPost[]>>;
   events: CalendarEvent[];
-  setEvents: (events: CalendarEvent[]) => void;
+  setEvents: Dispatch<SetStateAction<CalendarEvent[]>>;
   taco: Taco;
-  setTaco: (taco: Taco) => void;
+  setTaco: Dispatch<SetStateAction<Taco>>;
+  nono: Nono;
+  setNono: Dispatch<SetStateAction<Nono>>;
 }
 

@@ -6,6 +6,7 @@ import {
   updateEvent,
 } from "../controllers/CalendarEventsController.js";
 import auth from "../middlewares/auth.js";
+import { requireWritable } from "../middlewares/access.js";
 import { validate } from "../utils/validation.js";
 import { calendarEventSchema } from "../utils/validation.js";
 import { asyncHandler } from "../middlewares/errorHandler.js";
@@ -14,9 +15,9 @@ import { asyncHandler } from "../middlewares/errorHandler.js";
 const router = express.Router();
 
 router.get("/", auth, asyncHandler(getEvents));
-router.post("/", auth, validate(calendarEventSchema), asyncHandler(addEvent));
-router.delete("/:id", auth, asyncHandler(deleteEvent));
-router.put("/:id", auth, validate(calendarEventSchema), asyncHandler(updateEvent));
+router.post("/", auth, requireWritable, validate(calendarEventSchema), asyncHandler(addEvent));
+router.delete("/:id", auth, requireWritable, asyncHandler(deleteEvent));
+router.put("/:id", auth, requireWritable, validate(calendarEventSchema), asyncHandler(updateEvent));
 
 export { router as CalendarEventsRoutes };
 

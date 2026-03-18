@@ -3,6 +3,7 @@ import User from "../models/UserModel.js";
 import { IUser } from "../types/index.js";
 import { createError } from "./errorHandler.js";
 import { verifyToken } from "../utils/tokenUtils.js";
+import { normalizeAccessLevel, syncUserAccessState } from "../utils/userAccess.js";
 
 interface AuthRequest extends Request {
   user?: IUser | null;
@@ -32,8 +33,9 @@ const auth = async (req: AuthRequest, _res: Response, next: NextFunction): Promi
     }
 
     // Save the user in request
-    const user = await User.findById(decoded._id).select("_id name email receiveEmail isAdmin");
+    const user = await User.findById(decoded._id).select("_id name email receiveEmail isAdmin accessLevel");
     if (user) {
+      await syncUserAccessState(user);
       req.user = {
         _id: user._id,
         name: user.name,
@@ -41,6 +43,7 @@ const auth = async (req: AuthRequest, _res: Response, next: NextFunction): Promi
         password: '', // Not needed for auth request
         receiveEmail: user.receiveEmail,
         isAdmin: user.isAdmin,
+        accessLevel: normalizeAccessLevel(user.accessLevel),
       } as IUser;
     } else {
       req.user = null;

@@ -1,7 +1,8 @@
 import { ShoppingDay } from "../types/index.ts";
 import { fetchWithAuth } from "../utils/authClient.ts";
+import { ApiEnvelope, getApiMessage, readApiResponse } from "../utils/api.ts";
 
-interface ApiResponse {
+interface ApiResponse extends ApiEnvelope<{ posts?: ShoppingDay[] }> {
   posts?: ShoppingDay[];
   success?: string;
   error?: string;
@@ -10,13 +11,11 @@ interface ApiResponse {
 /**************************** Get all shopping-posts  ********************************/
 const getPosts = async (): Promise<{ posts: ShoppingDay[] }> => {
   const res = await fetchWithAuth("/api/shopping-posts");
-  const data: ApiResponse = await res.json();
+  const data = await readApiResponse<ApiResponse>(res, "Failed to fetch posts");
 
-  if (!res.ok) {
-    throw Error(data.error || "Failed to fetch posts");
-  }
-
-  return data as { posts: ShoppingDay[] };
+  return {
+    posts: data.data?.posts || data.posts || [],
+  };
 };
 
 /**************************** Create shopping-date  ******************************/
@@ -33,13 +32,8 @@ const createDate = async (date: string, name: string): Promise<ApiResponse> => {
     body: JSON.stringify({ date, name }),
   });
 
-  const data: ApiResponse = await res.json();
-
-  if (!res.ok) {
-    throw Error(data.error || "Failed to create date");
-  }
-
-  return data;
+  const data = await readApiResponse<ApiResponse>(res, "Failed to create date");
+  return { ...data, success: getApiMessage(data) };
 };
 
 /**************************** Update shopping-date  ******************************/
@@ -56,13 +50,8 @@ const updateDateItem = async (shoppingListId: string, name: string, date: string
     body: JSON.stringify({ shoppingListId, name, date }),
   });
 
-  const data: ApiResponse = await res.json();
-
-  if (!res.ok) {
-    throw Error(data.error || "Failed to update date");
-  }
-
-  return data;
+  const data = await readApiResponse<ApiResponse>(res, "Failed to update date");
+  return { ...data, success: getApiMessage(data) };
 };
 
 /**************************** Create shopping-posts  ******************************/
@@ -85,13 +74,8 @@ const createPost = async (
     body: JSON.stringify({ shoppingListId, title, count, unit, priorityColor }),
   });
 
-  const data: ApiResponse = await res.json();
-
-  if (!res.ok) {
-    throw Error(data.error || "Failed to create post");
-  }
-
-  return data;
+  const data = await readApiResponse<ApiResponse>(res, "Failed to create post");
+  return { ...data, success: getApiMessage(data) };
 };
 
 /**************************** Delete shopping-posts  ******************************/
@@ -100,13 +84,8 @@ const deletePost = async (_id: string): Promise<ApiResponse> => {
     method: "DELETE",
   });
 
-  const data: ApiResponse = await res.json();
-
-  if (!res.ok) {
-    throw Error(data.error || "Failed to delete post");
-  }
-
-  return data;
+  const data = await readApiResponse<ApiResponse>(res, "Failed to delete post");
+  return { ...data, success: getApiMessage(data) };
 };
 
 /**************************** Delete all shopping-posts  ******************************/
@@ -115,13 +94,8 @@ const deletePosts = async (shoppingListId: string): Promise<ApiResponse> => {
     method: "DELETE",
   });
 
-  const data: ApiResponse = await res.json();
-
-  if (!res.ok) {
-    throw Error(data.error || "Failed to delete posts");
-  }
-
-  return data;
+  const data = await readApiResponse<ApiResponse>(res, "Failed to delete posts");
+  return { ...data, success: getApiMessage(data) };
 };
 
 /**************************** Update shopping-posts  ******************************/
@@ -144,13 +118,8 @@ const updatePost = async (
     body: JSON.stringify({ title, count, unit, priorityColor }),
   });
 
-  const data: ApiResponse = await res.json();
-
-  if (!res.ok) {
-    throw Error(data.error || "Failed to update post");
-  }
-
-  return data;
+  const data = await readApiResponse<ApiResponse>(res, "Failed to update post");
+  return { ...data, success: getApiMessage(data) };
 };
 
 export { getPosts, createDate, updateDateItem, createPost, deletePost, deletePosts, updatePost };

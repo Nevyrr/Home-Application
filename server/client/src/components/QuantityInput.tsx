@@ -4,10 +4,11 @@ interface QuantityInputProps {
   count: number;
   unit: string;
   onChange: (data: { count: number; unit: string }) => void;
+  disabled?: boolean;
 }
 
-const QuantityInput = ({ count, unit, onChange }: QuantityInputProps) => {
-    const units = ["", "g", "Kg", "mL", "L"];
+const QuantityInput = ({ count, unit, onChange, disabled = false }: QuantityInputProps) => {
+    const units = ["", "u", "g", "Kg", "mL", "L"];
 
     const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         onChange({ count: Number(e.target.value), unit: unit });
@@ -22,6 +23,7 @@ const QuantityInput = ({ count, unit, onChange }: QuantityInputProps) => {
             <input
                 type="number"
                 value={count}
+                disabled={disabled}
                 onChange={handleQuantityChange}
                 className="input quantity-input-count"
                 placeholder="Count"
@@ -32,7 +34,7 @@ const QuantityInput = ({ count, unit, onChange }: QuantityInputProps) => {
             />
             <select
                 value={unit}
-                placeholder="unit"
+                disabled={disabled}
                 onChange={handleUnitChange}
                 className="input quantity-input-unit"
             >

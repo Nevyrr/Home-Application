@@ -91,12 +91,14 @@ export const requestGoogleCalendarAccessToken = async (interactive = true): Prom
   await loadGoogleIdentityScript();
 
   const clientId = getGoogleClientId();
-  if (!clientId || !window.google?.accounts.oauth2) {
+  const googleAccounts = window.google?.accounts;
+
+  if (!clientId || !googleAccounts?.oauth2) {
     throw new Error("Google Calendar indisponible");
   }
 
   return new Promise<string>((resolve, reject) => {
-    const tokenClient = window.google.accounts.oauth2.initTokenClient({
+    const tokenClient = googleAccounts.oauth2.initTokenClient({
       client_id: clientId,
       scope: GOOGLE_CALENDAR_SCOPE,
       callback: (response) => {
@@ -118,8 +120,10 @@ export const disconnectGoogleCalendar = async (): Promise<void> => {
   await loadGoogleIdentityScript();
 
   const accessToken = getStoredGoogleCalendarToken();
-  if (accessToken && window.google?.accounts.oauth2) {
-    window.google.accounts.oauth2.revoke(accessToken, () => undefined);
+  const googleAccounts = window.google?.accounts;
+
+  if (accessToken && googleAccounts?.oauth2) {
+    googleAccounts.oauth2.revoke(accessToken, () => undefined);
   }
 
   clearGoogleCalendarSession();

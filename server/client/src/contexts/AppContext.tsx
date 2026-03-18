@@ -4,7 +4,7 @@
  */
 
 import { createContext, useState, useContext, ReactNode } from "react";
-import { AppState, User, ShoppingDay, ReminderPost, CalendarEvent, Taco } from "../types/index.ts";
+import { AppState, User, ShoppingDay, ReminderPost, CalendarEvent, Taco, Nono } from "../types/index.ts";
 import { loadStoredUser } from "../utils/session.ts";
 
 const AppContext = createContext<AppState | undefined>(undefined);
@@ -20,6 +20,10 @@ export const useApp = (): AppState => {
 interface AppProviderProps {
   children: ReactNode;
 }
+
+const DEFAULT_NONO_BIRTH_DATE = "18/03/2026";
+const DEFAULT_TACO_BIRTH_DATE = "07/08/2022";
+const DEFAULT_TACO_WEIGHT_KG = 16.7;
 
 export const AppProvider = ({ children }: AppProviderProps) => {
   // User state
@@ -42,6 +46,20 @@ export const AppProvider = ({ children }: AppProviderProps) => {
     antiPuceReminder: "",
     annualVaccineDate: "",
     annualVaccineReminder: "",
+    birthDate: DEFAULT_TACO_BIRTH_DATE,
+    weightKg: DEFAULT_TACO_WEIGHT_KG,
+  });
+
+  // Nono state
+  const [nono, setNono] = useState<Nono>({
+    birthDate: DEFAULT_NONO_BIRTH_DATE,
+    checkupDate: "",
+    checkupReminder: "",
+    vaccineDate: "",
+    vaccineReminder: "",
+    vitaminReminder: "",
+    administrativeReminder: "",
+    notes: "",
   });
 
   const value: AppState = {
@@ -64,6 +82,10 @@ export const AppProvider = ({ children }: AppProviderProps) => {
     // Taco
     taco,
     setTaco,
+
+    // Nono
+    nono,
+    setNono,
   };
 
   return (

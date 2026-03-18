@@ -7,6 +7,7 @@ interface EnvConfig {
   SECRET: string;
   PORT: string;
   NODE_ENV: string;
+  FRONTEND_URL: string;
   ACCESS_TOKEN_TTL: string;
   REFRESH_TOKEN_TTL: string;
   GOOGLE_CLIENT_ID?: string;
@@ -14,6 +15,7 @@ interface EnvConfig {
   EMAIL_PASS?: string;
   EMAIL_RECIPIENT_1?: string;
   EMAIL_RECIPIENT_2?: string;
+  DEFAULT_ADMIN_EMAILS?: string;
 }
 
 const requiredEnvVars = ['DB_URI', 'SECRET'] as const;
@@ -50,6 +52,7 @@ export const validateEnv = (): EnvConfig => {
     SECRET: process.env.SECRET!,
     PORT: process.env.PORT || '4000',
     NODE_ENV: process.env.NODE_ENV || 'development',
+    FRONTEND_URL: process.env.FRONTEND_URL || 'http://localhost:5173',
     ACCESS_TOKEN_TTL: process.env.ACCESS_TOKEN_TTL || '12h',
     REFRESH_TOKEN_TTL: process.env.REFRESH_TOKEN_TTL || '180d',
     GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
@@ -57,6 +60,7 @@ export const validateEnv = (): EnvConfig => {
     EMAIL_PASS: process.env.EMAIL_PASS,
     EMAIL_RECIPIENT_1: process.env.EMAIL_RECIPIENT_1,
     EMAIL_RECIPIENT_2: process.env.EMAIL_RECIPIENT_2,
+    DEFAULT_ADMIN_EMAILS: process.env.DEFAULT_ADMIN_EMAILS,
   };
 };
 

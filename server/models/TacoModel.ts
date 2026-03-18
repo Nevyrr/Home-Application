@@ -27,6 +27,14 @@ const TacoSchema = new Schema<ITaco>({
         type: String,
         default: ""
     },
+    birthDate: {
+        type: String,
+        default: "07/08/2022"
+    },
+    weightKg: {
+        type: Number,
+        default: 16.7
+    },
 }, { timestamps: true });
 
 

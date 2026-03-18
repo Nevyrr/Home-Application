@@ -1,7 +1,8 @@
 import { CalendarEvent } from "../types/index.ts";
 import { fetchWithAuth } from "../utils/authClient.ts";
+import { ApiEnvelope, getApiMessage, readApiResponse } from "../utils/api.ts";
 
-interface ApiResponse {
+interface ApiResponse extends ApiEnvelope<{ events?: CalendarEvent[]; event?: CalendarEvent }> {
   events?: CalendarEvent[];
   success?: string;
   error?: string;
@@ -11,18 +12,7 @@ interface ApiResponse {
 /**************************** Get All Calendar Events  ********************************/
 const getEvents = async (): Promise<{ events: CalendarEvent[] }> => {
   const res = await fetchWithAuth("/api/calendar-events");
-
-  const contentType = res.headers.get("content-type");
-  if (!contentType || !contentType.includes("application/json")) {
-    const text = await res.text();
-    throw Error(text || "Failed to fetch events");
-  }
-
-  const data: any = await res.json();
-
-  if (!res.ok) {
-    throw Error(data.error || "Failed to fetch events");
-  }
+  const data = await readApiResponse<ApiResponse>(res, "Failed to fetch events");
 
   const events = data.data?.events || data.events || [];
   return { events };
@@ -53,20 +43,10 @@ const createEvent = async (
     body: JSON.stringify({ title, date, duration, priorityColor }),
   });
 
-  const contentType = res.headers.get("content-type");
-  if (!contentType || !contentType.includes("application/json")) {
-    const text = await res.text();
-    throw Error(text || "Failed to create event");
-  }
-
-  const data: any = await res.json();
-
-  if (!res.ok) {
-    throw Error(data.error || "Failed to create event");
-  }
+  const data = await readApiResponse<ApiResponse>(res, "Failed to create event");
 
   return {
-    success: data.message || data.success,
+    success: getApiMessage(data),
     event: data.data?.event || data.event,
     ...data,
   };
@@ -78,20 +58,10 @@ const deleteEvent = async (_id: string): Promise<ApiResponse> => {
     method: "DELETE",
   });
 
-  const contentType = res.headers.get("content-type");
-  if (!contentType || !contentType.includes("application/json")) {
-    const text = await res.text();
-    throw Error(text || "Failed to delete event");
-  }
-
-  const data: any = await res.json();
-
-  if (!res.ok) {
-    throw Error(data.error || "Failed to delete event");
-  }
+  const data = await readApiResponse<ApiResponse>(res, "Failed to delete event");
 
   return {
-    success: data.message || data.success,
+    success: getApiMessage(data),
     ...data,
   };
 };
@@ -122,20 +92,10 @@ const updateEvent = async (
     body: JSON.stringify({ title, date, duration, priorityColor }),
   });
 
-  const contentType = res.headers.get("content-type");
-  if (!contentType || !contentType.includes("application/json")) {
-    const text = await res.text();
-    throw Error(text || "Failed to update event");
-  }
-
-  const data: any = await res.json();
-
-  if (!res.ok) {
-    throw Error(data.error || "Failed to update event");
-  }
+  const data = await readApiResponse<ApiResponse>(res, "Failed to update event");
 
   return {
-    success: data.message || data.success,
+    success: getApiMessage(data),
     event: data.data?.event || data.event,
     ...data,
   };

@@ -3,10 +3,12 @@ import { Alert, Success } from "../../components/index.ts";
 import { getEvents } from "../../controllers/CalendarEventsController.ts";
 import { getPosts as getReminderPosts } from "../../controllers/ReminderPostsController.ts";
 import { getPosts as getShoppingPosts } from "../../controllers/ShoppingPostsController.ts";
-import { updateUser } from "../../controllers/UsersController.ts";
+import { deleteUserAccount, listUsers, updateUser, updateUserAccess } from "../../controllers/UsersController.ts";
 import { useApp } from "../../contexts/AppContext.tsx";
 import { useTheme } from "../../contexts/ThemeContext.tsx";
 import { useErrorHandler } from "../../hooks/index.ts";
+import { ManagedUser, UserRole } from "../../types/index.ts";
+import { canUserWrite, getUserRole, getUserRoleLabel, isUserAdmin } from "../../utils/permissions.ts";
 
 interface ProfileStats {
   shoppingLists: number;
@@ -45,9 +47,13 @@ const Dashboard = () => {
     email: user.email || "",
   });
   const [stats, setStats] = useState<ProfileStats>(EMPTY_STATS);
+  const [managedUsers, setManagedUsers] = useState<ManagedUser[]>([]);
   const [isLoadingStats, setIsLoadingStats] = useState<boolean>(true);
+  const [isLoadingUsers, setIsLoadingUsers] = useState<boolean>(false);
   const [isSavingProfile, setIsSavingProfile] = useState<boolean>(false);
   const [isUpdatingNotifications, setIsUpdatingNotifications] = useState<boolean>(false);
+  const [updatingUserId, setUpdatingUserId] = useState<string | null>(null);
+  const [deletingUserId, setDeletingUserId] = useState<string | null>(null);
 
   useEffect(() => {
     setProfileForm({
@@ -120,6 +126,44 @@ const Dashboard = () => {
     };
   }, [setError]);
 
+  const isAdmin = isUserAdmin(user);
+  const canWrite = canUserWrite(user);
+
+  useEffect(() => {
+    if (!isAdmin) {
+      setManagedUsers([]);
+      return;
+    }
+
+    let isMounted = true;
+
+    const loadManagedUsers = async () => {
+      setIsLoadingUsers(true);
+
+      try {
+        const users = await listUsers();
+
+        if (isMounted) {
+          setManagedUsers(users);
+        }
+      } catch (loadError) {
+        if (isMounted) {
+          setError(loadError instanceof Error ? loadError.message : "Impossible de charger les comptes");
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoadingUsers(false);
+        }
+      }
+    };
+
+    void loadManagedUsers();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [isAdmin, setError]);
+
   const displayName = user.name?.trim() || "Utilisateur";
   const displayEmail = user.email?.trim() || "Aucune adresse email";
   const initials = displayName
@@ -128,7 +172,7 @@ const Dashboard = () => {
     .slice(0, 2)
     .map((chunk) => chunk[0]?.toUpperCase())
     .join("");
-  const roleLabel = user.isAdmin === "true" ? "Administrateur" : "Membre";
+  const roleLabel = getUserRoleLabel(user);
   const themeLabel = theme === "dark" ? "Sombre" : "Clair";
   const notificationsEnabled = getBooleanFromString(user.receiveEmail);
   const isProfileDirty =
@@ -136,6 +180,11 @@ const Dashboard = () => {
 
   const handleProfileSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    if (!canWrite) {
+      setError("Ce compte est en lecture seule");
+      return;
+    }
 
     const trimmedName = profileForm.name.trim();
     const trimmedEmail = profileForm.email.trim();
@@ -166,6 +215,11 @@ const Dashboard = () => {
   };
 
   const handleCheckboxMailChange = async () => {
+    if (!canWrite) {
+      setError("Ce compte est en lecture seule");
+      return;
+    }
+
     const nextValue = !notificationsEnabled;
     const previousUser = user;
 
@@ -183,6 +237,41 @@ const Dashboard = () => {
       setUser(previousUser);
     } finally {
       setIsUpdatingNotifications(false);
+    }
+  };
+
+  const handleManagedUserAccessChange = async (managedUser: ManagedUser, role: UserRole) => {
+    setUpdatingUserId(managedUser.id);
+
+    try {
+      await handleAsyncOperation(async () => {
+        const updatedUser = await updateUserAccess(managedUser.id, role);
+
+        if (updatedUser) {
+          setManagedUsers((currentUsers) =>
+            currentUsers.map((currentUser) => (currentUser.id === managedUser.id ? updatedUser : currentUser))
+          );
+        }
+      }, "Niveau d'acces mis a jour");
+    } finally {
+      setUpdatingUserId(null);
+    }
+  };
+
+  const handleManagedUserDelete = async (managedUser: ManagedUser) => {
+    if (!confirm(`Supprimer le compte de ${managedUser.email} ?`)) {
+      return;
+    }
+
+    setDeletingUserId(managedUser.id);
+
+    try {
+      await handleAsyncOperation(async () => {
+        await deleteUserAccount(managedUser.id);
+        setManagedUsers((currentUsers) => currentUsers.filter((currentUser) => currentUser.id !== managedUser.id));
+      }, "Compte supprime");
+    } finally {
+      setDeletingUserId(null);
     }
   };
 
@@ -205,6 +294,13 @@ const Dashboard = () => {
           <span className="profile-pill">Theme {themeLabel.toLowerCase()}</span>
         </div>
       </div>
+
+      {!canWrite && (
+        <div className="profile-lock-banner">
+          <strong>Compte en lecture seule</strong>
+          <p>Les champs de modification sont desactives sur les pages de l'application pour ce compte.</p>
+        </div>
+      )}
 
       <div className="profile-grid">
         <div className="profile-main">
@@ -239,6 +335,7 @@ const Dashboard = () => {
                 <input
                   className="input"
                   value={profileForm.name}
+                  disabled={!canWrite || isSavingProfile}
                   onChange={(event) => setProfileForm((prev) => ({ ...prev, name: event.target.value }))}
                   placeholder="Ton nom"
                 />
@@ -250,18 +347,87 @@ const Dashboard = () => {
                   type="email"
                   className="input"
                   value={profileForm.email}
+                  disabled={!canWrite || isSavingProfile}
                   onChange={(event) => setProfileForm((prev) => ({ ...prev, email: event.target.value }))}
                   placeholder="Adresse email"
                 />
               </label>
 
               <div className="profile-form-actions">
-                <button className="btn profile-save-button" disabled={!isProfileDirty || isSavingProfile}>
+                <button className="btn profile-save-button" disabled={!canWrite || !isProfileDirty || isSavingProfile}>
                   {isSavingProfile ? "Enregistrement..." : "Mettre a jour le profil"}
                 </button>
               </div>
             </form>
           </section>
+
+          {isAdmin && (
+            <section className="profile-panel">
+              <div className="profile-panel-head">
+                <div>
+                  <p className="eyebrow">Administration</p>
+                  <h2>Gestion des comptes</h2>
+                </div>
+                <span className="profile-pill">{managedUsers.length} compte(s)</span>
+              </div>
+
+              <p className="profile-admin-copy">
+                Les admins voient tous les comptes. Tu peux passer un membre en admin, readonly ou writable, puis supprimer les comptes non-admin.
+              </p>
+
+              {isLoadingUsers ? (
+                <p className="profile-loading-copy">Chargement des comptes...</p>
+              ) : (
+                <div className="profile-user-list">
+                  {managedUsers.map((managedUser) => {
+                    const isCurrentUser = managedUser.id === user.id;
+                    const currentRole = getUserRole(managedUser);
+
+                    return (
+                      <article key={managedUser.id} className={`profile-user-card ${managedUser.isAdmin ? "is-admin" : ""}`}>
+                        <div className="profile-user-copy">
+                          <strong>{managedUser.name}</strong>
+                          <p>{managedUser.email}</p>
+                        </div>
+
+                        <div className="profile-user-controls">
+                          <span className="profile-pill">{getUserRoleLabel(managedUser)}</span>
+
+                          <label className="profile-user-field">
+                            <span>Acces</span>
+                            <select
+                              className="input"
+                              value={currentRole}
+                              disabled={isCurrentUser || updatingUserId === managedUser.id}
+                              onChange={(event) =>
+                                void handleManagedUserAccessChange(
+                                  managedUser,
+                                  event.target.value as UserRole
+                                )
+                              }
+                            >
+                              <option value="admin">Admin</option>
+                              <option value="writable">Writable</option>
+                              <option value="readonly">Readonly</option>
+                            </select>
+                          </label>
+
+                          <button
+                            type="button"
+                            className="danger-button"
+                            disabled={managedUser.isAdmin || isCurrentUser || deletingUserId === managedUser.id}
+                            onClick={() => void handleManagedUserDelete(managedUser)}
+                          >
+                            {deletingUserId === managedUser.id ? "Suppression..." : "Supprimer"}
+                          </button>
+                        </div>
+                      </article>
+                    );
+                  })}
+                </div>
+              )}
+            </section>
+          )}
         </div>
 
         <aside className="profile-side">
@@ -273,7 +439,7 @@ const Dashboard = () => {
               </div>
             </div>
 
-            <label className="profile-toggle-card">
+            <label className={`profile-toggle-card ${!canWrite ? "is-disabled" : ""}`}>
               <div>
                 <strong>Recevoir les emails de l'application</strong>
                 <p>Active un rappel par email quand l'application envoie des notifications utiles.</p>
@@ -282,7 +448,7 @@ const Dashboard = () => {
                 className="checkbox-theme"
                 type="checkbox"
                 checked={notificationsEnabled}
-                disabled={isUpdatingNotifications}
+                disabled={!canWrite || isUpdatingNotifications}
                 onChange={handleCheckboxMailChange}
               />
             </label>

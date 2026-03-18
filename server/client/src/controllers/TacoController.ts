@@ -1,8 +1,17 @@
 import { Taco } from "../types/index.ts";
 import { fetchWithAuth } from "../utils/authClient.ts";
+import { ApiEnvelope, getApiMessage, readApiResponse } from "../utils/api.ts";
 
-interface ApiResponse {
+interface ImageInfo {
+  filename: string;
+  uploadDate: string;
+  length: number;
+}
+
+interface ApiResponse extends ApiEnvelope<{ taco?: Taco[]; images?: ImageInfo[]; filename?: string }> {
   taco?: Taco[];
+  images?: ImageInfo[];
+  filename?: string;
   success?: string;
   error?: string;
 }
@@ -14,139 +23,59 @@ const emptyTacoData: Taco = {
   antiPuceReminder: "",
   annualVaccineDate: "",
   annualVaccineReminder: "",
+  birthDate: "07/08/2022",
+  weightKg: 16.7,
 };
 
-/**************************** Get Taco Data  ********************************/
+const jsonHeaders = {
+  "Content-Type": "application/json",
+};
+
+const buildSuccessResponse = (data: ApiResponse): ApiResponse => ({
+  ...data,
+  success: getApiMessage(data),
+});
+
+const postTacoUpdate = async (path: string, date: string, fallbackMessage: string): Promise<ApiResponse> => {
+  const res = await fetchWithAuth(path, {
+    method: "POST",
+    headers: jsonHeaders,
+    body: JSON.stringify({ date }),
+  });
+
+  const data = await readApiResponse<ApiResponse>(res, fallbackMessage);
+  return buildSuccessResponse(data);
+};
+
 const getTacoData = async (): Promise<Taco> => {
   const res = await fetchWithAuth("/api/taco/", {
     method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: jsonHeaders,
   });
 
-  const data: any = await res.json();
-
-  if (!res.ok) {
-    throw Error(data.error || "Failed to fetch taco data");
-  }
-
+  const data = await readApiResponse<ApiResponse>(res, "Failed to fetch taco data");
   const tacoArray = data.data?.taco || data.taco || [];
-  const tacoData =
-    Array.isArray(tacoArray) && tacoArray.length > 0
-      ? ({ ...emptyTacoData, ...tacoArray[0] } as Taco)
-      : emptyTacoData;
 
-  return tacoData;
+  return Array.isArray(tacoArray) && tacoArray.length > 0 ? { ...emptyTacoData, ...tacoArray[0] } : emptyTacoData;
 };
 
-const updateVermifugeDate = async (date: string): Promise<ApiResponse> => {
-  const res = await fetchWithAuth("/api/taco/vermifuge/date", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ date }),
-  });
+const updateVermifugeDate = async (date: string): Promise<ApiResponse> =>
+  postTacoUpdate("/api/taco/vermifuge/date", date, "Failed to update vermifuge date");
 
-  const data: ApiResponse = await res.json();
+const updateVermifugeReminder = async (date: string): Promise<ApiResponse> =>
+  postTacoUpdate("/api/taco/vermifuge/reminder", date, "Failed to update vermifuge reminder");
 
-  if (!res.ok) {
-    throw Error(data.error || "Failed to update vermifuge date");
-  }
+const updateAntiPuceDate = async (date: string): Promise<ApiResponse> =>
+  postTacoUpdate("/api/taco/antipuce/date", date, "Failed to update anti-puce date");
 
-  return data;
-};
+const updateAntiPuceReminder = async (date: string): Promise<ApiResponse> =>
+  postTacoUpdate("/api/taco/antipuce/reminder", date, "Failed to update anti-puce reminder");
 
-const updateVermifugeReminder = async (date: string): Promise<ApiResponse> => {
-  const res = await fetchWithAuth("/api/taco/vermifuge/reminder", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ date }),
-  });
+const updateAnnualVaccineDate = async (date: string): Promise<ApiResponse> =>
+  postTacoUpdate("/api/taco/vaccine/date", date, "Failed to update annual vaccine date");
 
-  const data: ApiResponse = await res.json();
-
-  if (!res.ok) {
-    throw Error(data.error || "Failed to update vermifuge reminder");
-  }
-
-  return data;
-};
-
-const updateAntiPuceDate = async (date: string): Promise<ApiResponse> => {
-  const res = await fetchWithAuth("/api/taco/antipuce/date", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ date }),
-  });
-
-  const data: ApiResponse = await res.json();
-
-  if (!res.ok) {
-    throw Error(data.error || "Failed to update anti-puce date");
-  }
-
-  return data;
-};
-
-const updateAntiPuceReminder = async (date: string): Promise<ApiResponse> => {
-  const res = await fetchWithAuth("/api/taco/antipuce/reminder", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ date }),
-  });
-
-  const data: ApiResponse = await res.json();
-
-  if (!res.ok) {
-    throw Error(data.error || "Failed to update anti-puce reminder");
-  }
-
-  return data;
-};
-
-const updateAnnualVaccineDate = async (date: string): Promise<ApiResponse> => {
-  const res = await fetchWithAuth("/api/taco/vaccine/date", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ date }),
-  });
-
-  const data: ApiResponse = await res.json();
-
-  if (!res.ok) {
-    throw Error(data.error || "Failed to update annual vaccine date");
-  }
-
-  return data;
-};
-
-const updateAnnualVaccineReminder = async (date: string): Promise<ApiResponse> => {
-  const res = await fetchWithAuth("/api/taco/vaccine/reminder", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ date }),
-  });
-
-  const data: ApiResponse = await res.json();
-
-  if (!res.ok) {
-    throw Error(data.error || "Failed to update annual vaccine reminder");
-  }
-
-  return data;
-};
+const updateAnnualVaccineReminder = async (date: string): Promise<ApiResponse> =>
+  postTacoUpdate("/api/taco/vaccine/reminder", date, "Failed to update annual vaccine reminder");
 
 const getFile = async (filename: string): Promise<Blob> => {
   const res = await fetchWithAuth(`/api/taco/image/${filename}`, {
@@ -161,89 +90,50 @@ const getFile = async (filename: string): Promise<Blob> => {
 };
 
 const uploadFile = async (selectedFile: File): Promise<ApiResponse> => {
-  console.log("uploadFile appelÃ© avec:", selectedFile.name, selectedFile.type, selectedFile.size);
-
   if (!selectedFile) {
-    throw Error("Veuillez sÃ©lectionner un fichier");
+    throw Error("Veuillez selectionner un fichier");
   }
 
   if (selectedFile.type !== "image/png" && selectedFile.type !== "image/jpeg" && selectedFile.type !== "image/jpg") {
-    throw Error("Seuls les fichiers PNG et JPG sont acceptÃ©s");
+    throw Error("Seuls les fichiers PNG et JPG sont acceptes");
   }
 
   const formData = new FormData();
   formData.append("image", selectedFile);
-
-  console.log("Envoi de la requÃªte POST vers /api/taco/upload");
 
   const res = await fetchWithAuth("/api/taco/upload", {
     method: "POST",
     body: formData,
   });
 
-  console.log("RÃ©ponse reÃ§ue:", res.status, res.statusText);
+  const data = await readApiResponse<ApiResponse>(res, "Echec de l'upload du fichier");
 
-  const contentType = res.headers.get("content-type");
-  if (!contentType || !contentType.includes("application/json")) {
-    const text = await res.text();
-    throw Error(text || "Erreur serveur lors de l'upload");
-  }
-
-  let data: any;
-  try {
-    const text = await res.text();
-    if (!text) {
-      throw Error("RÃ©ponse vide du serveur");
-    }
-    data = JSON.parse(text);
-  } catch {
-    throw Error("Erreur lors de la lecture de la rÃ©ponse du serveur");
-  }
-
-  if (!res.ok) {
-    throw Error(data.error || data.message || "Ã‰chec de l'upload du fichier");
-  }
-
-  return { success: data.message || data.success, filename: data.data?.filename, ...data };
+  return {
+    ...buildSuccessResponse(data),
+    filename: data.data?.filename || data.filename,
+  };
 };
-
-interface ImageInfo {
-  filename: string;
-  uploadDate: string;
-  length: number;
-}
 
 const listImages = async (): Promise<{ images: ImageInfo[] }> => {
   const res = await fetchWithAuth("/api/taco/images", {
     method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: jsonHeaders,
   });
 
-  const data: any = await res.json();
+  const data = await readApiResponse<ApiResponse>(res, "Echec de la recuperation des images");
 
-  if (!res.ok) {
-    throw Error(data.error || "Ã‰chec de la rÃ©cupÃ©ration des images");
-  }
-
-  const images = data.data?.images || data.images || [];
-  return { images };
+  return {
+    images: data.data?.images || data.images || [],
+  };
 };
 
 const deleteImage = async (filename: string): Promise<void> => {
   const res = await fetchWithAuth(`/api/taco/image/${filename}`, {
     method: "DELETE",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: jsonHeaders,
   });
 
-  const data: any = await res.json();
-
-  if (!res.ok) {
-    throw Error(data.error || "Ã‰chec de la suppression de l'image");
-  }
+  await readApiResponse<ApiResponse>(res, "Echec de la suppression de l'image");
 };
 
 export {

@@ -9,6 +9,7 @@ import {
   updatePost
 } from "../controllers/ShoppingPostsController.js";
 import auth from "../middlewares/auth.js";
+import { requireWritable } from "../middlewares/access.js";
 import { validate } from "../utils/validation.js";
 import { shoppingPostSchema, shoppingPostUpdateSchema } from "../utils/validation.js";
 import { asyncHandler } from "../middlewares/errorHandler.js";
@@ -17,12 +18,12 @@ import { asyncHandler } from "../middlewares/errorHandler.js";
 const router = express.Router();
 
 router.get("/", auth, asyncHandler(getPosts));
-router.post("/", auth, validate(shoppingPostSchema), asyncHandler(addPost));
-router.post("/date", auth, asyncHandler(addDate));
-router.put("/date", auth, asyncHandler(updateDateItem));
-router.delete("/:id", auth, asyncHandler(deletePost));
-router.delete("/list/:id", auth, asyncHandler(deletePosts));
-router.put("/:id", auth, validate(shoppingPostUpdateSchema), asyncHandler(updatePost));
+router.post("/", auth, requireWritable, validate(shoppingPostSchema), asyncHandler(addPost));
+router.post("/date", auth, requireWritable, asyncHandler(addDate));
+router.put("/date", auth, requireWritable, asyncHandler(updateDateItem));
+router.delete("/:id", auth, requireWritable, asyncHandler(deletePost));
+router.delete("/list/:id", auth, requireWritable, asyncHandler(deletePosts));
+router.put("/:id", auth, requireWritable, validate(shoppingPostUpdateSchema), asyncHandler(updatePost));
 
 export { router as ShoppingPostsRoutes };
 

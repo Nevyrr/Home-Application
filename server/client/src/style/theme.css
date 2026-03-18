@@ -21,6 +21,7 @@
   --bg-header: rgba(253, 250, 244, 0.85);
   --bg-panel: rgba(255, 255, 255, 0.84);
   --bg-soft: rgba(255, 255, 255, 0.58);
+  --bg-surface-elevated: rgba(255, 255, 255, 0.9);
   --border: rgba(20, 108, 148, 0.18);
   --hover: rgba(20, 108, 148, 0.08);
 
@@ -53,6 +54,7 @@
   --bg-header: rgba(18, 29, 36, 0.82);
   --bg-panel: rgba(23, 35, 43, 0.82);
   --bg-soft: rgba(17, 28, 35, 0.65);
+  --bg-surface-elevated: rgba(23, 35, 43, 0.9);
   --border: rgba(76, 183, 216, 0.16);
   --hover: rgba(76, 183, 216, 0.08);
 

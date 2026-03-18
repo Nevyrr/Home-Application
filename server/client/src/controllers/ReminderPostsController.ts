@@ -1,5 +1,6 @@
 import { ReminderPost } from "../types/index.ts";
 import { fetchWithAuth } from "../utils/authClient.ts";
+import { ApiEnvelope, getApiMessage, readApiResponse } from "../utils/api.ts";
 
 export interface ReminderPostPayload {
   title: string;
@@ -9,7 +10,7 @@ export interface ReminderPostPayload {
   sortOrder?: number;
 }
 
-interface ApiResponse {
+interface ApiResponse extends ApiEnvelope<{ posts?: ReminderPost[]; post?: ReminderPost }> {
   posts?: ReminderPost[];
   success?: string;
   error?: string;
@@ -19,11 +20,7 @@ interface ApiResponse {
 /**************************** Get all reminder-posts  ********************************/
 const getPosts = async (): Promise<{ posts: ReminderPost[] }> => {
   const res = await fetchWithAuth("/api/reminder-posts");
-  const data: any = await res.json();
-
-  if (!res.ok) {
-    throw Error(data.error || "Failed to fetch posts");
-  }
+  const data = await readApiResponse<ApiResponse>(res, "Failed to fetch posts");
 
   const posts = data.data?.posts || data.posts || [];
   return { posts };
@@ -43,14 +40,10 @@ const createPost = async (payload: ReminderPostPayload): Promise<ApiResponse> =>
     body: JSON.stringify(payload),
   });
 
-  const data: any = await res.json();
-
-  if (!res.ok) {
-    throw Error(data.error || "Failed to create post");
-  }
+  const data = await readApiResponse<ApiResponse>(res, "Failed to create post");
 
   return {
-    success: data.message || data.success,
+    success: getApiMessage(data),
     post: data.data?.post || data.post,
     ...data,
   };
@@ -62,14 +55,10 @@ const deletePost = async (_id: string): Promise<ApiResponse> => {
     method: "DELETE",
   });
 
-  const data: any = await res.json();
-
-  if (!res.ok) {
-    throw Error(data.error || "Failed to delete post");
-  }
+  const data = await readApiResponse<ApiResponse>(res, "Failed to delete post");
 
   return {
-    success: data.message || data.success,
+    success: getApiMessage(data),
     ...data,
   };
 };
@@ -88,14 +77,10 @@ const updatePost = async (_id: string, payload: ReminderPostPayload): Promise<Ap
     body: JSON.stringify(payload),
   });
 
-  const data: any = await res.json();
-
-  if (!res.ok) {
-    throw Error(data.error || "Failed to update post");
-  }
+  const data = await readApiResponse<ApiResponse>(res, "Failed to update post");
 
   return {
-    success: data.message || data.success,
+    success: getApiMessage(data),
     post: data.data?.post || data.post,
     ...data,
   };
@@ -110,14 +95,10 @@ const reorderPosts = async (orderedIds: string[]): Promise<ApiResponse> => {
     body: JSON.stringify({ orderedIds }),
   });
 
-  const data: any = await res.json();
-
-  if (!res.ok) {
-    throw Error(data.error || "Failed to reorder posts");
-  }
+  const data = await readApiResponse<ApiResponse>(res, "Failed to reorder posts");
 
   return {
-    success: data.message || data.success,
+    success: getApiMessage(data),
     ...data,
   };
 };

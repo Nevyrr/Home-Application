@@ -1,6 +1,6 @@
 import { Alert, Success, EditableCalendar } from "../../components/index.ts";
 import { useApp } from "../../contexts/AppContext.tsx";
-import { useErrorHandler } from "../../hooks/index.ts";
+import { useAuth, useErrorHandler } from "../../hooks/index.ts";
 import { useState, ReactNode, useEffect, useRef } from "react";
 import { getEvents, deleteEvent, createEvent, updateEvent } from "../../controllers/CalendarEventsController.ts";
 import PostList from "../../components/PostList.tsx";
@@ -20,6 +20,7 @@ import {
   isGoogleConfigured,
   requestGoogleCalendarAccessToken,
 } from "../../utils/google.ts";
+import { canUserWrite } from "../../utils/permissions.ts";
 
 const parseCalendarDate = (value: Date | string): Date => {
   if (value instanceof Date) {
@@ -35,8 +36,10 @@ const parseCalendarDate = (value: Date | string): Date => {
 
 const CalendarTab = () => {
   const { events, setEvents } = useApp();
+  const { user } = useAuth();
   const { error, success, setError, setSuccess, handleAsyncOperation } = useErrorHandler();
   const hasLoadedEvents = useRef(false);
+  const canWrite = canUserWrite(user);
   const legendItems = [
     { colorClass: "priority-1", label: "Valide" },
     { colorClass: "priority-2", label: "Envisage" },
@@ -188,6 +191,10 @@ const CalendarTab = () => {
   };
 
   const handleCreate = async () => {
+    if (!canWrite) {
+      return;
+    }
+
     await handleAsyncOperation(async () => {
       const response = await createEvent(popupEvent.title, popupEvent.date, popupEvent.duration, popupEvent.priorityColor);
       await filterEventsWithSelectedDate(selectedDate);
@@ -198,6 +205,10 @@ const CalendarTab = () => {
   };
 
   const handleUpdate = async () => {
+    if (!canWrite) {
+      return;
+    }
+
     await handleAsyncOperation(async () => {
       const response = await updateEvent(
         popupEvent.eventId,
@@ -214,6 +225,10 @@ const CalendarTab = () => {
   };
 
   const handleDelete = async (_id: string) => {
+    if (!canWrite) {
+      return;
+    }
+
     if (!confirm("Confirmer la suppression ?")) {
       return;
     }
@@ -228,6 +243,10 @@ const CalendarTab = () => {
   };
 
   const handleClearDay = async () => {
+    if (!canWrite) {
+      return;
+    }
+
     if (!confirm("Confirmer la suppression de tous les evenements du jour ?")) {
       return;
     }
@@ -408,9 +427,10 @@ const CalendarTab = () => {
               setAllFields={setAllFields}
               resetAllFields={resetAllFields}
               popupInputs={dateInput()}
+              showAddButton={canWrite}
             />
 
-            {eventsOnDate.length > 0 && (
+            {canWrite && eventsOnDate.length > 0 && (
               <div className="calendar-clear-bar">
                 <button className="calendar-clear-button" onClick={handleClearDay}>
                   <i className="fa-solid fa-trash-can"></i>

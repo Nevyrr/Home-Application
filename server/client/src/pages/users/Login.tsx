@@ -1,24 +1,28 @@
 import { useState, FormEvent } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { GoogleSignInButton } from "../../components/index.ts";
 import { loginUser, loginWithGoogle } from "../../controllers/UsersController.ts";
 import { useAuth, useErrorHandler } from "../../hooks/index.ts";
+import { loadStoredUser } from "../../utils/session.ts";
 
 const Login = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
-  const { error, setError, handleAsyncOperation } = useErrorHandler();
+  const { error, handleAsyncOperation } = useErrorHandler();
 
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
 
   const syncUserFromStorage = () => {
+    const storedUser = loadStoredUser();
+
     login({
-      id: localStorage.getItem("id") || "",
-      name: localStorage.getItem("name") || "",
-      email: localStorage.getItem("email") || "",
-      receiveEmail: localStorage.getItem("receiveEmail") === "true",
-      isAdmin: localStorage.getItem("isAdmin") === "true",
+      id: storedUser.id || "",
+      name: storedUser.name || "",
+      email: storedUser.email || "",
+      receiveEmail: storedUser.receiveEmail === "true",
+      isAdmin: storedUser.isAdmin === "true",
+      accessLevel: storedUser.accessLevel || "writable",
     });
   };
 
@@ -77,6 +81,10 @@ const Login = () => {
           />
           <button className="btn">Connexion</button>
         </form>
+
+        <Link className="mt-3 block text-sm text-primary underline-offset-4 hover:underline" to="/forgot-password">
+          Mot de passe oublie ?
+        </Link>
 
         <button className="ghost-button mt-3 w-full" onClick={() => navigate("/register")}>
           Creer un compte
