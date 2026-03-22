@@ -61,7 +61,6 @@ export const AppProvider = ({ children }: AppProviderProps) => {
     administrativeReminder: "",
     notes: "",
     bottleEntries: [],
-    diaperEntries: [],
     weightEntries: [],
   });
 

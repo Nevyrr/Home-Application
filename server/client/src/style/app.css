@@ -48,7 +48,7 @@
 
     .nav-link:hover {
         background-color: var(--hover);
-        border-color: var(--primary);
+        border-color: var(--border);
         transform: translateY(-2px) scale(1.05);
         box-shadow: var(--shadow-md);
         color: var(--primary);
@@ -126,7 +126,7 @@
 
     .theme-toggle:hover {
         background-color: var(--hover);
-        border-color: var(--primary);
+        border-color: var(--border);
         transform: translateY(-2px) scale(1.05);
         box-shadow: var(--shadow-md);
         color: var(--primary);
@@ -175,7 +175,7 @@
     }
 
     .input:focus {
-        border-color: var(--primary);
+        border-color: var(--border);
         box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
         outline: none;
     }
@@ -188,7 +188,7 @@
     }
 
     input[type="number"]:focus {
-        border-color: var(--primary) !important;
+        border-color: var(--border) !important;
         box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1) !important;
     }
 
@@ -200,7 +200,7 @@
     }
 
     select:focus {
-        border-color: var(--primary) !important;
+        border-color: var(--border) !important;
         box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1) !important;
         outline: none !important;
     }
@@ -252,7 +252,7 @@
         @apply font-semibold py-2 px-4 rounded-lg transition-all duration-200;
         background-color: #10b981;
         color: white;
-        border: 1px solid #059669;
+        border: 1px solid var(--border);
         box-shadow: var(--shadow-sm);
     }
 
@@ -273,7 +273,7 @@
         @apply font-semibold py-2 px-4 rounded-lg transition-all duration-200;
         background-color: #ef4444;
         color: white;
-        border: 1px solid #dc2626;
+        border: 1px solid var(--border);
         box-shadow: var(--shadow-sm);
     }
 
@@ -309,12 +309,12 @@
     }
 
     .input-field:hover {
-        border-color: var(--primary);
+        border-color: var(--border);
         background-color: var(--hover);
     }
 
     .input-field:focus {
-        border-color: var(--primary);
+        border-color: var(--border);
         box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
         outline: none;
         background-color: var(--hover);
@@ -329,12 +329,12 @@
     }
 
     .datepicker-input:hover {
-        border-color: var(--primary);
+        border-color: var(--border);
         background-color: var(--hover);
     }
 
     .datepicker-input:focus {
-        border-color: var(--primary);
+        border-color: var(--border);
         box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
         outline: none;
         background-color: var(--hover);
@@ -355,8 +355,9 @@
 
     .post .priority-flag,
     .calendar-post .priority-flag {
-        @apply cursor-auto text-sm;
+        @apply cursor-auto;
         margin-right: 0.25rem;
+        flex-shrink: 0;
     }
 
     .post-list-section {
@@ -376,8 +377,8 @@
        ========================= */
     .xpopup-overlay {
         @apply fixed inset-0 flex justify-center items-center z-10;
-        background-color: rgba(0, 0, 0, 0.5);
-        backdrop-filter: blur(4px);
+        background-color: rgba(0, 0, 0, 0.42);
+        backdrop-filter: blur(3px);
     }
 
     .xpopup {
@@ -396,7 +397,8 @@
     }
 
     .xpopup .priority-flag {
-        @apply absolute top-1/2 -right-6 -translate-y-1/2;
+        position: static;
+        transform: none;
     }
 
     /* ----- SHOPPING ---- */
@@ -410,7 +412,6 @@
         background-color: var(--bg-panel);
         border: 1px solid var(--border);
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-        border-left: 4px solid var(--primary);
     }
 
     .shopping-day-list:hover {
@@ -516,7 +517,7 @@
     }
 
     .calendar-datepicker-input:focus {
-        border-color: var(--primary);
+        border-color: var(--border);
         box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
         outline: none;
     }
@@ -537,7 +538,7 @@
     }
 
     .calendar-popup-time-picker .react-time-picker__wrapper:focus-within {
-        border-color: var(--primary);
+        border-color: var(--border);
         box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
     }
 
@@ -619,7 +620,7 @@
     .react-calendar__tile:enabled:hover,
     .react-calendar__tile:enabled:focus {
         background-color: var(--hover) !important;
-        border-color: var(--primary) !important;
+        border-color: var(--border) !important;
     }
 
     .react-calendar__tile--active {
@@ -639,18 +640,18 @@
         background-color: transparent !important;
         background: transparent !important;
         color: var(--text-heading) !important;
-        border: 2px solid var(--primary) !important;
+        border: 2px solid var(--border) !important;
         border-radius: 0.375rem !important;
         font-weight: 600 !important;
-        box-shadow: 0 0 0 1px var(--primary) inset, var(--shadow-xs) !important;
+        box-shadow: 0 0 0 1px var(--border) inset, var(--shadow-xs) !important;
     }
 
     .react-calendar__tile--now:enabled:hover,
     .react-calendar__tile--now:enabled:focus {
         background-color: var(--hover) !important;
         background: var(--hover) !important;
-        border-color: var(--primary) !important;
-        box-shadow: 0 0 0 1px var(--primary) inset, var(--shadow-sm) !important;
+        border-color: var(--border) !important;
+        box-shadow: 0 0 0 1px var(--border) inset, var(--shadow-sm) !important;
     }
 
     /* Surcharge spécifique avec plus de spécificité */
@@ -683,7 +684,7 @@
     .taco-tab-reminder-div {
         @apply grid grid-rows-2 grid-flow-col gap-4 mb-8 border border-solid p-4 rounded-lg transition-all duration-200;
         background-color: var(--bg-panel);
-        border-color: var(--primary);
+        border-color: var(--border);
         box-shadow: var(--shadow-sm);
     }
 
@@ -790,7 +791,7 @@
     }
 
     .card h1.title {
-        @apply text-center mb-8;
+        @apply text-center;
         color: var(--text-heading);
         font-size: 2rem;
         font-weight: 700;
@@ -916,7 +917,7 @@
 
     .dashboard-card:hover {
         box-shadow: var(--shadow-md);
-        border-color: var(--primary);
+        border-color: var(--border);
         transform: translateY(-2px);
     }
 
@@ -1112,7 +1113,7 @@
     .nav-link.selected {
         background: linear-gradient(135deg, rgba(20, 108, 148, 0.16), rgba(31, 138, 112, 0.14));
         color: var(--text-heading) !important;
-        border-color: rgba(20, 108, 148, 0.28);
+        border-color: var(--border);
         box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.26), var(--shadow-sm);
         animation: none;
     }
@@ -1134,7 +1135,7 @@
 
     .theme-toggle:hover {
         background-color: var(--hover);
-        border-color: rgba(20, 108, 148, 0.25);
+        border-color: var(--border);
         transform: translateY(-2px);
         box-shadow: var(--shadow-sm);
         color: var(--primary);
@@ -1180,7 +1181,7 @@
     .input:focus,
     input[type="number"]:focus,
     select:focus {
-        border-color: rgba(20, 108, 148, 0.4) !important;
+        border-color: var(--border) !important;
         box-shadow: 0 0 0 4px rgba(20, 108, 148, 0.1) !important;
         outline: none;
     }
@@ -1231,7 +1232,7 @@
 
     .danger-button {
         color: var(--danger);
-        border-color: rgba(214, 90, 49, 0.2);
+        border-color: var(--border);
     }
 
     .danger-button:hover {
@@ -1255,7 +1256,7 @@
     .status-chip.active,
     .priority-chip.active {
         background: linear-gradient(135deg, rgba(20, 108, 148, 0.14), rgba(31, 138, 112, 0.12));
-        border-color: rgba(20, 108, 148, 0.28);
+        border-color: var(--border);
         color: var(--text-heading);
     }
 
@@ -1275,8 +1276,33 @@
         flex-shrink: 0;
     }
 
+    .priority-flag {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .priority-indicator {
+        width: 0.95rem;
+        height: 0.95rem;
+        padding: 0;
+        border-radius: 999px;
+        background: transparent;
+    }
+
+    .priority-indicator .priority-dot {
+        width: 0.72rem;
+        height: 0.72rem;
+    }
+
+    .priority-chip-label {
+        line-height: 1;
+        white-space: nowrap;
+    }
+
     .priority-0 {
-        background: #8aa29e;
+        background: #146c94;
     }
 
     .priority-1 {
@@ -1289,6 +1315,74 @@
 
     .priority-3 {
         background: #d65a31;
+    }
+
+    .priority-chip.priority-tone-0,
+    .post-popup-priority-select.priority-tone-0 {
+        background: rgba(20, 108, 148, 0.12);
+        border-color: var(--border);
+        color: #146c94;
+    }
+
+    .priority-chip.priority-tone-1,
+    .post-popup-priority-select.priority-tone-1 {
+        background: rgba(31, 138, 112, 0.12);
+        border-color: var(--border);
+        color: #1f8a70;
+    }
+
+    .priority-chip.priority-tone-2,
+    .post-popup-priority-select.priority-tone-2 {
+        background: rgba(224, 159, 62, 0.14);
+        border-color: var(--border);
+        color: #b37818;
+    }
+
+    .priority-chip.priority-tone-3,
+    .post-popup-priority-select.priority-tone-3 {
+        background: rgba(214, 90, 49, 0.12);
+        border-color: var(--border);
+        color: #c05432;
+    }
+
+    .priority-chip.priority-tone-0:hover,
+    .priority-chip.priority-tone-0:focus-visible {
+        background: rgba(20, 108, 148, 0.18);
+    }
+
+    .priority-chip.priority-tone-1:hover,
+    .priority-chip.priority-tone-1:focus-visible {
+        background: rgba(31, 138, 112, 0.18);
+    }
+
+    .priority-chip.priority-tone-2:hover,
+    .priority-chip.priority-tone-2:focus-visible {
+        background: rgba(224, 159, 62, 0.2);
+    }
+
+    .priority-chip.priority-tone-3:hover,
+    .priority-chip.priority-tone-3:focus-visible {
+        background: rgba(214, 90, 49, 0.18);
+    }
+
+    [data-theme="dark"] .priority-chip.priority-tone-0,
+    [data-theme="dark"] .post-popup-priority-select.priority-tone-0 {
+        color: #9cdcf0;
+    }
+
+    [data-theme="dark"] .priority-chip.priority-tone-1,
+    [data-theme="dark"] .post-popup-priority-select.priority-tone-1 {
+        color: #82d8ba;
+    }
+
+    [data-theme="dark"] .priority-chip.priority-tone-2,
+    [data-theme="dark"] .post-popup-priority-select.priority-tone-2 {
+        color: #ffd08c;
+    }
+
+    [data-theme="dark"] .priority-chip.priority-tone-3,
+    [data-theme="dark"] .post-popup-priority-select.priority-tone-3 {
+        color: #ff9b7d;
     }
 
     .muted-copy {
@@ -1308,8 +1402,9 @@
         background:
             radial-gradient(circle at top right, rgba(242, 140, 82, 0.18), transparent 35%),
             linear-gradient(135deg, rgba(20, 108, 148, 0.12), rgba(31, 138, 112, 0.08));
-        border: 1px solid rgba(20, 108, 148, 0.12);
+        border: 1px solid var(--border);
         margin-bottom: 1.5rem;
+        align-items: center;
     }
 
     .reminder-title {
@@ -1330,7 +1425,7 @@
         @apply rounded-[1.4rem] px-4 py-3 text-center;
         min-width: 6rem;
         background: rgba(255, 255, 255, 0.48);
-        border: 1px solid rgba(255, 255, 255, 0.35);
+        border: 1px solid var(--border);
     }
 
     .reminder-stat-value {
@@ -1410,27 +1505,27 @@
     .reminder-task-card {
         @apply rounded-[1.6rem] p-4;
         background: rgba(255, 255, 255, 0.62);
-        border: 1px solid rgba(20, 108, 148, 0.12);
+        border: 1px solid var(--border);
         box-shadow: var(--shadow-xs);
     }
 
     .reminder-board-columns {
         display: grid;
-        gap: 1rem;
+        gap: 0.5rem;
     }
 
     .reminder-column {
         display: grid;
-        gap: 1rem;
+        gap: 0.5rem;
         align-content: start;
         min-width: 0;
         padding: 1rem;
         border-radius: 1.5rem;
-        border: 1px solid rgba(20, 108, 148, 0.12);
+        border: 1px solid var(--border);
     }
 
     .reminder-column.is-over {
-        border-color: rgba(20, 108, 148, 0.28);
+        border-color: var(--border);
         box-shadow: inset 0 0 0 1px rgba(20, 108, 148, 0.08);
     }
 
@@ -1466,7 +1561,7 @@
         @apply inline-flex items-center justify-center rounded-full px-3 py-2 text-sm font-extrabold;
         min-width: 2.75rem;
         background: color-mix(in srgb, var(--bg-panel) 90%, rgba(255, 255, 255, 0.3));
-        border: 1px solid rgba(20, 108, 148, 0.12);
+        border: 1px solid var(--border);
         color: var(--text-heading);
         flex-shrink: 0;
     }
@@ -1521,19 +1616,19 @@
     .reminder-status-badge.status-todo {
         color: #995225;
         background: rgba(242, 140, 82, 0.14);
-        border-color: rgba(242, 140, 82, 0.18);
+        border-color: var(--border);
     }
 
     .reminder-status-badge.status-doing {
         color: #135c7d;
         background: rgba(20, 108, 148, 0.12);
-        border-color: rgba(20, 108, 148, 0.18);
+        border-color: var(--border);
     }
 
     .reminder-status-badge.status-done {
         color: #1f6f59;
         background: rgba(31, 138, 112, 0.12);
-        border-color: rgba(31, 138, 112, 0.18);
+        border-color: var(--border);
     }
 
     .reminder-drag-handle {
@@ -1541,7 +1636,7 @@
         width: 2.2rem;
         height: 2.2rem;
         border-radius: 0.9rem;
-        border: 1px dashed rgba(20, 108, 148, 0.22);
+        border: 1px dashed var(--border);
         background: color-mix(in srgb, var(--bg-panel) 88%, rgba(255, 255, 255, 0.25));
         color: var(--text-muted);
         cursor: grab;
@@ -1580,7 +1675,7 @@
     .reminder-task-actions {
         @apply mt-4 flex flex-wrap items-center justify-end gap-2;
         padding-top: 0.9rem;
-        border-top: 1px solid rgba(20, 108, 148, 0.08);
+        border-top: 1px solid var(--border);
     }
 
     .reminder-task-actions .ghost-button,
@@ -1617,24 +1712,62 @@
             radial-gradient(circle at top right, rgba(255, 169, 134, 0.18), transparent 32%),
             radial-gradient(circle at bottom left, rgba(106, 168, 235, 0.14), transparent 28%),
             linear-gradient(135deg, rgba(20, 108, 148, 0.08), rgba(255, 255, 255, 0.42));
-        border: 1px solid rgba(20, 108, 148, 0.12);
+        border: 1px solid var(--border);
     }
 
     .nono-hero-copy {
-        @apply flex flex-col gap-4 md:flex-row md:items-center;
+        min-width: 0;
+    }
+
+    .nono-hero-copy-block {
+        display: grid;
+        gap: 0.45rem;
+        min-width: 0;
+    }
+
+    .nono-hero-heading-row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.45rem 0.75rem;
+        min-width: 0;
     }
 
     .nono-badge {
         @apply inline-flex h-16 w-16 items-center justify-center rounded-[1.5rem] text-3xl;
         background: linear-gradient(135deg, rgba(255, 169, 134, 0.26), rgba(106, 168, 235, 0.22));
         color: var(--text-heading);
-        border: 1px solid rgba(20, 108, 148, 0.12);
+        border: 1px solid var(--border);
         box-shadow: var(--shadow-sm);
         flex-shrink: 0;
     }
 
-    .nono-title {
-        margin-bottom: 0.45rem;
+    .nono-hero-heading-row .nono-badge {
+        width: 3.35rem;
+        height: 3.35rem;
+        border-radius: 1.1rem;
+        font-size: 1.55rem;
+    }
+
+    .nono-heading-title {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+    }
+
+    .nono-hero-heading-row .eyebrow {
+        margin-bottom: 0;
+    }
+
+    .nono-hero-heading-row .nono-title {
+        display: inline-flex;
+        align-items: center;
+        margin-bottom: 0;
+        line-height: 1;
+    }
+
+    .nono-hero-copy-block .nono-subtitle {
+        margin-top: 0.1rem;
     }
 
     .nono-subtitle {
@@ -1651,7 +1784,7 @@
     .nono-stat {
         @apply rounded-[1.35rem] px-4 py-4;
         background: rgba(255, 255, 255, 0.55);
-        border: 1px solid rgba(255, 255, 255, 0.35);
+        border: 1px solid var(--border);
     }
 
     .nono-stat-label {
@@ -1700,6 +1833,11 @@
         box-shadow: var(--shadow-xs);
     }
 
+    .nono-schedule-panel {
+        width: 100%;
+        grid-column: 1 / -1;
+    }
+
     .nono-panel-head {
         @apply mb-5 flex items-start justify-between gap-4;
     }
@@ -1712,38 +1850,32 @@
 
     .nono-card-grid {
         display: grid;
-        gap: 1rem;
+        gap: 0.5rem;
     }
 
     .nono-schedule-card {
         @apply rounded-[1.5rem] p-4;
         background: rgba(255, 255, 255, 0.62);
-        border: 1px solid rgba(20, 108, 148, 0.12);
+        border: 1px solid var(--border);
         box-shadow: var(--shadow-xs);
     }
 
-    .nono-schedule-card.accent-sky {
-        border-left: 4px solid #63a7eb;
-    }
-
-    .nono-schedule-card.accent-apricot {
-        border-left: 4px solid #f28c52;
-    }
-
-    .nono-schedule-card.accent-mint {
-        border-left: 4px solid #4db68d;
-    }
-
+    .nono-schedule-card.accent-sky,
+    .nono-schedule-card.accent-apricot,
+    .nono-schedule-card.accent-mint,
     .nono-schedule-card.accent-lilac {
-        border-left: 4px solid #9a8cd6;
-    }
-
-    .nono-schedule-card.accent-rose {
-        border-left: 4px solid #e8899b;
+        border-left: 1px solid var(--border);
     }
 
     .nono-schedule-head {
-        @apply mb-4 flex items-start gap-3;
+        @apply mb-4 flex items-center gap-3;
+    }
+
+    .nono-schedule-head > div {
+        display: grid;
+        gap: 0.2rem;
+        min-width: 0;
+        align-content: center;
     }
 
     .nono-schedule-icon {
@@ -1753,14 +1885,26 @@
         flex-shrink: 0;
     }
 
+    .nono-schedule-icon i,
+    .calendar-page-title i,
+    .calendar-card-heading i,
+    .calendar-day-title i {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        line-height: 1;
+    }
+
     .nono-schedule-head h3 {
         font-size: 1.05rem;
         font-weight: 800;
         color: var(--text-heading);
-        margin-bottom: 0.35rem;
+        margin: 0;
+        line-height: 1.2;
     }
 
     .nono-schedule-head p {
+        margin: 0;
         line-height: 1.6;
         color: var(--text-subheading);
     }
@@ -1780,15 +1924,60 @@
         margin-bottom: 0.55rem;
     }
 
+    .compact-date-picker {
+        display: block;
+        width: min(100%, 11.75rem);
+    }
+
+    .compact-date-picker .react-datepicker__input-container,
+    .compact-date-picker .compact-date-input,
+    .compact-native-date-input {
+        width: 100%;
+    }
+
+    .compact-date-input,
+    .compact-native-date-input {
+        margin-bottom: 0;
+    }
+
+    .compact-date-input {
+        padding-right: 3rem;
+    }
+
+    .compact-native-date-input {
+        max-width: 11.75rem;
+    }
+
+    .compact-date-picker .react-datepicker__close-icon {
+        top: 50%;
+        right: 0.85rem;
+        width: 1.5rem;
+        height: 1.5rem;
+        padding: 0;
+        transform: translateY(-50%);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .compact-date-picker .react-datepicker__close-icon::after {
+        width: 1.5rem;
+        height: 1.5rem;
+        line-height: 1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
     .nono-highlight-grid {
         display: grid;
-        gap: 0.85rem;
+        gap: 0.4rem;
     }
 
     .nono-highlight-card {
         @apply rounded-[1.35rem] px-4 py-4;
         background: linear-gradient(180deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.42));
-        border: 1px solid rgba(20, 108, 148, 0.12);
+        border: 1px solid var(--border);
     }
 
     .nono-highlight-card span,
@@ -1834,21 +2023,30 @@
 
     .nono-tracker-grid {
         display: grid;
-        gap: 1rem;
+        gap: 0.5rem;
     }
 
-    .nono-tracker-top-grid,
-    .nono-tracker-bottom-grid {
-        display: grid;
-        gap: 1rem;
-    }
-
-    .nono-tracker-card {
-        display: grid;
-        gap: 1rem;
-        grid-template-rows: auto auto minmax(0, 1fr);
+    .nono-tracker-panel {
         height: 100%;
+    }
+
+    .nono-tracker-panel-grid {
+        display: grid;
+        gap: 0.5rem;
+        align-items: start;
+    }
+
+    .nono-tracker-panel-main,
+    .nono-tracker-panel-chart {
+        display: grid;
+        gap: 0.5rem;
         align-content: start;
+        min-width: 0;
+    }
+
+    .nono-tracker-panel-chart {
+        padding-top: 1rem;
+        border-top: 1px solid var(--border);
     }
 
     .nono-bottle-panel {
@@ -1857,70 +2055,26 @@
             linear-gradient(180deg, rgba(255, 255, 255, 0.66), rgba(255, 255, 255, 0.5));
     }
 
-    .nono-bottle-panel-grid {
-        display: grid;
-        gap: 1rem;
-    }
-
-    .nono-bottle-panel-main,
-    .nono-bottle-panel-chart {
-        display: grid;
-        gap: 1rem;
-        align-content: start;
-    }
-
-    .nono-bottle-panel-chart {
-        padding-top: 1rem;
-        border-top: 1px solid rgba(20, 108, 148, 0.12);
-    }
-
     .nono-weight-panel {
         background:
             radial-gradient(circle at top right, rgba(77, 182, 141, 0.14), transparent 34%),
             linear-gradient(180deg, rgba(255, 255, 255, 0.66), rgba(255, 255, 255, 0.5));
     }
 
-    .nono-weight-panel-grid {
-        display: grid;
-        gap: 1rem;
-    }
-
-    .nono-weight-panel-main,
-    .nono-weight-panel-chart {
-        display: grid;
-        gap: 1rem;
-        align-content: start;
-    }
-
-    .nono-weight-panel-chart {
-        padding-top: 1rem;
-        border-top: 1px solid rgba(20, 108, 148, 0.12);
-    }
-
-    .nono-chart-panel {
-        background:
-            radial-gradient(circle at top right, rgba(99, 167, 235, 0.14), transparent 32%),
-            linear-gradient(180deg, rgba(255, 255, 255, 0.66), rgba(255, 255, 255, 0.5));
-    }
-
     .nono-form-grid {
         display: grid;
-        gap: 0.85rem;
+        gap: 0.4rem;
     }
 
     .nono-tracker-form {
         display: grid;
-        gap: 1rem;
+        gap: 0.25rem;
         align-content: start;
     }
 
-    .nono-diaper-row {
-        display: grid;
-        gap: 0.85rem;
-    }
-
-    .nono-submit {
+    button.btn.nono-submit {
         justify-self: start;
+        margin-top: 0.2rem !important;
     }
 
     .nono-inline-stats {
@@ -1931,7 +2085,7 @@
     .nono-inline-stat {
         @apply rounded-[1.1rem] px-4 py-3;
         background: rgba(255, 255, 255, 0.58);
-        border: 1px solid rgba(20, 108, 148, 0.1);
+        border: 1px solid var(--border);
     }
 
     .nono-inline-stat span,
@@ -1959,38 +2113,6 @@
         margin-top: 0.3rem;
         font-size: 0.84rem;
         line-height: 1.5;
-    }
-
-    .nono-toggle-card {
-        @apply flex items-center justify-between gap-4 rounded-[1rem] px-4 py-3;
-        background: rgba(255, 255, 255, 0.52);
-        border: 1px solid rgba(20, 108, 148, 0.1);
-        min-height: 3.2rem;
-        width: 100%;
-    }
-
-    .nono-toggle-copy {
-        min-width: 0;
-        display: grid;
-        gap: 0.15rem;
-    }
-
-    .nono-toggle-label {
-        color: var(--text-heading);
-        font-size: 0.92rem;
-        font-weight: 700;
-        line-height: 1.3;
-    }
-
-    .nono-toggle-hint {
-        color: var(--text-muted);
-        font-size: 0.78rem;
-        line-height: 1.4;
-    }
-
-    .nono-toggle-card .checkbox-theme {
-        margin-left: auto;
-        flex-shrink: 0;
     }
 
     .nono-history {
@@ -2042,7 +2164,7 @@
     .nono-history-item {
         @apply rounded-[1rem] px-4 py-3;
         background: rgba(255, 255, 255, 0.46);
-        border: 1px solid rgba(20, 108, 148, 0.1);
+        border: 1px solid var(--border);
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -2096,7 +2218,7 @@
     .nono-chart-kpi {
         @apply rounded-[1.1rem] px-4 py-3;
         background: rgba(255, 255, 255, 0.52);
-        border: 1px solid rgba(20, 108, 148, 0.1);
+        border: 1px solid var(--border);
     }
 
     .nono-chart-kpi span,
@@ -2128,13 +2250,13 @@
 
     .nono-chart-shell {
         display: grid;
-        gap: 0.85rem;
+        gap: 0.4rem;
     }
 
     .nono-chart-plot {
         display: grid;
         grid-template-columns: minmax(0, 1fr) auto;
-        gap: 0.85rem;
+        gap: 0.4rem;
         align-items: stretch;
     }
 
@@ -2143,7 +2265,7 @@
         min-height: 14rem;
         border-radius: 1.2rem;
         background: linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.34));
-        border: 1px solid rgba(20, 108, 148, 0.08);
+        border: 1px solid var(--border);
     }
 
     .nono-chart-grid-line {
@@ -2213,7 +2335,7 @@
     .nono-chart-empty {
         @apply rounded-[1.15rem] px-4 py-5;
         background: rgba(255, 255, 255, 0.52);
-        border: 1px dashed rgba(20, 108, 148, 0.18);
+        border: 1px dashed var(--border);
         color: var(--text-muted);
         line-height: 1.6;
     }
@@ -2232,28 +2354,31 @@
         .nono-chart-meta {
             grid-template-columns: repeat(2, minmax(0, 1fr));
         }
+    }
 
-        .nono-diaper-row {
-            grid-template-columns: minmax(0, 1fr) minmax(13rem, 14rem);
-            align-items: end;
+    @media (min-width: 900px) {
+        .nono-tracker-panel-grid {
+            grid-template-columns: minmax(0, 1.04fr) minmax(19rem, 0.96fr);
         }
 
-        .nono-toggle-card {
-            justify-self: end;
+        .nono-tracker-panel-chart {
+            padding-top: 0;
+            padding-left: 1rem;
+            border-top: none;
+            border-left: 1px solid var(--border);
         }
+    }
 
-        .nono-tracker-bottom-grid {
+    @media (min-width: 360px) and (max-width: 979px) {
+        .nono-card-grid {
             grid-template-columns: repeat(2, minmax(0, 1fr));
+            align-items: start;
         }
     }
 
     @media (min-width: 980px) {
         .nono-card-grid {
             grid-template-columns: repeat(2, minmax(0, 1fr));
-        }
-
-        .nono-tracker-top-grid {
-            grid-template-columns: repeat(3, minmax(0, 1fr));
         }
     }
 
@@ -2284,7 +2409,7 @@
             radial-gradient(circle at top right, rgba(31, 138, 112, 0.18), transparent 32%),
             radial-gradient(circle at bottom left, rgba(242, 140, 82, 0.16), transparent 28%),
             linear-gradient(135deg, rgba(20, 108, 148, 0.08), rgba(255, 255, 255, 0.42));
-        border-color: rgba(31, 138, 112, 0.14);
+        border-color: var(--border);
     }
 
     .taco-badge {
@@ -2293,7 +2418,7 @@
 
     .taco-upload-shell {
         display: grid;
-        gap: 1rem;
+        gap: 0.5rem;
     }
 
     .taco-upload-toolbar {
@@ -2311,7 +2436,7 @@
         @apply inline-flex items-center gap-2 rounded-[1.1rem] px-4 py-3;
         min-width: 0;
         background: rgba(255, 255, 255, 0.58);
-        border: 1px solid rgba(20, 108, 148, 0.12);
+        border: 1px solid var(--border);
         color: var(--text-muted);
     }
 
@@ -2323,7 +2448,7 @@
 
     .taco-file-pill.is-selected {
         color: var(--text-heading);
-        border-color: rgba(31, 138, 112, 0.2);
+        border-color: var(--border);
         background: linear-gradient(135deg, rgba(31, 138, 112, 0.08), rgba(242, 140, 82, 0.08));
     }
 
@@ -2349,13 +2474,13 @@
     .taco-upload-message.success {
         color: #156246;
         background: rgba(77, 182, 141, 0.12);
-        border-color: rgba(77, 182, 141, 0.24);
+        border-color: var(--border);
     }
 
     .taco-upload-message.error {
         color: #a23c36;
         background: rgba(214, 90, 49, 0.12);
-        border-color: rgba(214, 90, 49, 0.22);
+        border-color: var(--border);
     }
 
     .taco-gallery-head {
@@ -2373,14 +2498,14 @@
         min-width: 2.5rem;
         background: linear-gradient(135deg, rgba(20, 108, 148, 0.12), rgba(31, 138, 112, 0.1));
         color: var(--text-heading);
-        border: 1px solid rgba(20, 108, 148, 0.12);
+        border: 1px solid var(--border);
     }
 
     .taco-empty-state {
         @apply flex flex-col items-center justify-center rounded-[1.35rem] px-5 py-8 text-center;
         gap: 0.7rem;
         background: rgba(255, 255, 255, 0.4);
-        border: 1px dashed rgba(20, 108, 148, 0.2);
+        border: 1px dashed var(--border);
         color: var(--text-subheading);
     }
 
@@ -2411,7 +2536,7 @@
         overflow: hidden;
         border-radius: 1.35rem;
         background: rgba(255, 255, 255, 0.55);
-        border: 1px solid rgba(20, 108, 148, 0.12);
+        border: 1px solid var(--border);
         box-shadow: var(--shadow-xs);
         transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
     }
@@ -2419,7 +2544,7 @@
     .taco-gallery-card:hover {
         transform: translateY(-2px);
         box-shadow: var(--shadow-sm);
-        border-color: rgba(20, 108, 148, 0.2);
+        border-color: var(--border);
     }
 
     .taco-gallery-preview {
@@ -2496,7 +2621,7 @@
         right: 0.75rem;
         z-index: 1;
         color: #fff;
-        border-color: rgba(255, 255, 255, 0.22);
+        border-color: var(--border);
         background: rgba(18, 24, 34, 0.58);
         backdrop-filter: blur(10px);
     }
@@ -2536,7 +2661,7 @@
         background:
             radial-gradient(circle at top left, rgba(242, 140, 82, 0.2), transparent 30%),
             linear-gradient(135deg, rgba(20, 108, 148, 0.16), rgba(31, 138, 112, 0.1));
-        border: 1px solid rgba(20, 108, 148, 0.12);
+        border: 1px solid var(--border);
     }
 
     .auth-copy h1 {
@@ -2570,7 +2695,7 @@
     .google-button {
         @apply flex w-full items-center justify-center gap-3 rounded-2xl px-4 py-3 font-semibold transition-all duration-200;
         background: rgba(255, 255, 255, 0.85);
-        border: 1px solid rgba(20, 108, 148, 0.14);
+        border: 1px solid var(--border);
         color: var(--text-heading);
         box-shadow: var(--shadow-xs);
     }
@@ -2605,7 +2730,7 @@
 
         .app-nav {
             border-radius: 1.4rem;
-            gap: 0.85rem;
+            gap: 0.4rem;
         }
 
         .brand-copy strong {
@@ -2654,8 +2779,8 @@
 
     .xpopup-overlay {
         @apply fixed inset-0 z-50 flex items-center justify-center p-4;
-        background: rgba(8, 15, 23, 0.48);
-        backdrop-filter: blur(10px);
+        background: rgba(8, 15, 23, 0.4);
+        backdrop-filter: blur(3px);
     }
 
     .xpopup {
@@ -2675,7 +2800,7 @@
 
     .xpopup-body {
         display: grid;
-        gap: 1rem;
+        gap: 0.5rem;
     }
 
     .xpopup-panel-buttons {
@@ -2689,7 +2814,7 @@
 
     .post-popup-form {
         display: grid;
-        gap: 1rem;
+        gap: 0.5rem;
     }
 
     .post-popup-field {
@@ -2711,15 +2836,20 @@
 
     .post-popup-form .quantity-input-row {
         display: grid;
-        grid-template-columns: minmax(0, 1fr) minmax(6.5rem, 8rem);
-        gap: 0.75rem;
+        grid-template-columns: 5.6rem 4.65rem;
+        gap: 0.65rem;
         align-items: end;
+        justify-content: start;
     }
 
-    .post-popup-form .quantity-input-count,
+    .post-popup-form .quantity-input-count {
+        width: 100%;
+        max-width: 5.6rem;
+    }
+
     .post-popup-form .quantity-input-unit {
         width: 100%;
-        max-width: none;
+        max-width: 4.65rem;
     }
 
     .post-popup-priority {
@@ -2742,16 +2872,22 @@
     }
 
     .post-popup-priority-flag {
-        font-size: 1.2rem;
-        line-height: 1;
+        margin-bottom: 0;
     }
 
     .post-popup-priority.compact .post-popup-priority-flag {
-        padding: 0.5rem 0.7rem;
-        border-radius: 999px;
-        background: var(--bg-soft);
-        border: 1px solid var(--border);
+        min-height: 2.6rem;
         box-shadow: var(--shadow-xs);
+    }
+
+    .post-popup-priority-select {
+        width: auto;
+        min-width: 10rem;
+        margin-bottom: 0;
+    }
+
+    .post-popup-priority.compact .post-popup-priority-select {
+        min-width: 9rem;
     }
 
     .calendar-shell {
@@ -2871,7 +3007,7 @@
 
     .calendar-sync-card {
         display: grid;
-        gap: 1rem;
+        gap: 0.5rem;
     }
 
     .calendar-sync-head,
@@ -2887,7 +3023,7 @@
     .calendar-status-pill.connected {
         background: rgba(31, 138, 112, 0.14);
         color: #1f8a70;
-        border-color: rgba(31, 138, 112, 0.16);
+        border-color: var(--border);
     }
 
     .calendar-status-pill.disconnected {
@@ -2899,7 +3035,7 @@
     [data-theme="dark"] .calendar-status-pill.connected {
         background: rgba(87, 197, 160, 0.18);
         color: #8be0bf;
-        border-color: rgba(87, 197, 160, 0.18);
+        border-color: var(--border);
     }
 
     .calendar-sync-actions {
@@ -2912,7 +3048,7 @@
 
     .calendar-list-event .post-list-header {
         align-items: flex-start;
-        gap: 1rem;
+        gap: 0.5rem;
         margin-bottom: 1.25rem;
     }
 
@@ -2961,14 +3097,14 @@
     .calendar-clear-button:hover {
         transform: translateY(-1px);
         box-shadow: var(--shadow-sm);
-        border-color: rgba(214, 90, 49, 0.35);
+        border-color: var(--border);
         color: var(--danger);
     }
 
     .calendar-external-panel {
         margin-top: 1.5rem;
         display: grid;
-        gap: 1rem;
+        gap: 0.5rem;
     }
 
     .calendar-external-list {
@@ -3011,7 +3147,7 @@
 
     .calendar-post:hover {
         transform: translateY(-1px);
-        border-color: rgba(20, 108, 148, 0.28);
+        border-color: var(--border);
         background: var(--bg-panel);
         box-shadow: var(--shadow-sm);
     }
@@ -3079,7 +3215,7 @@
     }
 
     .calendar-popup-time-picker .react-time-picker__wrapper:focus-within {
-        border-color: rgba(20, 108, 148, 0.4);
+        border-color: var(--border);
         box-shadow: 0 0 0 4px rgba(20, 108, 148, 0.1);
     }
 
@@ -3130,7 +3266,7 @@
     .react-calendar__navigation button:enabled:hover,
     .react-calendar__navigation button:enabled:focus {
         background: var(--bg-panel) !important;
-        border-color: rgba(20, 108, 148, 0.3) !important;
+        border-color: var(--border) !important;
         transform: translateY(-1px);
     }
 
@@ -3185,7 +3321,7 @@
     .react-calendar__tile:enabled:focus {
         transform: translateY(-1px);
         background: var(--bg-panel) !important;
-        border-color: rgba(20, 108, 148, 0.28) !important;
+        border-color: var(--border) !important;
         box-shadow: var(--shadow-xs) !important;
     }
 
@@ -3200,13 +3336,13 @@
 
     .react-calendar__tile--now {
         background: rgba(20, 108, 148, 0.08) !important;
-        border: 1px solid rgba(20, 108, 148, 0.28) !important;
+        border: 1px solid var(--border) !important;
         box-shadow: inset 0 0 0 1px rgba(20, 108, 148, 0.08), var(--shadow-xs) !important;
     }
 
     [data-theme="dark"] .react-calendar__tile--now {
         background: rgba(76, 183, 216, 0.09) !important;
-        border-color: rgba(76, 183, 216, 0.26) !important;
+        border-color: var(--border) !important;
         box-shadow: inset 0 0 0 1px rgba(76, 183, 216, 0.08), var(--shadow-xs) !important;
     }
 
@@ -3259,7 +3395,7 @@
 
     .react-calendar__tile--active .calendar-tile-count {
         background: rgba(255, 255, 255, 0.16);
-        border-color: rgba(255, 255, 255, 0.28);
+        border-color: var(--border);
         color: #fff;
     }
 
@@ -3290,7 +3426,7 @@
 
     .shopping-card {
         position: relative;
-        border: 1px solid rgba(20, 108, 148, 0.12);
+        border: 1px solid var(--border);
         box-shadow: var(--shadow-md);
         background:
             radial-gradient(circle at top left, rgba(20, 108, 148, 0.12), transparent 24rem),
@@ -3448,7 +3584,7 @@
     .shopping-day-list .post-list-header {
         margin-bottom: 1.1rem;
         align-items: flex-start;
-        gap: 1rem;
+        gap: 0.5rem;
         border: none;
         padding-bottom: 0;
     }
@@ -3494,7 +3630,7 @@
     .shopping-list-title-fields {
         display: grid;
         grid-template-columns: minmax(0, 1fr) auto;
-        gap: 0.85rem;
+        gap: 0.4rem;
         align-items: start;
     }
 
@@ -3786,16 +3922,21 @@
     }
 
     .quantity-input-row {
-        @apply flex flex-col gap-3 md:flex-row md:items-center;
+        @apply flex items-end gap-3;
+        flex-wrap: nowrap;
     }
 
     .quantity-input-count {
-        width: 100%;
-        max-width: 7rem;
+        width: 5.6rem;
+        min-width: 5.6rem;
+        max-width: 5.6rem;
+        text-align: center;
     }
 
     .quantity-input-unit {
-        width: 100%;
+        width: 4.65rem;
+        min-width: 4.65rem;
+        max-width: 4.65rem;
     }
 
     .priority-chip.compact {
@@ -3866,15 +4007,8 @@
     [data-theme="dark"] .nono-stat,
     [data-theme="dark"] .nono-schedule-card,
     [data-theme="dark"] .nono-highlight-card {
-        border-color: color-mix(in srgb, var(--primary) 18%, var(--border));
+        border-color: var(--border);
         box-shadow: var(--shadow-xs);
-    }
-
-    [data-theme="dark"] .nono-chart-panel {
-        background:
-            radial-gradient(circle at top right, rgba(76, 183, 216, 0.15), transparent 32%),
-            linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 42%),
-            color-mix(in srgb, var(--bg) 80%, rgba(76, 183, 216, 0.08));
     }
 
     [data-theme="dark"] .nono-bottle-panel {
@@ -3891,13 +4025,12 @@
             color-mix(in srgb, rgba(87, 197, 160, 0.08) 28%, var(--bg-panel));
     }
 
-    [data-theme="dark"] .nono-toggle-card,
     [data-theme="dark"] .nono-inline-stat,
     [data-theme="dark"] .nono-chart-kpi,
     [data-theme="dark"] .nono-history-item,
     [data-theme="dark"] .nono-chart-empty {
         background: color-mix(in srgb, var(--bg-panel) 94%, rgba(255, 255, 255, 0.03));
-        border-color: color-mix(in srgb, var(--primary) 18%, var(--border));
+        border-color: var(--border);
         box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
     }
 
@@ -3905,7 +4038,7 @@
         background:
             linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.005)),
             color-mix(in srgb, var(--bg) 84%, rgba(76, 183, 216, 0.05));
-        border-color: color-mix(in srgb, var(--primary) 18%, var(--border));
+        border-color: var(--border);
         box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
     }
 
@@ -3952,13 +4085,13 @@
     .taco-upload-message.success {
         color: #a0e2c9;
         background: rgba(77, 182, 141, 0.14);
-        border-color: rgba(77, 182, 141, 0.22);
+        border-color: var(--border);
     }
 
     .taco-upload-message.error {
         color: #ffb0a7;
         background: rgba(214, 90, 49, 0.16);
-        border-color: rgba(214, 90, 49, 0.24);
+        border-color: var(--border);
     }
 
     .reminder-task-meta {
@@ -3972,7 +4105,7 @@
 
     .profile-hero {
         display: grid;
-        gap: 1rem;
+        gap: 0.5rem;
         @apply rounded-[1.8rem] p-5;
         background:
             radial-gradient(circle at top right, rgba(31, 138, 112, 0.1), transparent 24%),
@@ -3992,7 +4125,7 @@
     .profile-hero-main {
         display: flex;
         align-items: center;
-        gap: 1rem;
+        gap: 0.5rem;
         min-width: 0;
     }
 
@@ -4040,7 +4173,7 @@
     .profile-lock-banner {
         @apply rounded-[1.4rem] px-4 py-4;
         background: rgba(188, 83, 85, 0.08);
-        border: 1px solid rgba(188, 83, 85, 0.16);
+        border: 1px solid var(--border);
     }
 
     .profile-lock-banner strong {
@@ -4143,7 +4276,7 @@
 
     .profile-form {
         display: grid;
-        gap: 1rem;
+        gap: 0.5rem;
     }
 
     .profile-field {
@@ -4179,13 +4312,13 @@
     .profile-user-card {
         @apply rounded-[1.3rem] p-4;
         display: grid;
-        gap: 1rem;
+        gap: 0.5rem;
         background: var(--bg-panel);
         border: 1px solid var(--border);
     }
 
     .profile-user-card.is-admin {
-        border-color: rgba(20, 108, 148, 0.18);
+        border-color: var(--border);
         box-shadow: inset 0 0 0 1px rgba(20, 108, 148, 0.06);
     }
 
@@ -4208,7 +4341,7 @@
 
     .profile-user-controls {
         display: grid;
-        gap: 0.85rem;
+        gap: 0.4rem;
         align-items: end;
     }
 
@@ -4380,7 +4513,7 @@
     [data-theme="dark"] textarea.input {
         background: color-mix(in srgb, var(--bg-panel) 96%, rgba(255, 255, 255, 0.03)) !important;
         color: var(--text-main) !important;
-        border-color: color-mix(in srgb, var(--primary) 18%, var(--border)) !important;
+        border-color: var(--border) !important;
         box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), var(--shadow-xs);
         caret-color: var(--text-main);
     }
@@ -4406,7 +4539,7 @@
     [data-theme="dark"] .shopping-quick-add-input:focus,
     [data-theme="dark"] select:focus,
     [data-theme="dark"] input[type="number"]:focus {
-        border-color: rgba(76, 183, 216, 0.34) !important;
+        border-color: var(--border) !important;
         box-shadow: 0 0 0 4px rgba(76, 183, 216, 0.12) !important;
     }
 
@@ -4419,7 +4552,7 @@
         -webkit-text-fill-color: var(--text-main);
         box-shadow: inset 0 0 0 1000px rgba(23, 35, 43, 0.96);
         transition: background-color 9999s ease-in-out 0s;
-        border: 1px solid color-mix(in srgb, var(--primary) 18%, var(--border));
+        border: 1px solid var(--border);
         caret-color: var(--text-main);
     }
 
@@ -4430,7 +4563,7 @@
     [data-theme="dark"] .shopping-basket-name-input:hover,
     [data-theme="dark"] .shopping-basket-name-input:focus {
         background: color-mix(in srgb, var(--primary) 12%, var(--bg-panel));
-        border-color: color-mix(in srgb, var(--primary) 24%, var(--border));
+        border-color: var(--border);
     }
 
     [data-theme="dark"] .reminder-column.column-todo {
@@ -4438,7 +4571,7 @@
             radial-gradient(circle at top right, rgba(242, 140, 82, 0.16), transparent 36%),
             linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 28%),
             color-mix(in srgb, rgba(242, 140, 82, 0.08) 42%, var(--bg-soft));
-        border-color: color-mix(in srgb, rgba(242, 140, 82, 0.22) 55%, var(--border));
+        border-color: var(--border);
     }
 
     [data-theme="dark"] .reminder-column.column-doing {
@@ -4446,7 +4579,7 @@
             radial-gradient(circle at top right, rgba(76, 183, 216, 0.16), transparent 36%),
             linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 28%),
             color-mix(in srgb, rgba(76, 183, 216, 0.08) 42%, var(--bg-soft));
-        border-color: color-mix(in srgb, rgba(76, 183, 216, 0.22) 55%, var(--border));
+        border-color: var(--border);
     }
 
     [data-theme="dark"] .reminder-column.column-done {
@@ -4454,7 +4587,7 @@
             radial-gradient(circle at top right, rgba(87, 197, 160, 0.16), transparent 36%),
             linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 28%),
             color-mix(in srgb, rgba(87, 197, 160, 0.08) 42%, var(--bg-soft));
-        border-color: color-mix(in srgb, rgba(87, 197, 160, 0.22) 55%, var(--border));
+        border-color: var(--border);
     }
 
     [data-theme="dark"] .reminder-column-count {
@@ -4464,26 +4597,26 @@
 
     [data-theme="dark"] .reminder-drag-handle {
         background: color-mix(in srgb, var(--bg-panel) 94%, rgba(255, 255, 255, 0.04));
-        border-color: color-mix(in srgb, var(--primary) 22%, var(--border));
+        border-color: var(--border);
         color: var(--text-subheading);
     }
 
     [data-theme="dark"] .reminder-status-badge.status-todo {
         color: #ffc28f;
         background: rgba(242, 140, 82, 0.16);
-        border-color: rgba(242, 140, 82, 0.24);
+        border-color: var(--border);
     }
 
     [data-theme="dark"] .reminder-status-badge.status-doing {
         color: #9cdcf0;
         background: rgba(76, 183, 216, 0.14);
-        border-color: rgba(76, 183, 216, 0.22);
+        border-color: var(--border);
     }
 
     [data-theme="dark"] .reminder-status-badge.status-done {
         color: #9de1cb;
         background: rgba(87, 197, 160, 0.14);
-        border-color: rgba(87, 197, 160, 0.22);
+        border-color: var(--border);
     }
 
     @media (max-width: 900px) {
@@ -4562,13 +4695,13 @@
 
     @media (max-width: 640px) {
         .app-main {
-            padding-inline: 0.75rem;
-            padding-top: 1rem;
+            padding-inline: 0.5rem;
+            padding-top: 0.75rem;
         }
 
         .card {
-            border-radius: 1.4rem;
-            padding: 1rem;
+            border-radius: 1.25rem;
+            padding: 0.8rem;
         }
 
         .shopping-day-list {
@@ -4618,7 +4751,9 @@
         }
 
         .post-popup-form .quantity-input-row {
-            grid-template-columns: 1fr;
+            grid-template-columns: 5.2rem 4.65rem;
+            gap: 0.55rem;
+            justify-content: start;
         }
 
         .post-popup-priority {
@@ -4630,11 +4765,15 @@
         }
 
         .post-popup-priority-flag {
-            margin-top: 0.2rem;
+            margin-top: 0;
         }
 
         .post-popup-priority.compact .post-popup-priority-flag {
-            margin-top: 0;
+            min-height: 2.45rem;
+        }
+
+        .post-popup-priority.compact .post-popup-priority-select {
+            min-width: 8.25rem;
         }
 
         .calendar-page-title {
@@ -4682,6 +4821,300 @@
         .calendar-clear-button {
             width: 100%;
             justify-content: center;
+        }
+
+        .card.nono-shell {
+            gap: 0.4rem;
+            padding: 0.68rem;
+        }
+
+        .card.nono-shell > .nono-hero {
+            gap: 0.9rem;
+            padding: 0.95rem;
+            border-radius: 1.22rem;
+        }
+
+        .nono-shell {
+            gap: 0.9rem;
+        }
+
+        .nono-panel {
+            padding: 0.72rem;
+            border-radius: 1.12rem;
+        }
+
+        .nono-panel-head {
+            margin-bottom: 0.72rem;
+            gap: 0.6rem;
+        }
+
+        .nono-panel-head h2 {
+            font-size: 1.08rem;
+        }
+
+        .nono-dashboard-hero .nono-stats {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 0.4rem;
+        }
+
+        .nono-dashboard-hero .nono-stat {
+            padding: 0.6rem 0.44rem;
+            border-radius: 1rem;
+        }
+
+        .nono-dashboard-hero .nono-stat-label {
+            margin-bottom: 0.22rem;
+            font-size: 0.58rem;
+            letter-spacing: 0.04em;
+        }
+
+        .nono-dashboard-hero .nono-stat-value {
+            font-size: 0.82rem;
+            line-height: 1.12;
+        }
+
+        .nono-dashboard-hero .nono-stat-note {
+            margin-top: 0.16rem;
+            font-size: 0.62rem;
+            line-height: 1.22;
+        }
+
+        .nono-card-grid {
+            gap: 0.48rem;
+        }
+
+        .nono-card-grid .nono-schedule-card {
+            padding: 0.7rem;
+            border-radius: 0.96rem;
+        }
+
+        .nono-card-grid .nono-schedule-head {
+            margin-bottom: 0.68rem;
+            gap: 0.55rem;
+        }
+
+        .nono-card-grid .nono-schedule-icon {
+            width: 2.3rem;
+            height: 2.3rem;
+            border-radius: 0.84rem;
+            font-size: 0.92rem;
+        }
+
+        .nono-card-grid .nono-schedule-head h3 {
+            font-size: 0.94rem;
+            line-height: 1.25;
+            margin-bottom: 0.12rem;
+        }
+
+        .nono-card-grid .nono-schedule-head p,
+        .nono-card-grid .nono-field span {
+            font-size: 0.78rem;
+            line-height: 1.38;
+        }
+
+        .nono-card-grid .nono-field span {
+            margin-bottom: 0.34rem;
+        }
+
+        .nono-card-grid .compact-date-picker,
+        .nono-card-grid .compact-native-date-input {
+            max-width: min(100%, 11rem);
+        }
+
+        .nono-card-grid .compact-date-input,
+        .nono-card-grid .compact-native-date-input {
+            padding: 0.68rem 2.35rem 0.68rem 0.72rem;
+            font-size: 0.88rem;
+        }
+
+        .nono-card-grid .compact-date-picker .react-datepicker__close-icon {
+            right: 0.65rem;
+            width: 1.3rem;
+            height: 1.3rem;
+        }
+
+        .nono-card-grid .compact-date-picker .react-datepicker__close-icon::after {
+            width: 1.3rem;
+            height: 1.3rem;
+            font-size: 0.9rem;
+        }
+
+        .nono-tracker-grid {
+            gap: 0.5rem;
+        }
+
+        .nono-tracker-grid > .nono-schedule-card {
+            padding: 0.7rem;
+            border-radius: 0.96rem;
+        }
+
+        .nono-tracker-panel-grid {
+            grid-template-columns: minmax(0, 0.96fr) minmax(0, 1.04fr);
+            gap: 0.44rem;
+        }
+
+        .nono-tracker-panel-main {
+            font-size: 0.64rem;
+        }
+
+        .nono-tracker-panel-main .nono-schedule-head {
+            margin-bottom: 0.6em;
+            gap: 0.5em;
+        }
+
+        .nono-tracker-panel-main .nono-schedule-icon {
+            width: 2.08em;
+            height: 2.08em;
+            border-radius: 0.8em;
+            font-size: 0.84em;
+        }
+
+        .nono-tracker-panel-main .nono-schedule-head h3,
+        .nono-tracker-panel-main .nono-history h3 {
+            font-size: 0.98em;
+            line-height: 1.14;
+        }
+
+        .nono-tracker-panel-main .nono-field span {
+            font-size: 0.76em;
+            line-height: 1.12;
+            margin-bottom: 0.22em;
+        }
+
+        .nono-tracker-panel-main .nono-form-grid {
+            gap: 0.4em;
+        }
+
+        .nono-tracker-panel-main .nono-field .input {
+            margin-bottom: 0;
+            padding: 0.56em 0.62em;
+            font-size: 0.86em;
+            border-radius: 0.84em;
+            line-height: 1.08;
+        }
+
+        .nono-tracker-panel-main .nono-submit {
+            width: 100%;
+            justify-self: stretch;
+            min-height: 0;
+            padding: 0.56em 0.38em;
+            font-size: 0.74em;
+            border-radius: 0.9em;
+            line-height: 1.08;
+            text-wrap: balance;
+        }
+
+        .nono-tracker-panel-main .nono-history {
+            gap: 0.32em;
+        }
+
+        .nono-tracker-panel-main .nono-history-list {
+            gap: 0.34em;
+            padding-right: 0.12em;
+        }
+
+        .nono-tracker-panel-main .nono-history-body {
+            --nono-history-item-height: 3.95em;
+            min-height: calc(var(--nono-history-item-height) * 1.9);
+            max-height: calc(var(--nono-history-item-height) * 1.9);
+        }
+
+        .nono-tracker-panel-main .nono-history-item {
+            min-height: 0;
+            padding: 0.52em 0.5em;
+            gap: 0.28em;
+            border-radius: 0.82em;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            align-items: center;
+        }
+
+        .nono-tracker-panel-main .nono-history-main {
+            gap: 0.18em;
+        }
+
+        .nono-tracker-panel-main .nono-history-item strong {
+            font-size: 0.92em;
+            line-height: 1.16;
+        }
+
+        .nono-tracker-panel-main .nono-history-item span {
+            font-size: 0.76em;
+            line-height: 1.22;
+            overflow-wrap: anywhere;
+        }
+
+        .nono-tracker-panel-main .nono-history-empty {
+            font-size: 0.72em;
+            line-height: 1.22;
+        }
+
+        .nono-tracker-panel-main .nono-history-delete {
+            width: 1.82em;
+            height: 1.82em;
+            min-width: 1.82em;
+            font-size: 0.82em;
+            align-self: center;
+        }
+
+        .nono-tracker-panel-chart .nono-schedule-head {
+            margin-bottom: 0.62rem;
+            gap: 0.42rem;
+            align-items: center;
+        }
+
+        .nono-tracker-panel-chart {
+            padding-top: 0;
+            padding-left: 0.42rem;
+            border-top: none;
+            border-left: 1px solid var(--border);
+        }
+
+        .nono-tracker-panel-chart .nono-schedule-head > div {
+            flex: 1;
+            text-align: center;
+        }
+
+        .nono-tracker-panel-chart .nono-schedule-head h3 {
+            font-size: 0.74rem;
+            line-height: 1.08;
+            margin-bottom: 0;
+        }
+
+        .nono-tracker-panel-chart .nono-chart-y-axis,
+        .nono-tracker-panel-chart .nono-chart-axis {
+            font-size: 0.58rem;
+            gap: 0.18rem;
+        }
+
+        .nono-tracker-panel-chart .nono-chart-y-axis span,
+        .nono-tracker-panel-chart .nono-chart-axis span {
+            line-height: 1;
+            text-align: center;
+        }
+
+        .nono-tracker-panel-chart .nono-chart-empty {
+            padding: 0.72rem;
+            font-size: 0.78rem;
+            line-height: 1.42;
+        }
+
+        .nono-tracker-panel-chart .nono-bottle-chart {
+            min-height: 10.35rem;
+        }
+
+        .nono-notes {
+            min-height: 9.5rem;
+            font-size: 0.94rem;
+        }
+
+        .nono-note-actions {
+            gap: 0.72rem;
+        }
+
+        .nono-note-hint {
+            font-size: 0.9rem;
+            line-height: 1.5;
         }
 
         .profile-hero {

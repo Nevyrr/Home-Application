@@ -126,7 +126,7 @@ const CalendarTab = () => {
       setGoogleConnected(false);
       setGoogleEvents([]);
       setGoogleEventsOnDate([]);
-      setError(googleError instanceof Error ? googleError.message : "Impossible de recuperer Google Calendar");
+      setError(googleError instanceof Error ? googleError.message : "Impossible de recuperer l'agenda Google");
     } finally {
       setGoogleLoading(false);
     }
@@ -306,7 +306,7 @@ const CalendarTab = () => {
     ...googleEvents.map((event) => ({
       _id: `google-${event.id}`,
       user: "google",
-      username: "Google Calendar",
+      username: "Agenda Google",
       title: event.title,
       date: parseCalendarDate(event.start),
       duration: event.isAllDay ? "Journee" : undefined,
@@ -340,7 +340,7 @@ const CalendarTab = () => {
           <div className="calendar-info-card calendar-legend-card">
             <span className="calendar-card-heading">
               <i className="fa-solid fa-info-circle text-primary"></i>
-              Legende:
+              Legende
             </span>
             <div className="calendar-legend">
               {legendItems.map((item) => (
@@ -355,8 +355,8 @@ const CalendarTab = () => {
           <div className="calendar-info-card calendar-sync-card">
             <div className="calendar-sync-head">
               <div>
-                <p className="eyebrow">Google Calendar</p>
-                <h2 className="calendar-card-title">Agenda Gmail</h2>
+                <p className="eyebrow">Agenda Google</p>
+                <h2 className="calendar-card-title">Agenda Google</h2>
               </div>
               <span
                 className={`calendar-status-pill ${
@@ -388,7 +388,7 @@ const CalendarTab = () => {
                         setGoogleConnected(false);
                         setGoogleEvents([]);
                         setGoogleEventsOnDate([]);
-                        setSuccess("Google Calendar deconnecte");
+                        setSuccess("Agenda Google deconnecte");
                       }}
                     >
                       Deconnecter
@@ -425,6 +425,7 @@ const CalendarTab = () => {
               resetAllFields={resetAllFields}
               popupInputs={dateInput()}
               showAddButton={canWrite}
+              addButtonTitle="Ajouter evenement"
             />
 
             {canWrite && eventsOnDate.length > 0 && (
@@ -440,13 +441,13 @@ const CalendarTab = () => {
               <div className="calendar-external-head">
                 <div>
                   <p className="eyebrow">Agenda externe</p>
-                  <h2 className="calendar-card-title">Google Calendar</h2>
+                  <h2 className="calendar-card-title">Agenda Google</h2>
                 </div>
                 <span className="calendar-external-count">{googleEventsOnDate.length} evenement(s)</span>
               </div>
 
               {googleEventsOnDate.length === 0 ? (
-                <p className="calendar-empty-copy">Aucun evenement Google pour cette date.</p>
+                <p className="calendar-empty-copy">Aucun evenement Agenda Google pour cette date.</p>
               ) : (
                 <div className="calendar-external-list">
                   {googleEventsOnDate.map((event) => (
@@ -455,7 +456,7 @@ const CalendarTab = () => {
                         <div>
                           <div className="calendar-external-meta">
                             <span className="priority-dot priority-0"></span>
-                            <span>Google Calendar</span>
+                            <span>Agenda Google</span>
                             <span className="meta-separator">|</span>
                             <span>
                               {event.isAllDay

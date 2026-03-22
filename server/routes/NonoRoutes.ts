@@ -3,10 +3,8 @@ import auth from "../middlewares/auth.js";
 import { requireWritable } from "../middlewares/access.js";
 import {
   addBottleEntry,
-  addDiaperEntry,
   addWeightEntry,
   deleteBottleEntry,
-  deleteDiaperEntry,
   deleteWeightEntry,
   getNonoData,
   updateAdministrativeReminder,
@@ -32,10 +30,8 @@ router.post("/vitamin/reminder", auth, requireWritable, asyncHandler(updateVitam
 router.post("/administrative/reminder", auth, requireWritable, asyncHandler(updateAdministrativeReminder));
 router.post("/notes", auth, requireWritable, asyncHandler(updateNotes));
 router.post("/bottles", auth, requireWritable, asyncHandler(addBottleEntry));
-router.post("/diapers", auth, requireWritable, asyncHandler(addDiaperEntry));
 router.post("/weights", auth, requireWritable, asyncHandler(addWeightEntry));
 router.delete("/bottles/:entryId", auth, requireWritable, asyncHandler(deleteBottleEntry));
-router.delete("/diapers/:entryId", auth, requireWritable, asyncHandler(deleteDiaperEntry));
 router.delete("/weights/:entryId", auth, requireWritable, asyncHandler(deleteWeightEntry));
 
 export { router as NonoRoutes };

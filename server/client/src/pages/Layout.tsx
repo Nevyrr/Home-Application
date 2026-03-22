@@ -5,9 +5,9 @@ import { useAuth } from "../hooks/index.ts";
 import "../style/topbar.css";
 
 const NAV_ITEMS = [
-  { path: "/shopping", icon: "fa-cart-shopping", label: "Shopping" },
+  { path: "/shopping", icon: "fa-cart-shopping", label: "Courses" },
   { path: "/calendar", icon: "fa-calendar-days", label: "Calendrier" },
-  { path: "/reminders", icon: "fa-list-check", label: "Todo" },
+  { path: "/reminders", icon: "fa-list-check", label: "Taches" },
   { path: "/taco", icon: "fa-dog", label: "Taco" },
   { path: "/nono", icon: "fa-baby", label: "Nono" },
 ];
@@ -28,12 +28,6 @@ const Layout = () => {
     <>
       <header className="topbar-shell">
         <nav className="topbar-nav">
-          <Link to="/shopping" className="topbar-brand" aria-label="Accueil shopping">
-            <span className="topbar-brand-icon">
-              <Icon imageName={"DavinIcon.png"} />
-            </span>
-          </Link>
-
           <div className="topbar-groups">
             <div className="topbar-main">
               {NAV_ITEMS.map((item) => (
@@ -56,7 +50,7 @@ const Layout = () => {
               {user.email ? (
                 <>
                   <Link
-                    title="Dashboard"
+                    title="Profil"
                     aria-label="Compte"
                     to="/dashboard"
                     className={`topbar-button ${isSelected("/dashboard") ? "is-active" : ""}`}
@@ -64,14 +58,14 @@ const Layout = () => {
                   >
                     <i className="fa-solid fa-circle-user nav-icon"></i>
                   </Link>
-                  <button title="Logout" aria-label="Quitter" onClick={() => logout()} className="topbar-button">
+                  <button title="Deconnexion" aria-label="Quitter" onClick={() => logout()} className="topbar-button">
                     <i className="fa-solid fa-right-from-bracket nav-icon"></i>
                   </button>
                 </>
               ) : (
                 <>
                   <Link
-                    title="Login"
+                    title="Connexion"
                     aria-label="Connexion"
                     to="/login"
                     className={`topbar-button ${isSelected("/login") ? "is-active" : ""}`}
@@ -80,7 +74,7 @@ const Layout = () => {
                     <i className="fa-solid fa-right-to-bracket nav-icon"></i>
                   </Link>
                   <Link
-                    title="Register"
+                    title="Inscription"
                     aria-label="Inscription"
                     to="/register"
                     className={`topbar-button ${isSelected("/register") ? "is-active" : ""}`}
@@ -90,6 +84,9 @@ const Layout = () => {
                   </Link>
                 </>
               )}
+              <span className="topbar-brand-icon">
+                <Icon imageName={"DavinIcon.png"} />
+              </span>
             </div>
           </div>
         </nav>

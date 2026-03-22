@@ -11,7 +11,7 @@ interface ApiResponse extends ApiEnvelope<{ posts?: ShoppingDay[] }> {
 /**************************** Get all shopping-posts  ********************************/
 const getPosts = async (): Promise<{ posts: ShoppingDay[] }> => {
   const res = await fetchWithAuth("/api/shopping-posts");
-  const data = await readApiResponse<ApiResponse>(res, "Failed to fetch posts");
+  const data = await readApiResponse<ApiResponse>(res, "Impossible de charger les paniers");
 
   return {
     posts: data.data?.posts || data.posts || [],
@@ -21,7 +21,7 @@ const getPosts = async (): Promise<{ posts: ShoppingDay[] }> => {
 /**************************** Create shopping-date  ******************************/
 const createDate = async (date: string, name: string): Promise<ApiResponse> => {
   if (!date || !name) {
-    throw Error("All fields are required");
+    throw Error("Tous les champs sont obligatoires");
   }
 
   const res = await fetchWithAuth("/api/shopping-posts/date", {
@@ -32,14 +32,14 @@ const createDate = async (date: string, name: string): Promise<ApiResponse> => {
     body: JSON.stringify({ date, name }),
   });
 
-  const data = await readApiResponse<ApiResponse>(res, "Failed to create date");
+  const data = await readApiResponse<ApiResponse>(res, "Impossible de creer le panier");
   return { ...data, success: getApiMessage(data) };
 };
 
 /**************************** Update shopping-date  ******************************/
 const updateDateItem = async (shoppingListId: string, name: string, date: string): Promise<ApiResponse> => {
   if (!date || !shoppingListId) {
-    throw Error("All fields are required");
+    throw Error("Tous les champs sont obligatoires");
   }
 
   const res = await fetchWithAuth("/api/shopping-posts/date", {
@@ -50,7 +50,7 @@ const updateDateItem = async (shoppingListId: string, name: string, date: string
     body: JSON.stringify({ shoppingListId, name, date }),
   });
 
-  const data = await readApiResponse<ApiResponse>(res, "Failed to update date");
+  const data = await readApiResponse<ApiResponse>(res, "Impossible de mettre a jour le panier");
   return { ...data, success: getApiMessage(data) };
 };
 
@@ -63,7 +63,7 @@ const createPost = async (
   priorityColor: number
 ): Promise<ApiResponse> => {
   if (!shoppingListId || !title || !count || priorityColor === undefined) {
-    throw Error("All fields are required");
+    throw Error("Tous les champs sont obligatoires");
   }
 
   const res = await fetchWithAuth("/api/shopping-posts", {
@@ -74,7 +74,7 @@ const createPost = async (
     body: JSON.stringify({ shoppingListId, title, count, unit, priorityColor }),
   });
 
-  const data = await readApiResponse<ApiResponse>(res, "Failed to create post");
+  const data = await readApiResponse<ApiResponse>(res, "Impossible de creer l'article");
   return { ...data, success: getApiMessage(data) };
 };
 
@@ -84,7 +84,7 @@ const deletePost = async (_id: string): Promise<ApiResponse> => {
     method: "DELETE",
   });
 
-  const data = await readApiResponse<ApiResponse>(res, "Failed to delete post");
+  const data = await readApiResponse<ApiResponse>(res, "Impossible de supprimer l'article");
   return { ...data, success: getApiMessage(data) };
 };
 
@@ -94,7 +94,7 @@ const deletePosts = async (shoppingListId: string): Promise<ApiResponse> => {
     method: "DELETE",
   });
 
-  const data = await readApiResponse<ApiResponse>(res, "Failed to delete posts");
+  const data = await readApiResponse<ApiResponse>(res, "Impossible de supprimer les articles");
   return { ...data, success: getApiMessage(data) };
 };
 
@@ -107,7 +107,7 @@ const updatePost = async (
   priorityColor: number
 ): Promise<ApiResponse> => {
   if (!title || !count || priorityColor === undefined) {
-    throw Error("All fields are required");
+    throw Error("Tous les champs sont obligatoires");
   }
 
   const res = await fetchWithAuth(`/api/shopping-posts/${_id}`, {
@@ -118,7 +118,7 @@ const updatePost = async (
     body: JSON.stringify({ title, count, unit, priorityColor }),
   });
 
-  const data = await readApiResponse<ApiResponse>(res, "Failed to update post");
+  const data = await readApiResponse<ApiResponse>(res, "Impossible de mettre a jour l'article");
   return { ...data, success: getApiMessage(data) };
 };
 

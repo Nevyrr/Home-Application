@@ -10,14 +10,9 @@ export const emailSchema = z.string().email("Email invalide");
 
 /**
  * Validation du mot de passe
- * Minimum 8 caracteres, au moins une majuscule, une minuscule et un chiffre
+ * Minimum 1 caractere
  */
-export const passwordSchema = z
-  .string()
-  .min(8, "Le mot de passe doit contenir au moins 8 caracteres")
-  .regex(/[A-Z]/, "Le mot de passe doit contenir au moins une majuscule")
-  .regex(/[a-z]/, "Le mot de passe doit contenir au moins une minuscule")
-  .regex(/[0-9]/, "Le mot de passe doit contenir au moins un chiffre");
+export const passwordSchema = z.string().min(1, "Le mot de passe doit contenir au moins 1 caractere");
 
 /**
  * Schema de validation pour l'inscription

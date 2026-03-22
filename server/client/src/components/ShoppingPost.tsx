@@ -1,6 +1,6 @@
 import { useAuth } from "../hooks/index.ts";
 import { ShoppingPost as ShoppingPostType } from "../types/index.ts";
-import PriorityFlag from "./PriorityFlag.tsx";
+import PriorityFlag, { getPriorityLabel } from "./PriorityFlag.tsx";
 import { canUserWrite, isUserAdmin } from "../utils/permissions.ts";
 
 interface ShoppingPostProps {
@@ -11,20 +11,10 @@ interface ShoppingPostProps {
 
 const ShoppingPost = ({ post, onUpdate, onDelete }: ShoppingPostProps) => {
   const { user } = useAuth();
-  const quantityLabel = `${post.count} ${post.unit ?? ""}`.trim();
+  const normalizedUnit = post.unit === "u" ? "" : post.unit ?? "";
+  const quantityLabel = `${post.count} ${normalizedUnit}`.trim();
   const canManagePost = canUserWrite(user) && (user.id === post.user || isUserAdmin(user));
-  const priorityLabel = (() => {
-    switch (post.priorityColor) {
-      case 1:
-        return "Priorite basse";
-      case 2:
-        return "A prevoir";
-      case 3:
-        return "Urgent";
-      default:
-        return "Essentiel";
-    }
-  })();
+  const priorityLabel = getPriorityLabel(post.priorityColor);
   const createdLabel = post.createdAt
     ? new Date(post.createdAt).toLocaleDateString("fr-FR", {
         day: "numeric",
@@ -36,18 +26,18 @@ const ShoppingPost = ({ post, onUpdate, onDelete }: ShoppingPostProps) => {
     <article className={`shopping-item shopping-priority-${post.priorityColor}`}>
       <div className="shopping-item-top">
         <div className="shopping-item-main">
-          <div className="shopping-item-priority">
-            <PriorityFlag className="shopping-item-flag" priorityColor={post.priorityColor} isCreated={true} />
-            <span className="shopping-item-priority-copy">{priorityLabel}</span>
-          </div>
-
-          <h3 className="shopping-item-title">{post.title}</h3>
+          <h3 className="shopping-item-title">
+            <span className="shopping-item-title-text">{post.title}</span>
+            <span className="shopping-item-title-qty">{quantityLabel}</span>
+          </h3>
         </div>
 
-        <div className="shopping-item-qty-panel">
-          <span className="shopping-item-qty-label">Quantite</span>
-          <span className="shopping-item-qty">{quantityLabel}</span>
-        </div>
+        {createdLabel && (
+          <span className="shopping-item-inline-date">
+            <i className="fa-regular fa-clock"></i>
+            <span className="shopping-item-meta-copy">{createdLabel}</span>
+          </span>
+        )}
 
         {canManagePost && (
           <div className="shopping-item-actions">
@@ -62,14 +52,18 @@ const ShoppingPost = ({ post, onUpdate, onDelete }: ShoppingPostProps) => {
       </div>
 
       <div className="shopping-item-meta">
-        <span className="shopping-item-meta-pill">
+        <span className="shopping-item-meta-pill shopping-item-priority-pill">
+          <PriorityFlag className="shopping-item-meta-flag" priorityColor={post.priorityColor} isCreated={true} />
+          {priorityLabel}
+        </span>
+        <span className="shopping-item-meta-pill shopping-item-meta-data">
           <i className="fa-regular fa-user"></i>
-          {post.username}
+          <span className="shopping-item-meta-copy">{post.username}</span>
         </span>
         {createdLabel && (
-          <span className="shopping-item-meta-pill">
+          <span className="shopping-item-meta-pill shopping-item-meta-data shopping-item-meta-date">
             <i className="fa-regular fa-clock"></i>
-            {createdLabel}
+            <span className="shopping-item-meta-copy">{createdLabel}</span>
           </span>
         )}
       </div>

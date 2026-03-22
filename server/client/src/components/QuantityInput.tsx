@@ -8,10 +8,13 @@ interface QuantityInputProps {
 }
 
 const QuantityInput = ({ count, unit, onChange, disabled = false }: QuantityInputProps) => {
-    const units = ["", "u", "g", "Kg", "mL", "L"];
+    const units = ["", "g", "Kg", "mL", "L"];
+    const normalizedUnit = unit === "u" ? "" : unit;
 
     const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        onChange({ count: Number(e.target.value), unit: unit });
+        const nextCount = Number(e.target.value);
+        const safeCount = Number.isFinite(nextCount) ? Math.min(999, Math.max(0, nextCount)) : 0;
+        onChange({ count: safeCount, unit: normalizedUnit });
     };
 
     const handleUnitChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -26,14 +29,15 @@ const QuantityInput = ({ count, unit, onChange, disabled = false }: QuantityInpu
                 disabled={disabled}
                 onChange={handleQuantityChange}
                 className="input quantity-input-count"
-                placeholder="Count"
+                placeholder="Qt"
                 min="0"
-                max="99"
+                max="999"
                 step="1"
-                title="Enter a number between 1 and 99"
+                inputMode="numeric"
+                title="Entrez un nombre entre 0 et 999"
             />
             <select
-                value={unit}
+                value={normalizedUnit}
                 disabled={disabled}
                 onChange={handleUnitChange}
                 className="input quantity-input-unit"

@@ -91,7 +91,6 @@ export interface INono extends Document {
   administrativeReminder: string;
   notes: string;
   bottleEntries: INonoBottleEntry[];
-  diaperEntries: INonoDiaperEntry[];
   weightEntries: INonoWeightEntry[];
   createdAt?: Date;
   updatedAt?: Date;
@@ -101,12 +100,6 @@ export interface INonoBottleEntry {
   _id?: Types.ObjectId;
   timestamp: string;
   amountMl: number;
-}
-
-export interface INonoDiaperEntry {
-  _id?: Types.ObjectId;
-  timestamp: string;
-  hasPoop: boolean;
 }
 
 export interface INonoWeightEntry {

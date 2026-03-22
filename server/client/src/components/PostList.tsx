@@ -42,7 +42,7 @@ interface PostListProps<TPost extends BasePost> {
 const PostList = <TPost extends BasePost>({
   title,
   posts,
-  popupEntityName = "item",
+  popupEntityName = "element",
   PostComposant,
   popupPost,
   handleCreate,
@@ -101,7 +101,7 @@ const PostList = <TPost extends BasePost>({
     return (
       <PostValidationPopup
         postName={popupEntityName}
-        actionType={"Add"}
+        actionType={"Ajouter"}
         showPopup={showCreatePopup}
         togglePopup={closeCreationPopup}
         handleValidate={handleCreatePost}
@@ -119,7 +119,7 @@ const PostList = <TPost extends BasePost>({
     return (
       <PostValidationPopup
         postName={popupEntityName}
-        actionType={"Update"}
+        actionType={"Modifier"}
         showPopup={showUpdatePopup}
         togglePopup={closeUpdatePopup}
         handleValidate={handleUpdatePost}

@@ -213,7 +213,8 @@ const TacoScheduleCard = ({
           disabled={disabled}
           isClearable
           placeholderText="Choisir une date"
-          className="input"
+          className="input compact-date-input"
+          wrapperClassName="compact-date-picker"
           calendarClassName="theme-datepicker"
           popperClassName="theme-datepicker-popper"
         />
@@ -230,7 +231,8 @@ const TacoScheduleCard = ({
             disabled={disabled}
             isClearable
             placeholderText="Choisir une date"
-            className="input"
+            className="input compact-date-input"
+            wrapperClassName="compact-date-picker"
             calendarClassName="theme-datepicker"
             popperClassName="theme-datepicker-popper"
           />
@@ -339,17 +341,17 @@ const TacoTab = () => {
       note: taco.birthDate ? `Ne le ${formatDisplayDate(taco.birthDate)}` : "Ajoutez sa date de naissance",
     },
     {
+      label: "Poids",
+      value: formatWeight(taco.weightKg),
+      note: "Derniere mesure enregistree",
+    },
+    {
       label: "Prochaine echeance",
       value: nextMilestone ? nextMilestone.label : "Aucune",
       valueClassName: nextMilestone?.overdue ? "is-overdue" : undefined,
       note: nextMilestone
         ? `${nextMilestone.overdue ? "En retard depuis" : "Le"} ${formatDisplayDate(nextMilestone.date)}`
         : "Ajoutez un premier rappel",
-    },
-    {
-      label: "Poids",
-      value: formatWeight(taco.weightKg),
-      note: "Derniere mesure enregistree",
     },
   ];
 

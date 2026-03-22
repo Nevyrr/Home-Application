@@ -20,5 +20,5 @@ export const canUserWrite = (user: UserLike | ManagedUserLike): boolean =>
 
 export const getUserRoleLabel = (user: UserLike | ManagedUserLike): string => {
   const role = getUserRole(user);
-  return role === "admin" ? "Administrateur" : role === "readonly" ? "Readonly" : "Writable";
+  return role === "admin" ? "Administrateur" : role === "readonly" ? "Lecture seule" : "Modification";
 };

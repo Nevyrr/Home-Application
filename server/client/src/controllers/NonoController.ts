@@ -20,7 +20,6 @@ const emptyNonoData: Nono = {
   administrativeReminder: "",
   notes: "",
   bottleEntries: [],
-  diaperEntries: [],
   weightEntries: [],
 };
 
@@ -64,60 +63,52 @@ const getNonoData = async (): Promise<Nono> => {
     headers: jsonHeaders,
   });
 
-  const data = await readApiResponse<ApiResponse>(res, "Failed to fetch nono data");
+  const data = await readApiResponse<ApiResponse>(res, "Impossible de charger les donnees de Nono");
   const nonoArray = data.data?.nono || data.nono || [];
 
   return Array.isArray(nonoArray) && nonoArray.length > 0 ? { ...emptyNonoData, ...nonoArray[0] } : emptyNonoData;
 };
 
 const updateBirthDate = async (date: string): Promise<ApiResponse> =>
-  postNonoUpdate("/api/nono/birth/date", { date }, "Failed to update birth date");
+  postNonoUpdate("/api/nono/birth/date", { date }, "Impossible de mettre a jour la date de naissance");
 
 const updateCheckupDate = async (date: string): Promise<ApiResponse> =>
-  postNonoUpdate("/api/nono/checkup/date", { date }, "Failed to update checkup date");
+  postNonoUpdate("/api/nono/checkup/date", { date }, "Impossible de mettre a jour la date du rendez-vous");
 
 const updateCheckupReminder = async (date: string): Promise<ApiResponse> =>
-  postNonoUpdate("/api/nono/checkup/reminder", { date }, "Failed to update checkup reminder");
+  postNonoUpdate("/api/nono/checkup/reminder", { date }, "Impossible de mettre a jour le rappel du rendez-vous");
 
 const updateVaccineDate = async (date: string): Promise<ApiResponse> =>
-  postNonoUpdate("/api/nono/vaccine/date", { date }, "Failed to update vaccine date");
+  postNonoUpdate("/api/nono/vaccine/date", { date }, "Impossible de mettre a jour la date du vaccin");
 
 const updateVaccineReminder = async (date: string): Promise<ApiResponse> =>
-  postNonoUpdate("/api/nono/vaccine/reminder", { date }, "Failed to update vaccine reminder");
+  postNonoUpdate("/api/nono/vaccine/reminder", { date }, "Impossible de mettre a jour le rappel du vaccin");
 
 const updateVitaminReminder = async (date: string): Promise<ApiResponse> =>
-  postNonoUpdate("/api/nono/vitamin/reminder", { date }, "Failed to update vitamin reminder");
+  postNonoUpdate("/api/nono/vitamin/reminder", { date }, "Impossible de mettre a jour le rappel vitamine");
 
 const updateAdministrativeReminder = async (date: string): Promise<ApiResponse> =>
-  postNonoUpdate("/api/nono/administrative/reminder", { date }, "Failed to update administrative reminder");
+  postNonoUpdate("/api/nono/administrative/reminder", { date }, "Impossible de mettre a jour le rappel administratif");
 
 const updateNonoNotes = async (notes: string): Promise<ApiResponse> =>
-  postNonoUpdate("/api/nono/notes", { notes }, "Failed to update nono notes");
+  postNonoUpdate("/api/nono/notes", { notes }, "Impossible de mettre a jour les notes de Nono");
 
 const addBottleEntry = async (amountMl: number, timestamp: string): Promise<ApiResponse> =>
-  postNonoUpdate("/api/nono/bottles", { amountMl, timestamp }, "Failed to add bottle entry");
-
-const addDiaperEntry = async (timestamp: string, hasPoop: boolean): Promise<ApiResponse> =>
-  postNonoUpdate("/api/nono/diapers", { timestamp, hasPoop }, "Failed to add diaper entry");
+  postNonoUpdate("/api/nono/bottles", { amountMl, timestamp }, "Impossible d'ajouter le biberon");
 
 const addWeightEntry = async (date: string, weightKg: number): Promise<ApiResponse> =>
-  postNonoUpdate("/api/nono/weights", { date, weightKg }, "Failed to add weight entry");
+  postNonoUpdate("/api/nono/weights", { date, weightKg }, "Impossible d'ajouter la pesee");
 
 const deleteBottleEntry = async (entryId: string): Promise<ApiResponse> =>
-  deleteNonoEntry(`/api/nono/bottles/${entryId}`, "Failed to delete bottle entry");
-
-const deleteDiaperEntry = async (entryId: string): Promise<ApiResponse> =>
-  deleteNonoEntry(`/api/nono/diapers/${entryId}`, "Failed to delete diaper entry");
+  deleteNonoEntry(`/api/nono/bottles/${entryId}`, "Impossible de supprimer le biberon");
 
 const deleteWeightEntry = async (entryId: string): Promise<ApiResponse> =>
-  deleteNonoEntry(`/api/nono/weights/${entryId}`, "Failed to delete weight entry");
+  deleteNonoEntry(`/api/nono/weights/${entryId}`, "Impossible de supprimer la pesee");
 
 export {
   addBottleEntry,
-  addDiaperEntry,
   addWeightEntry,
   deleteBottleEntry,
-  deleteDiaperEntry,
   deleteWeightEntry,
   getNonoData,
   updateAdministrativeReminder,

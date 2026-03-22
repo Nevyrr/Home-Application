@@ -12,7 +12,7 @@ interface ApiResponse extends ApiEnvelope<{ events?: CalendarEvent[]; event?: Ca
 /**************************** Get All Calendar Events  ********************************/
 const getEvents = async (): Promise<{ events: CalendarEvent[] }> => {
   const res = await fetchWithAuth("/api/calendar-events");
-  const data = await readApiResponse<ApiResponse>(res, "Failed to fetch events");
+  const data = await readApiResponse<ApiResponse>(res, "Impossible de charger les evenements");
 
   const events = data.data?.events || data.events || [];
   return { events };
@@ -26,13 +26,13 @@ const createEvent = async (
   priorityColor: number
 ): Promise<ApiResponse> => {
   if (!title) {
-    throw Error("Title is required");
+    throw Error("Le titre est obligatoire");
   }
   if (!date) {
-    throw Error("Date is required");
+    throw Error("La date est obligatoire");
   }
   if (priorityColor === undefined) {
-    throw Error("Priority color is required");
+    throw Error("La priorite est obligatoire");
   }
 
   const res = await fetchWithAuth("/api/calendar-events", {
@@ -43,7 +43,7 @@ const createEvent = async (
     body: JSON.stringify({ title, date, duration, priorityColor }),
   });
 
-  const data = await readApiResponse<ApiResponse>(res, "Failed to create event");
+  const data = await readApiResponse<ApiResponse>(res, "Impossible de creer l'evenement");
 
   return {
     success: getApiMessage(data),
@@ -58,7 +58,7 @@ const deleteEvent = async (_id: string): Promise<ApiResponse> => {
     method: "DELETE",
   });
 
-  const data = await readApiResponse<ApiResponse>(res, "Failed to delete event");
+  const data = await readApiResponse<ApiResponse>(res, "Impossible de supprimer l'evenement");
 
   return {
     success: getApiMessage(data),
@@ -75,13 +75,13 @@ const updateEvent = async (
   priorityColor: number
 ): Promise<ApiResponse> => {
   if (!_id) {
-    throw Error("EventId is required");
+    throw Error("L'identifiant de l'evenement est obligatoire");
   }
   if (!title) {
-    throw Error("Title is required");
+    throw Error("Le titre est obligatoire");
   }
   if (priorityColor === undefined) {
-    throw Error("Priority color is required");
+    throw Error("La priorite est obligatoire");
   }
 
   const res = await fetchWithAuth(`/api/calendar-events/${_id}`, {
@@ -92,7 +92,7 @@ const updateEvent = async (
     body: JSON.stringify({ title, date, duration, priorityColor }),
   });
 
-  const data = await readApiResponse<ApiResponse>(res, "Failed to update event");
+  const data = await readApiResponse<ApiResponse>(res, "Impossible de mettre a jour l'evenement");
 
   return {
     success: getApiMessage(data),

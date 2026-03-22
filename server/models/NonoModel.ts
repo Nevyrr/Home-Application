@@ -53,21 +53,6 @@ const NonoSchema = new Schema<INono>(
       ],
       default: [],
     },
-    diaperEntries: {
-      type: [
-        {
-          timestamp: {
-            type: String,
-            required: true,
-          },
-          hasPoop: {
-            type: Boolean,
-            required: true,
-          },
-        },
-      ],
-      default: [],
-    },
     weightEntries: {
       type: [
         {

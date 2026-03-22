@@ -8,10 +8,10 @@
 .topbar-nav {
   max-width: 90rem;
   margin: 0 auto;
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+  display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 1rem;
+  gap: 0.5rem;
   padding: 0.95rem 1rem;
   border-radius: 1.85rem;
   border: 1px solid var(--border);
@@ -53,16 +53,18 @@
 
 .topbar-groups {
   min-width: 0;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  display: flex;
+  justify-content: space-between;
+  flex: 1;
   align-items: center;
-  gap: 0.85rem;
+  gap: 0.4rem;
 }
 
 .topbar-main {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 0.7rem;
+  display: flex;
+  flex: 1;
+  margin: 0 1rem 0 1rem;
+  gap: 0.6rem;
   min-width: 0;
 }
 
@@ -129,11 +131,8 @@
     padding: 0.75rem 0.75rem 0;
   }
 
-  .topbar-nav {
-    grid-template-columns: 1fr;
-    gap: 0.85rem;
-    border-radius: 1.45rem;
-    padding: 0.85rem;
+  .topbar-groups{
+    flex-direction: column;
   }
 
   .topbar-brand {
@@ -144,11 +143,6 @@
   .topbar-brand-icon img {
     width: 2.55rem;
     height: 2.55rem;
-  }
-
-  .topbar-groups {
-    grid-template-columns: 1fr;
-    gap: 0.75rem;
   }
 
   .topbar-main,

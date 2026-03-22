@@ -30,13 +30,16 @@ const OverviewHero = ({
 }: OverviewHeroProps) => (
   <div className={joinClasses("nono-hero", className)}>
     <div className="nono-hero-copy">
-      <div className={joinClasses("nono-badge", badgeClassName)}>
-        <i className={`fa-solid ${badgeIcon}`}></i>
-      </div>
-
-      <div>
-        <p className="eyebrow">{eyebrow}</p>
-        <h1 className="title nono-title">{title}</h1>
+      <div className="nono-hero-copy-block">
+        <div className="nono-hero-heading-row">
+          <div className={joinClasses("nono-badge", badgeClassName)}>
+            <i className={`fa-solid ${badgeIcon}`}></i>
+          </div>
+          <div className="nono-heading-title">
+            <p className="eyebrow">{eyebrow}</p>
+            <h1 className="title nono-title">{title}</h1>
+          </div>
+        </div>
         {subtitle ? <p className="nono-subtitle">{subtitle}</p> : null}
       </div>
     </div>

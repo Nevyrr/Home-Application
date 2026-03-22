@@ -28,7 +28,6 @@ const EMPTY_NONO_DATA = {
   administrativeReminder: "",
   notes: "",
   bottleEntries: [],
-  diaperEntries: [],
   weightEntries: [],
 };
 
@@ -73,22 +72,22 @@ cron.schedule("15 8 * * *", async () => {
     {
       date: nono.checkupReminder,
       subject: "rappel rendez-vous nono",
-      message: "Le rappel du prochain rendez-vous pour Nono est depasse. Pensez a verifier le suivi avec votre pediatre.",
+      message: "Le rappel du prochain rendez-vous pour Nono est dépassé. Pensez a verifier le suivi avec votre pediatre.",
     },
     {
       date: nono.vaccineReminder,
       subject: "rappel vaccin nono",
-      message: "Le rappel du prochain vaccin de Nono est depasse. Pensez a verifier la date avec votre professionnel de sante.",
+      message: "Le rappel du prochain vaccin de Nono est dépassé. Pensez a verifier la date avec votre professionnel de sante.",
     },
     {
       date: nono.vitaminReminder,
       subject: "rappel vitamine nono",
-      message: "Le rappel vitamine ou ordonnance de Nono est depasse. Pensez a verifier le renouvellement.",
+      message: "Le rappel vitamine de Nono est dépassé. Pensez a verifier le renouvellement.",
     },
     {
       date: nono.administrativeReminder,
       subject: "rappel demarche nono",
-      message: "Le rappel pour une demarche ou une relance de Nono est depasse. Pensez a verifier les papiers en attente.",
+      message: "Le rappel pour une demarche ou une relance de Nono est dépassé. Pensez a verifier les papiers en attente.",
     },
   ];
 
@@ -114,11 +113,6 @@ const getOrCreateNono = async () => {
 
     if (!Array.isArray(existingNono.bottleEntries)) {
       existingNono.bottleEntries = [];
-      shouldSave = true;
-    }
-
-    if (!Array.isArray(existingNono.diaperEntries)) {
-      existingNono.diaperEntries = [];
       shouldSave = true;
     }
 
@@ -187,14 +181,6 @@ const readPositiveNumber = (value: unknown, label: string): number => {
   return value;
 };
 
-const readBooleanValue = (value: unknown, label: string): boolean => {
-  if (typeof value !== "boolean") {
-    throw createError(`${label} invalide`, 400);
-  }
-
-  return value;
-};
-
 const readObjectIdValue = (value: unknown, label: string): Types.ObjectId => {
   if (typeof value !== "string" || !Types.ObjectId.isValid(value)) {
     throw createError(`${label} invalide`, 400);
@@ -238,27 +224,6 @@ const appendBottleEntry = async (amountMl: number, timestamp: string) => {
   return updatedNono;
 };
 
-const appendDiaperEntry = async (timestamp: string, hasPoop: boolean) => {
-  const updatedNono = await NonoModel.findOneAndUpdate(
-    {},
-    {
-      $push: {
-        diaperEntries: {
-          $each: [{ timestamp, hasPoop }],
-          $sort: { timestamp: -1 },
-        },
-      },
-    },
-    { new: true, upsert: true, setDefaultsOnInsert: true }
-  );
-
-  if (!updatedNono) {
-    throw createError("Donnees Nono non trouvees", 404);
-  }
-
-  return updatedNono;
-};
-
 const appendWeightEntry = async (date: string, weightKg: number) => {
   const updatedNono = await NonoModel.findOneAndUpdate(
     {},
@@ -286,26 +251,6 @@ const removeBottleEntry = async (entryId: Types.ObjectId) => {
     {
       $pull: {
         bottleEntries: {
-          _id: entryId,
-        },
-      },
-    },
-    { new: true }
-  );
-
-  if (!updatedNono) {
-    throw createError("Donnees Nono non trouvees", 404);
-  }
-
-  return updatedNono;
-};
-
-const removeDiaperEntry = async (entryId: Types.ObjectId) => {
-  const updatedNono = await NonoModel.findOneAndUpdate(
-    {},
-    {
-      $pull: {
-        diaperEntries: {
           _id: entryId,
         },
       },
@@ -400,14 +345,6 @@ const addBottleEntry = async (req: Request, res: Response): Promise<void> => {
   sendSuccess(res, { nono: [updatedNono] }, "Biberon enregistre avec succes");
 };
 
-const addDiaperEntry = async (req: Request, res: Response): Promise<void> => {
-  const updatedNono = await appendDiaperEntry(
-    readTimestampValue(req.body.timestamp, "Heure de la couche"),
-    readBooleanValue(req.body.hasPoop, "Etat de la couche")
-  );
-  sendSuccess(res, { nono: [updatedNono] }, "Changement de couche enregistre avec succes");
-};
-
 const addWeightEntry = async (req: Request, res: Response): Promise<void> => {
   const updatedNono = await appendWeightEntry(
     readDateOnlyValue(req.body.date, "Date du poids"),
@@ -421,11 +358,6 @@ const deleteBottleEntry = async (req: Request, res: Response): Promise<void> => 
   sendSuccess(res, { nono: [updatedNono] }, "Biberon supprime avec succes");
 };
 
-const deleteDiaperEntry = async (req: Request, res: Response): Promise<void> => {
-  const updatedNono = await removeDiaperEntry(readObjectIdValue(req.params.entryId, "Couche"));
-  sendSuccess(res, { nono: [updatedNono] }, "Changement de couche supprime avec succes");
-};
-
 const deleteWeightEntry = async (req: Request, res: Response): Promise<void> => {
   const updatedNono = await removeWeightEntry(readObjectIdValue(req.params.entryId, "Poids"));
   sendSuccess(res, { nono: [updatedNono] }, "Poids supprime avec succes");
@@ -433,10 +365,8 @@ const deleteWeightEntry = async (req: Request, res: Response): Promise<void> => 
 
 export {
   addBottleEntry,
-  addDiaperEntry,
   addWeightEntry,
   deleteBottleEntry,
-  deleteDiaperEntry,
   deleteWeightEntry,
   getNonoData,
   updateAdministrativeReminder,

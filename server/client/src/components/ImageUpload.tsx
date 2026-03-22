@@ -120,7 +120,7 @@ const ImageUpload = ({ canWrite = true }: { canWrite?: boolean }) => {
 
     try {
       await uploadFile(selectedFile);
-      setMessage("Image uploadee avec succes");
+      setMessage("Image envoyee avec succes");
       setMessageType("success");
       setSelectedFile(null);
 
@@ -130,7 +130,7 @@ const ImageUpload = ({ canWrite = true }: { canWrite?: boolean }) => {
 
       await loadImages();
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Erreur lors de l'upload");
+      setMessage(error instanceof Error ? error.message : "Erreur lors de l'envoi");
       setMessageType("error");
     } finally {
       setLoading(false);
@@ -202,7 +202,7 @@ const ImageUpload = ({ canWrite = true }: { canWrite?: boolean }) => {
           {loading ? (
             <>
               <i className="fa-solid fa-spinner fa-spin"></i>
-              Upload en cours...
+              Envoi en cours...
             </>
           ) : (
             <>

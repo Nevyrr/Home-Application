@@ -70,12 +70,12 @@ const Post = <TPost extends BasePost>({
             <>
               <button
                 className="fa-solid fa-pen-to-square rounded p-1.5 text-xs text-green-600 transition-colors hover:bg-green-500/20"
-                title="Update"
+                title="Modifier"
                 onClick={() => onUpdate(post)}
               ></button>
               <button
                 className="fa-solid fa-trash-can rounded p-1.5 text-xs text-red-600 transition-colors hover:bg-red-500/20"
-                title="Delete"
+                title="Supprimer"
                 onClick={() => onDelete(post._id)}
               ></button>
             </>

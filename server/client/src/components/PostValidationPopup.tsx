@@ -14,6 +14,8 @@ interface PostValidationPopupProps {
   inputs?: ReactNode;
   isFieldValid?: boolean;
   compactPriorityPicker?: boolean;
+  priorityMode?: "flag" | "select";
+  priorityOptions?: Array<{ value: number; label: string }>;
 }
 
 const PostValidationPopup = ({ 
@@ -28,11 +30,24 @@ const PostValidationPopup = ({
   inputs, 
   isFieldValid = true,
   compactPriorityPicker = false,
+  priorityMode = "flag",
+  priorityOptions = [],
 }: PostValidationPopupProps) => {
   const [isTitle, setIsTitleValid] = useState<boolean>(popupPost.title !== undefined && popupPost.title !== "");
-  const popupTitle = `${actionType} ${postName}`;
+  const isEventPopup = postName === "evenement";
+  const actionLabel = actionType === "Update" || actionType === "Modifier" ? "Modifier" : "Ajouter";
+  const popupTitle =
+    isEventPopup
+      ? `${actionLabel} evenement`
+      : `${actionLabel} ${postName}`;
   const titleLabel = postName === "evenement" ? "Titre" : "Article";
-  const titlePlaceholder = postName === "evenement" ? "Nom de l'evenement" : "Nom de l'article";
+  const titlePlaceholder =
+    postName === "evenement"
+      ? "Nom de l'evenement"
+      : "Nom de l'article";
+  const priorityLabel = "Priorite";
+  const priorityHelp = "Un clic pour changer le niveau de priorite.";
+  const priorityValue = typeof popupPost.priorityColor === "number" ? popupPost.priorityColor : 0;
 
   useEffect(() => {
     if (showPopup) {
@@ -45,6 +60,31 @@ const PostValidationPopup = ({
     setIsTitleValid(titleValue !== undefined && titleValue !== "");
     setPopupPostTitle(titleValue);
   };
+
+  const onPriorityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setPriorityColor(Number(e.target.value));
+  };
+
+  const priorityControl =
+    priorityMode === "select" && priorityOptions.length > 0 ? (
+      <select
+        className={`input post-popup-priority-select priority-tone-${priorityValue}`}
+        value={priorityValue}
+        onChange={onPriorityChange}
+      >
+        {priorityOptions.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    ) : (
+      <PriorityFlag
+        handlePriorityChangeCb={setPriorityColor}
+        priorityColor={priorityValue}
+        className="post-popup-priority-flag"
+      />
+    );
   
   return (
     <ValidationPopup
@@ -72,24 +112,16 @@ const PostValidationPopup = ({
           <div className={`post-popup-priority ${compactPriorityPicker ? "compact" : ""}`}>
             {compactPriorityPicker ? (
               <>
-                <span className="post-popup-label">Priorite</span>
-                <PriorityFlag
-                  handlePriorityChangeCb={setPriorityColor}
-                  priorityColor={popupPost.priorityColor || 0}
-                  className="post-popup-priority-flag"
-                />
+                <span className="post-popup-label">{priorityLabel}</span>
+                {priorityControl}
               </>
             ) : (
               <>
                 <div>
-                  <p className="post-popup-label">Priorite</p>
-                  <p className="post-popup-priority-copy">Un clic pour changer la couleur du drapeau.</p>
+                  <p className="post-popup-label">{priorityLabel}</p>
+                  <p className="post-popup-priority-copy">{priorityHelp}</p>
                 </div>
-                <PriorityFlag
-                  handlePriorityChangeCb={setPriorityColor}
-                  priorityColor={popupPost.priorityColor || 0}
-                  className="post-popup-priority-flag"
-                />
+                {priorityControl}
               </>
             )}
           </div>

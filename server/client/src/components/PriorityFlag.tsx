@@ -13,6 +13,19 @@ export function getCssColor(priority: number): string {
   }
 }
 
+export function getPriorityLabel(priority: number): string {
+  switch (priority) {
+    case 1:
+      return "Faible";
+    case 2:
+      return "A prevoir";
+    case 3:
+      return "Urgent";
+    default:
+      return "Essentiel";
+  }
+}
+
 interface PriorityFlagProps {
   handlePriorityChangeCb?: (priority: number) => void;
   priorityColor?: number;
@@ -22,9 +35,11 @@ interface PriorityFlagProps {
 
 const PriorityFlag = ({ handlePriorityChangeCb, priorityColor = 0, isCreated = false, className = "" }: PriorityFlagProps) => {
   const [priority, setPriority] = useState<number>(priorityColor);
+  const isInteractive = typeof handlePriorityChangeCb === "function";
+  const priorityLabel = getPriorityLabel(priority);
+  const priorityToneClass = `priority-tone-${priority}`;
 
   useEffect(() => {
-    // If the flag was already created, we take priorityColor Props has the new priorityColor
     if (isCreated) {
       setPriority(priorityColor);
     }
@@ -38,26 +53,29 @@ const PriorityFlag = ({ handlePriorityChangeCb, priorityColor = 0, isCreated = f
     }
   };
 
-  const getColor = (): string => {
-    switch (priority) {
-      case 1:
-        return 'green';
-      case 2:
-        return 'yellow';
-      case 3:
-        return 'red';
-      default:
-        return 'gray';
-    }
-  };
+  if (isInteractive) {
+    return (
+      <button
+        type="button"
+        className={`priority-flag priority-chip ${priorityToneClass} ${className}`.trim()}
+        onClick={handlePriorityChange}
+        title={`Priorite ${priorityLabel}. Cliquer pour changer.`}
+        aria-label={`Priorite ${priorityLabel}. Cliquer pour changer.`}
+      >
+        <span className={`priority-dot priority-${priority}`}></span>
+        <span className="priority-chip-label">{priorityLabel}</span>
+      </button>
+    );
+  }
 
   return (
-    <div className={`fa-regular fa-flag cursor-pointer priority-flag ${className}`}
-      onClick={handlePriorityChange}
-      style={{
-        color: getColor(),
-      }}
-    />
+    <span
+      className={`priority-flag priority-indicator ${priorityToneClass} ${className}`.trim()}
+      title={`Priorite ${priorityLabel}`}
+      aria-label={`Priorite ${priorityLabel}`}
+    >
+      <span className={`priority-dot priority-${priority}`}></span>
+    </span>
   );
 };
 

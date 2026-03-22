@@ -5,10 +5,8 @@ import "react-datepicker/dist/react-datepicker.css";
 import { Alert, OverviewHero, Success } from "../../components/index.ts";
 import {
   addBottleEntry,
-  addDiaperEntry,
   addWeightEntry,
   deleteBottleEntry,
-  deleteDiaperEntry,
   deleteWeightEntry,
   getNonoData,
   updateAdministrativeReminder,
@@ -58,16 +56,18 @@ interface NonoTrackerHistoryProps {
   children: ReactNode;
 }
 
-interface NonoTrackerCardProps {
+interface NonoTrackerPanelProps {
   title: string;
   icon: string;
   accentClass: string;
   panelClassName?: string;
+  chartTitle: string;
   canWrite: boolean;
   submitLabel: string;
   onSubmit: () => void;
   formFields: ReactNode;
   history: NonoTrackerHistoryProps;
+  chart: ReactNode;
 }
 
 const parseStoredDate = (dateString?: string | null): Date | null => {
@@ -260,49 +260,6 @@ const formatShortDayLabel = (dateString: string): string => {
   }).format(parsedDate);
 };
 
-const formatElapsedDuration = (durationMs: number): string => {
-  const totalMinutes = Math.max(0, Math.floor(durationMs / (1000 * 60)));
-
-  if (totalMinutes < 1) {
-    return "moins d'1 min";
-  }
-
-  const days = Math.floor(totalMinutes / (24 * 60));
-  const hours = Math.floor((totalMinutes % (24 * 60)) / 60);
-  const minutes = totalMinutes % (24 * 60) % 60;
-  const parts: string[] = [];
-
-  if (days > 0) {
-    parts.push(`${days} j`);
-  }
-
-  if (hours > 0) {
-    parts.push(`${hours} h`);
-  }
-
-  if (minutes > 0 && days === 0) {
-    parts.push(`${minutes} min`);
-  }
-
-  return parts.slice(0, 2).join(" ");
-};
-
-const formatElapsedSince = (timestamp?: string | null): string => {
-  const parsedDate = parsePreciseTimestamp(timestamp);
-
-  if (!parsedDate) {
-    return "Aucun enregistrement";
-  }
-
-  const diffMs = Date.now() - parsedDate.getTime();
-
-  if (diffMs < 0) {
-    return `Dans ${formatElapsedDuration(Math.abs(diffMs))}`;
-  }
-
-  return `Il y a ${formatElapsedDuration(diffMs)}`;
-};
-
 const getTimestampMs = (timestamp?: string | null): number => parsePreciseTimestamp(timestamp)?.getTime() || 0;
 
 const getDayMs = (dateString?: string | null): number => parseDayEntryDate(dateString)?.getTime() || 0;
@@ -320,9 +277,9 @@ const formatWeightKg = (weightKg?: number | null): string => {
 
 const getNextMilestone = (nono: Nono): { label: string; date: string; overdue: boolean } | null => {
   const entries = [
-    { label: "Rendez-vous pediatre", date: nono.checkupReminder || nono.checkupDate },
+    { label: "RDV pediatre", date: nono.checkupReminder || nono.checkupDate },
     { label: "Vaccin", date: nono.vaccineReminder || nono.vaccineDate },
-    { label: "Vitamine / ordonnance", date: nono.vitaminReminder },
+    { label: "Vitamine", date: nono.vitaminReminder },
     { label: "Demarches", date: nono.administrativeReminder },
   ]
     .map((entry) => ({
@@ -553,7 +510,8 @@ const NonoScheduleCard = ({
           disabled={disabled}
           isClearable
           placeholderText="Choisir une date"
-          className="input"
+          className="input compact-date-input"
+          wrapperClassName="compact-date-picker"
           calendarClassName="theme-datepicker"
           popperClassName="theme-datepicker-popper"
         />
@@ -570,7 +528,8 @@ const NonoScheduleCard = ({
             disabled={disabled}
             isClearable
             placeholderText="Choisir une date"
-            className="input"
+            className="input compact-date-input"
+            wrapperClassName="compact-date-picker"
             calendarClassName="theme-datepicker"
             popperClassName="theme-datepicker-popper"
           />
@@ -589,42 +548,61 @@ const NonoTrackerHistory = ({ title, hasEntries, emptyMessage, children }: NonoT
   </div>
 );
 
-const NonoTrackerCard = ({
+const NonoTrackerPanel = ({
   title,
   icon,
   accentClass,
   panelClassName = "",
+  chartTitle,
   canWrite,
   submitLabel,
   onSubmit,
   formFields,
   history,
-}: NonoTrackerCardProps) => (
-  <article className={`nono-schedule-card ${accentClass} nono-tracker-card ${panelClassName}`.trim()}>
-    <div className="nono-schedule-head">
-      <span className="nono-schedule-icon">
-        <i className={`fa-solid ${icon}`}></i>
-      </span>
-      <div>
-        <h3>{title}</h3>
+  chart,
+}: NonoTrackerPanelProps) => (
+  <article className={`nono-schedule-card ${accentClass} nono-tracker-panel ${panelClassName}`.trim()}>
+    <div className="nono-tracker-panel-grid">
+      <div className="nono-tracker-panel-main">
+        <div className="nono-schedule-head">
+          <span className="nono-schedule-icon">
+            <i className={`fa-solid ${icon}`}></i>
+          </span>
+          <div>
+            <h3>{title}</h3>
+          </div>
+        </div>
+
+        <form
+          className="nono-date-stack nono-tracker-form"
+          onSubmit={(event) => {
+            event.preventDefault();
+            onSubmit();
+          }}
+        >
+          {formFields}
+
+          <button className="btn nono-submit" type="submit" disabled={!canWrite}>
+            {submitLabel}
+          </button>
+        </form>
+
+        <NonoTrackerHistory {...history} />
+      </div>
+
+      <div className="nono-tracker-panel-chart">
+        <div className="nono-schedule-head">
+          <span className="nono-schedule-icon">
+            <i className="fa-solid fa-chart-line"></i>
+          </span>
+          <div>
+            <h3>{chartTitle}</h3>
+          </div>
+        </div>
+
+        {chart}
       </div>
     </div>
-
-    <form
-      className="nono-date-stack nono-tracker-form"
-      onSubmit={(event) => {
-        event.preventDefault();
-        onSubmit();
-      }}
-    >
-      {formFields}
-
-      <button className="btn nono-submit" type="submit" disabled={!canWrite}>
-        {submitLabel}
-      </button>
-    </form>
-
-    <NonoTrackerHistory {...history} />
   </article>
 );
 
@@ -635,8 +613,6 @@ const NonoTab = () => {
   const [notesDraft, setNotesDraft] = useState("");
   const [bottleAmountDraft, setBottleAmountDraft] = useState("90");
   const [bottleTimestampDraft, setBottleTimestampDraft] = useState(() => toDateTimeLocalValue(new Date()));
-  const [diaperTimestampDraft, setDiaperTimestampDraft] = useState(() => toDateTimeLocalValue(new Date()));
-  const [diaperHasPoopDraft, setDiaperHasPoopDraft] = useState(false);
   const [weightDraft, setWeightDraft] = useState("");
   const [weightDateDraft, setWeightDateDraft] = useState(() => toDateInputValue(new Date()));
   const canWrite = canUserWrite(user);
@@ -660,26 +636,20 @@ const NonoTab = () => {
     () => [...(nono.bottleEntries || [])].sort((a, b) => getTimestampMs(b.timestamp) - getTimestampMs(a.timestamp)),
     [nono.bottleEntries]
   );
-  const diaperEntries = useMemo(
-    () => [...(nono.diaperEntries || [])].sort((a, b) => getTimestampMs(b.timestamp) - getTimestampMs(a.timestamp)),
-    [nono.diaperEntries]
-  );
   const weightEntries = useMemo(
     () => [...(nono.weightEntries || [])].sort((a, b) => getDayMs(b.date) - getDayMs(a.date)),
     [nono.weightEntries]
   );
 
-  const latestPoop = diaperEntries.find((entry) => entry.hasPoop);
   const latestWeight = weightEntries[0];
   const chartEntries = bottleEntries.slice(0, 12).reverse();
   const recentBottleEntries = bottleEntries;
-  const recentDiaperEntries = diaperEntries;
   const weightChartEntries = weightEntries.slice(0, 12).reverse();
   const recentWeightEntries = weightEntries;
   const scheduleCards = [
     {
       key: "checkup",
-      title: "Rendez-vous pediatre",
+      title: "RDV pediatre",
       icon: "fa-user-doctor",
       accentClass: "accent-sky",
       primaryLabel: "Date du rendez-vous",
@@ -705,7 +675,7 @@ const NonoTab = () => {
     },
     {
       key: "vitamin",
-      title: "Vitamine / ordonnance",
+      title: "Vitamine",
       icon: "fa-prescription-bottle-medical",
       accentClass: "accent-mint",
       primaryLabel: "Prochain rappel",
@@ -799,28 +769,6 @@ const NonoTab = () => {
     }, null).catch(() => undefined);
   };
 
-  const handleAddDiaper = async () => {
-    if (!canWrite) {
-      return;
-    }
-
-    const timestamp = parseDateTimeInput(diaperTimestampDraft);
-
-    await handleAsyncOperation(async () => {
-      if (!timestamp) {
-        throw new Error("Indiquez une heure valide pour le changement de couche");
-      }
-
-      const response = await addDiaperEntry(timestamp.toISOString(), diaperHasPoopDraft);
-      await loadNono();
-      setDiaperTimestampDraft(toDateTimeLocalValue(new Date()));
-      setDiaperHasPoopDraft(false);
-      if (response.success) {
-        setSuccess(response.success);
-      }
-    }, null).catch(() => undefined);
-  };
-
   const handleDeleteBottle = async (entryId?: string) => {
     if (!canWrite || !entryId) {
       return;
@@ -828,20 +776,6 @@ const NonoTab = () => {
 
     await handleAsyncOperation(async () => {
       const response = await deleteBottleEntry(entryId);
-      await loadNono();
-      if (response.success) {
-        setSuccess(response.success);
-      }
-    }, null).catch(() => undefined);
-  };
-
-  const handleDeleteDiaper = async (entryId?: string) => {
-    if (!canWrite || !entryId) {
-      return;
-    }
-
-    await handleAsyncOperation(async () => {
-      const response = await deleteDiaperEntry(entryId);
       await loadNono();
       if (response.success) {
         setSuccess(response.success);
@@ -909,13 +843,6 @@ const NonoTab = () => {
         ? `${nextMilestone.overdue ? "En retard depuis" : "Le"} ${formatDisplayDate(nextMilestone.date)}`
         : "Ajoutez une premiere date",
     },
-    {
-      label: "Depuis dernier caca",
-      value: latestPoop ? formatElapsedSince(latestPoop.timestamp) : "Aucun",
-      note: latestPoop
-        ? `Dernier caca le ${formatDateTimeDisplay(latestPoop.timestamp)}`
-        : "Cochez l'option lors d'un changement de couche",
-    },
   ];
 
   return (
@@ -928,292 +855,194 @@ const NonoTab = () => {
         title="NONO"
         badgeIcon="fa-baby"
         stats={heroStats}
+        className="nono-dashboard-hero"
       />
 
-      <div className="nono-layout">
-        <div className="nono-main">
-          <section className="nono-panel">
-            <div className="nono-panel-head">
-              <div>
-                <p className="eyebrow">Sante et suivi</p>
-                <h2>Les prochaines dates a ne pas rater</h2>
-              </div>
-            </div>
-
-            <div className="nono-card-grid">
-              {scheduleCards.map(({ key, sortDates: _sortDates, sortMeta: _sortMeta, index: _index, ...card }) => (
-                <NonoScheduleCard key={key} {...card} disabled={!canWrite} />
-              ))}
-            </div>
-          </section>
-
-        </div>
-
-        <aside className="nono-side">
-          <section className="nono-panel">
-            <div className="nono-panel-head">
-              <div>
-                <p className="eyebrow">Pense-bete</p>
-                <h2>Questions et notes utiles</h2>
-              </div>
-            </div>
-
-            <textarea
-              className="input nono-notes"
-              value={notesDraft}
-              disabled={!canWrite}
-              onChange={(event) => setNotesDraft(event.target.value)}
-              rows={7}
-              placeholder="Ex: questions pour le prochain rendez-vous, choses a acheter, infos a transmettre a la nounou..."
-            />
-
-            <div className="nono-note-actions">
-              <p className="nono-note-hint">Astuce: gardez ici les questions a poser plutot que de les chercher au dernier moment.</p>
-              <button className="btn" onClick={() => void handleSaveNotes()} disabled={!canWrite}>
-                Enregistrer le pense-bete
-              </button>
-            </div>
-          </section>
-        </aside>
-      </div>
-
-      <section className="nono-panel">
+      <section className="nono-panel nono-schedule-panel">
         <div className="nono-panel-head">
           <div>
             <p className="eyebrow">Suivi quotidien</p>
-            <h2>Biberons, couches et poids</h2>
+            <h2>Biberons et poids</h2>
           </div>
         </div>
 
         <div className="nono-tracker-grid">
-          <div className="nono-tracker-top-grid">
-            <NonoTrackerCard
-              title="Biberons"
-              icon="fa-bottle-water"
-              accentClass="accent-sky"
-              panelClassName="nono-bottle-panel"
-              canWrite={canWrite}
-              submitLabel="Ajouter le biberon"
-              onSubmit={() => {
-                void handleAddBottle();
-              }}
-              formFields={
-                <div className="nono-form-grid">
-                  <label className="nono-field">
-                    <span>Quantite (mL)</span>
-                    <input
-                      className="input"
-                      type="number"
-                      min="1"
-                      step="1"
-                      inputMode="numeric"
-                      value={bottleAmountDraft}
-                      disabled={!canWrite}
-                      onChange={(event) => setBottleAmountDraft(event.target.value)}
-                    />
-                  </label>
+          <NonoTrackerPanel
+            title="Biberons"
+            icon="fa-bottle-water"
+            accentClass="accent-sky"
+            panelClassName="nono-bottle-panel"
+            chartTitle="Evolution des biberons"
+            canWrite={canWrite}
+            submitLabel="Ajouter le biberon"
+            onSubmit={() => {
+              void handleAddBottle();
+            }}
+            formFields={
+              <div className="nono-form-grid">
+                <label className="nono-field">
+                  <span>Quantite (mL)</span>
+                  <input
+                    className="input"
+                    type="number"
+                    min="1"
+                    step="1"
+                    inputMode="numeric"
+                    value={bottleAmountDraft}
+                    disabled={!canWrite}
+                    onChange={(event) => setBottleAmountDraft(event.target.value)}
+                  />
+                </label>
 
-                  <label className="nono-field">
-                    <span>Heure du biberon</span>
-                    <input
-                      className="input"
-                      type="datetime-local"
-                      value={bottleTimestampDraft}
-                      disabled={!canWrite}
-                      onChange={(event) => setBottleTimestampDraft(event.target.value)}
-                    />
-                  </label>
-                </div>
-              }
-              history={{
-                title: "Derniers biberons",
-                hasEntries: recentBottleEntries.length > 0,
-                emptyMessage: "Aucun biberon enregistre pour le moment.",
-                children: (
-                  <ul className="nono-history-list">
-                    {recentBottleEntries.map((entry, index) => (
-                      <li key={entry._id || `${entry.timestamp}-${entry.amountMl}-${index}`} className="nono-history-item">
-                        <div className="nono-history-main">
-                          <strong>{entry.amountMl} mL</strong>
-                          <span>{formatDateTimeDisplay(entry.timestamp)}</span>
-                        </div>
-                        <button
-                          className="icon-button nono-history-delete"
-                          type="button"
-                          title="Supprimer le biberon"
-                          aria-label="Supprimer le biberon"
-                          disabled={!canWrite || !entry._id}
-                          onClick={() => void handleDeleteBottle(entry._id)}
-                        >
-                          <i className="fa-solid fa-trash"></i>
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                ),
-              }}
-            />
-
-            <NonoTrackerCard
-              title="Poids"
-              icon="fa-weight-scale"
-              accentClass="accent-mint"
-              panelClassName="nono-weight-panel"
-              canWrite={canWrite}
-              submitLabel="Ajouter le poids"
-              onSubmit={() => {
-                void handleAddWeight();
-              }}
-              formFields={
-                <div className="nono-form-grid">
-                  <label className="nono-field">
-                    <span>Poids exact (kg)</span>
-                    <input
-                      className="input"
-                      type="text"
-                      inputMode="decimal"
-                      value={weightDraft}
-                      disabled={!canWrite}
-                      onChange={(event) => setWeightDraft(event.target.value)}
-                      placeholder="Ex: 4.325"
-                    />
-                  </label>
-
-                  <label className="nono-field">
-                    <span>Date de la pesee</span>
-                    <input
-                      className="input"
-                      type="date"
-                      value={weightDateDraft}
-                      disabled={!canWrite}
-                      onChange={(event) => setWeightDateDraft(event.target.value)}
-                    />
-                  </label>
-                </div>
-              }
-              history={{
-                title: "Dernieres pesees",
-                hasEntries: recentWeightEntries.length > 0,
-                emptyMessage: "Aucune pesee enregistree pour le moment.",
-                children: (
-                  <ul className="nono-history-list">
-                    {recentWeightEntries.map((entry, index) => (
-                      <li key={entry._id || `${entry.date}-${entry.weightKg}-${index}`} className="nono-history-item">
-                        <div className="nono-history-main">
-                          <strong>{formatWeightKg(entry.weightKg)}</strong>
-                          <span>{formatDayDisplay(entry.date)}</span>
-                        </div>
-                        <button
-                          className="icon-button nono-history-delete"
-                          type="button"
-                          title="Supprimer le poids"
-                          aria-label="Supprimer le poids"
-                          disabled={!canWrite || !entry._id}
-                          onClick={() => void handleDeleteWeight(entry._id)}
-                        >
-                          <i className="fa-solid fa-trash"></i>
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                ),
-              }}
-            />
-
-            <NonoTrackerCard
-              title="Couches"
-              icon="fa-baby"
-              accentClass="accent-rose"
-              canWrite={canWrite}
-              submitLabel="Enregistrer la couche"
-              onSubmit={() => {
-                void handleAddDiaper();
-              }}
-              formFields={
-                <div className="nono-diaper-row">
-                  <label className="nono-field">
-                    <span>Heure du changement</span>
-                    <input
-                      className="input"
-                      type="datetime-local"
-                      value={diaperTimestampDraft}
-                      disabled={!canWrite}
-                      onChange={(event) => setDiaperTimestampDraft(event.target.value)}
-                    />
-                  </label>
-
-                  <label className="nono-toggle-card">
-                    <div className="nono-toggle-copy">
-                      <span className="nono-toggle-label">Avec caca</span>
-                      <small className="nono-toggle-hint">A cocher si la couche contient des selles</small>
-                    </div>
-                    <input
-                      className="checkbox-theme"
-                      type="checkbox"
-                      checked={diaperHasPoopDraft}
-                      disabled={!canWrite}
-                      onChange={(event) => setDiaperHasPoopDraft(event.target.checked)}
-                    />
-                  </label>
-                </div>
-              }
-              history={{
-                title: "Derniers changes",
-                hasEntries: recentDiaperEntries.length > 0,
-                emptyMessage: "Aucune couche enregistree pour le moment.",
-                children: (
-                  <ul className="nono-history-list">
-                    {recentDiaperEntries.map((entry, index) => (
-                      <li key={entry._id || `${entry.timestamp}-${index}`} className="nono-history-item">
-                        <div className="nono-history-main">
-                          <strong>{entry.hasPoop ? "Avec caca" : "Sans caca"}</strong>
-                          <span>{formatDateTimeDisplay(entry.timestamp)}</span>
-                        </div>
-                        <button
-                          className="icon-button nono-history-delete"
-                          type="button"
-                          title="Supprimer la couche"
-                          aria-label="Supprimer la couche"
-                          disabled={!canWrite || !entry._id}
-                          onClick={() => void handleDeleteDiaper(entry._id)}
-                        >
-                          <i className="fa-solid fa-trash"></i>
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                ),
-              }}
-            />
-          </div>
-
-          <div className="nono-tracker-bottom-grid">
-            <article className="nono-schedule-card accent-sky nono-tracker-card nono-chart-panel">
-              <div className="nono-schedule-head">
-                <span className="nono-schedule-icon">
-                  <i className="fa-solid fa-chart-line"></i>
-                </span>
-                <div>
-                  <h3>Evolution des biberons</h3>
-                </div>
+                <label className="nono-field">
+                  <span>Heure du biberon</span>
+                  <input
+                    className="input"
+                    type="datetime-local"
+                    value={bottleTimestampDraft}
+                    disabled={!canWrite}
+                    onChange={(event) => setBottleTimestampDraft(event.target.value)}
+                  />
+                </label>
               </div>
+            }
+            history={{
+              title: "Derniers biberons",
+              hasEntries: recentBottleEntries.length > 0,
+              emptyMessage: "Aucun biberon enregistre pour le moment.",
+              children: (
+                <ul className="nono-history-list">
+                  {recentBottleEntries.map((entry, index) => (
+                    <li key={entry._id || `${entry.timestamp}-${entry.amountMl}-${index}`} className="nono-history-item">
+                      <div className="nono-history-main">
+                        <strong>{entry.amountMl} mL</strong>
+                        <span>{formatDateTimeDisplay(entry.timestamp)}</span>
+                      </div>
+                      <button
+                        className="icon-button nono-history-delete"
+                        type="button"
+                        title="Supprimer le biberon"
+                        aria-label="Supprimer le biberon"
+                        disabled={!canWrite || !entry._id}
+                        onClick={() => void handleDeleteBottle(entry._id)}
+                      >
+                        <i className="fa-solid fa-trash"></i>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              ),
+            }}
+            chart={<BottleChart entries={chartEntries} />}
+          />
 
-              <BottleChart entries={chartEntries} />
-            </article>
+          <NonoTrackerPanel
+            title="Poids"
+            icon="fa-weight-scale"
+            accentClass="accent-mint"
+            panelClassName="nono-weight-panel"
+            chartTitle="Evolution du poids"
+            canWrite={canWrite}
+            submitLabel="Ajouter le poids"
+            onSubmit={() => {
+              void handleAddWeight();
+            }}
+            formFields={
+              <div className="nono-form-grid">
+                <label className="nono-field">
+                  <span>Poids exact (kg)</span>
+                  <input
+                    className="input"
+                    type="text"
+                    inputMode="decimal"
+                    value={weightDraft}
+                    disabled={!canWrite}
+                    onChange={(event) => setWeightDraft(event.target.value)}
+                    placeholder="Ex: 4.325"
+                  />
+                </label>
 
-            <article className="nono-schedule-card accent-mint nono-tracker-card nono-chart-panel nono-weight-panel">
-              <div className="nono-schedule-head">
-                <span className="nono-schedule-icon">
-                  <i className="fa-solid fa-chart-line"></i>
-                </span>
-                <div>
-                  <h3>Evolution du poids</h3>
-                </div>
+                <label className="nono-field">
+                  <span>Date de la pesee</span>
+                  <input
+                    className="input compact-native-date-input"
+                    type="date"
+                    value={weightDateDraft}
+                    disabled={!canWrite}
+                    onChange={(event) => setWeightDateDraft(event.target.value)}
+                  />
+                </label>
               </div>
+            }
+            history={{
+              title: "Dernieres pesees",
+              hasEntries: recentWeightEntries.length > 0,
+              emptyMessage: "Aucune pesee enregistree pour le moment.",
+              children: (
+                <ul className="nono-history-list">
+                  {recentWeightEntries.map((entry, index) => (
+                    <li key={entry._id || `${entry.date}-${entry.weightKg}-${index}`} className="nono-history-item">
+                      <div className="nono-history-main">
+                        <strong>{formatWeightKg(entry.weightKg)}</strong>
+                        <span>{formatDayDisplay(entry.date)}</span>
+                      </div>
+                      <button
+                        className="icon-button nono-history-delete"
+                        type="button"
+                        title="Supprimer le poids"
+                        aria-label="Supprimer le poids"
+                        disabled={!canWrite || !entry._id}
+                        onClick={() => void handleDeleteWeight(entry._id)}
+                      >
+                        <i className="fa-solid fa-trash"></i>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              ),
+            }}
+            chart={<WeightChart entries={weightChartEntries} />}
+          />
+        </div>
+      </section>
 
-              <WeightChart entries={weightChartEntries} />
-            </article>
+      <section className="nono-panel">
+        <div className="nono-panel-head">
+          <div>
+            <p className="eyebrow">Santé et suivi</p>
+            <h2>Les prochaines dates à ne pas rater</h2>
           </div>
+        </div>
+
+        <div className="nono-card-grid">
+          {scheduleCards.map(({ key, sortDates: _sortDates, sortMeta: _sortMeta, index: _index, ...card }) => (
+            <NonoScheduleCard key={key} {...card} disabled={!canWrite} />
+          ))}
+        </div>
+      </section>
+
+      <section className="nono-panel">
+        <div className="nono-panel-head">
+          <div>
+            <p className="eyebrow">Pense-bete</p>
+            <h2>Questions et notes utiles</h2>
+          </div>
+        </div>
+
+        <textarea
+          className="input nono-notes"
+          value={notesDraft}
+          disabled={!canWrite}
+          onChange={(event) => setNotesDraft(event.target.value)}
+          rows={7}
+          placeholder="Ex: questions pour le prochain rendez-vous, choses a acheter, infos a transmettre a la nounou..."
+        />
+
+        <div className="nono-note-actions">
+          <p className="nono-note-hint">Astuce: gardez ici les questions a poser plutot que de les chercher au dernier moment.</p>
+          <button className="btn" onClick={() => void handleSaveNotes()} disabled={!canWrite}>
+            Enregistrer le pense-bete
+          </button>
         </div>
       </section>
     </section>

@@ -489,7 +489,7 @@ const ReminderTab = () => {
 
       <div className="reminder-hero">
         <div>
-          <h1 className="title reminder-title">Todo list partagee</h1>
+          <h1 className="title reminder-title">Liste de taches partagee</h1>
         </div>
 
         <div className="reminder-stats">
@@ -567,7 +567,7 @@ const ReminderTab = () => {
                 <span>Echeance</span>
                 <input
                   type="date"
-                  className="input"
+                  className="input compact-native-date-input"
                   disabled={!canWrite}
                   value={editor.dueDate || ""}
                   onChange={(event) => updateEditor("dueDate", event.target.value)}
@@ -576,7 +576,7 @@ const ReminderTab = () => {
             </div>
 
             <button className="btn" onClick={handleSubmit} disabled={!canWrite}>
-              {editingId ? "Mettre a jour la tache" : "Ajouter a la todo list"}
+              {editingId ? "Mettre a jour la tache" : "Ajouter a la liste"}
             </button>
           </div>
         </aside>

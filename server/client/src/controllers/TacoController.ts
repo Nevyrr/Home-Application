@@ -53,29 +53,29 @@ const getTacoData = async (): Promise<Taco> => {
     headers: jsonHeaders,
   });
 
-  const data = await readApiResponse<ApiResponse>(res, "Failed to fetch taco data");
+  const data = await readApiResponse<ApiResponse>(res, "Impossible de charger les donnees de Taco");
   const tacoArray = data.data?.taco || data.taco || [];
 
   return Array.isArray(tacoArray) && tacoArray.length > 0 ? { ...emptyTacoData, ...tacoArray[0] } : emptyTacoData;
 };
 
 const updateVermifugeDate = async (date: string): Promise<ApiResponse> =>
-  postTacoUpdate("/api/taco/vermifuge/date", date, "Failed to update vermifuge date");
+  postTacoUpdate("/api/taco/vermifuge/date", date, "Impossible de mettre a jour la date du vermifuge");
 
 const updateVermifugeReminder = async (date: string): Promise<ApiResponse> =>
-  postTacoUpdate("/api/taco/vermifuge/reminder", date, "Failed to update vermifuge reminder");
+  postTacoUpdate("/api/taco/vermifuge/reminder", date, "Impossible de mettre a jour le rappel du vermifuge");
 
 const updateAntiPuceDate = async (date: string): Promise<ApiResponse> =>
-  postTacoUpdate("/api/taco/antipuce/date", date, "Failed to update anti-puce date");
+  postTacoUpdate("/api/taco/antipuce/date", date, "Impossible de mettre a jour la date de l'anti-puce");
 
 const updateAntiPuceReminder = async (date: string): Promise<ApiResponse> =>
-  postTacoUpdate("/api/taco/antipuce/reminder", date, "Failed to update anti-puce reminder");
+  postTacoUpdate("/api/taco/antipuce/reminder", date, "Impossible de mettre a jour le rappel anti-puce");
 
 const updateAnnualVaccineDate = async (date: string): Promise<ApiResponse> =>
-  postTacoUpdate("/api/taco/vaccine/date", date, "Failed to update annual vaccine date");
+  postTacoUpdate("/api/taco/vaccine/date", date, "Impossible de mettre a jour la date du vaccin annuel");
 
 const updateAnnualVaccineReminder = async (date: string): Promise<ApiResponse> =>
-  postTacoUpdate("/api/taco/vaccine/reminder", date, "Failed to update annual vaccine reminder");
+  postTacoUpdate("/api/taco/vaccine/reminder", date, "Impossible de mettre a jour le rappel du vaccin annuel");
 
 const getFile = async (filename: string): Promise<Blob> => {
   const res = await fetchWithAuth(`/api/taco/image/${filename}`, {
@@ -83,7 +83,7 @@ const getFile = async (filename: string): Promise<Blob> => {
   });
 
   if (!res.ok) {
-    throw Error("Failed to get file");
+    throw Error("Impossible de recuperer le fichier");
   }
 
   return res.blob();
@@ -106,7 +106,7 @@ const uploadFile = async (selectedFile: File): Promise<ApiResponse> => {
     body: formData,
   });
 
-  const data = await readApiResponse<ApiResponse>(res, "Echec de l'upload du fichier");
+  const data = await readApiResponse<ApiResponse>(res, "Echec de l'envoi du fichier");
 
   return {
     ...buildSuccessResponse(data),

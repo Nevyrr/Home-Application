@@ -44,7 +44,7 @@ type ListUsersResponse = ApiEnvelope<{ users?: ManagedUser[] }> & {
 /**************************** Login User  **********************************/
 const loginUser = async (email: string, password: string): Promise<LoginResponse> => {
   if (!email || !password) {
-    throw Error("All fields are required");
+    throw Error("Tous les champs sont obligatoires");
   }
 
   const res = await fetch("/api/users/login", {
@@ -82,7 +82,7 @@ const updateUser = async (user: UpdateUserData): Promise<void> => {
     }),
   });
 
-  const data = await readApiResponse<UpdateUserResponse>(res, "Could not update user");
+  const data = await readApiResponse<UpdateUserResponse>(res, "Impossible de mettre a jour l'utilisateur");
   const updatedUser = data.data?.user || data.user;
 
   if (updatedUser) {
@@ -98,11 +98,11 @@ const registerUser = async (
   passwordConfirm: string
 ): Promise<LoginResponse> => {
   if (!name || !email || !password || !passwordConfirm) {
-    throw Error("All fields are required");
+    throw Error("Tous les champs sont obligatoires");
   }
 
   if (password !== passwordConfirm) {
-    throw Error("Passwords do not match");
+    throw Error("Les mots de passe ne correspondent pas");
   }
 
   const res = await fetch("/api/users", {

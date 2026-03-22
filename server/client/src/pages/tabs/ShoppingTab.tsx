@@ -34,6 +34,10 @@ interface ShoppingHistoryEntry {
 }
 
 const normalizeShoppingTitle = (title: string): string => title.trim().toLowerCase();
+const normalizeShoppingUnit = (unit?: string): string => {
+  const normalizedUnit = String(unit || "").trim();
+  return normalizedUnit === "u" ? "" : normalizedUnit;
+};
 
 const loadShoppingHistoryVersion = (): string => {
   if (typeof window === "undefined") {
@@ -76,7 +80,7 @@ const loadShoppingHistory = (): ShoppingHistoryEntry[] => {
         title: String(entry.title || ""),
         normalizedTitle: String(entry.normalizedTitle || normalizeShoppingTitle(String(entry.title || ""))),
         count: Number(entry.count || 1),
-        unit: String(entry.unit || ""),
+        unit: normalizeShoppingUnit(String(entry.unit || "")),
         priorityColor: Number(entry.priorityColor || 0),
         frequency: Number(entry.frequency ?? 1),
         lastAddedAt: String(entry.lastAddedAt || ""),
@@ -137,7 +141,7 @@ const mergeShoppingHistory = (...collections: ShoppingHistoryEntry[][]): Shoppin
         normalizedTitle,
         title: entry.title.trim(),
         count: entry.count || 1,
-        unit: entry.unit || "",
+        unit: normalizeShoppingUnit(entry.unit),
         priorityColor: entry.priorityColor ?? 0,
         frequency: entry.frequency ?? 1,
         lastAddedAt: entry.lastAddedAt || "",
@@ -153,7 +157,7 @@ const mergeShoppingHistory = (...collections: ShoppingHistoryEntry[][]): Shoppin
       normalizedTitle,
       title: entry.title.trim() || currentEntry.title,
       count: entry.count || currentEntry.count,
-      unit: entry.unit || currentEntry.unit,
+      unit: normalizeShoppingUnit(entry.unit || currentEntry.unit),
       priorityColor: entry.priorityColor ?? currentEntry.priorityColor,
       frequency: Math.max(currentEntry.frequency, entry.frequency ?? 1),
       lastAddedAt: entry.lastAddedAt || currentEntry.lastAddedAt,
@@ -174,7 +178,7 @@ const buildDefaultShoppingHistory = (): ShoppingHistoryEntry[] =>
       title,
       normalizedTitle,
       count: preset.count,
-      unit: preset.unit,
+      unit: normalizeShoppingUnit(preset.unit),
       priorityColor: 0,
       frequency: 1,
       lastAddedAt: "",
@@ -202,7 +206,7 @@ const upsertShoppingHistory = (
       ...currentEntry,
       title: item.title.trim(),
       count: item.count,
-      unit: item.unit,
+      unit: normalizeShoppingUnit(item.unit),
       priorityColor: item.priorityColor,
       frequency: currentEntry.frequency + 1,
       lastAddedAt,
@@ -214,7 +218,7 @@ const upsertShoppingHistory = (
       title: item.title.trim(),
       normalizedTitle,
       count: item.count,
-      unit: item.unit,
+      unit: normalizeShoppingUnit(item.unit),
       priorityColor: item.priorityColor,
       frequency: 1,
       lastAddedAt,
@@ -245,7 +249,7 @@ const buildInitialHistory = (shoppingItems: ShoppingDay[]): ShoppingHistoryEntry
         if (createdAt >= currentEntry.lastAddedAt) {
           currentEntry.title = post.title;
           currentEntry.count = post.count;
-          currentEntry.unit = post.unit || "";
+          currentEntry.unit = normalizeShoppingUnit(post.unit);
           currentEntry.priorityColor = post.priorityColor;
           currentEntry.lastAddedAt = createdAt;
         }
@@ -258,7 +262,7 @@ const buildInitialHistory = (shoppingItems: ShoppingDay[]): ShoppingHistoryEntry
         title: post.title,
         normalizedTitle,
         count: post.count,
-        unit: post.unit || "",
+        unit: normalizeShoppingUnit(post.unit),
         priorityColor: post.priorityColor,
         frequency: 1,
         lastAddedAt: createdAt,
@@ -312,7 +316,6 @@ const ShoppingTab = () => {
   const shouldSeedDefaultHistoryRef = useRef<boolean | null>(null);
   const hasLoadedLists = useRef(false);
   const hasSeededHistory = useRef(false);
-  const quickAddInputRef = useRef<HTMLInputElement | null>(null);
 
   if (hasStoredHistoryKeyRef.current === null) {
     hasStoredHistoryKeyRef.current = hasStoredShoppingHistory();
@@ -365,7 +368,12 @@ const ShoppingTab = () => {
       const sortedShoppingDays = data.posts
         .map((shoppingDay) => ({
           ...shoppingDay,
-          shoppingList: [...shoppingDay.shoppingList].sort((a, b) => b.priorityColor - a.priorityColor),
+          shoppingList: shoppingDay.shoppingList
+            .map((post) => ({
+              ...post,
+              unit: normalizeShoppingUnit(post.unit),
+            }))
+            .sort((a, b) => b.priorityColor - a.priorityColor),
         }))
         .sort((a, b) => convertStringToDate(b.date).getTime() - convertStringToDate(a.date).getTime());
 
@@ -463,7 +471,7 @@ const ShoppingTab = () => {
       shoppingId: post._id,
       title: post.title,
       count: post.count,
-      unit: post.unit || "",
+      unit: normalizeShoppingUnit(post.unit),
       priorityColor: post.priorityColor,
     });
   };
@@ -537,9 +545,11 @@ const ShoppingTab = () => {
       return;
     }
 
+    const normalizedUnit = normalizeShoppingUnit(popupShopping.unit);
+
     await handleAsyncOperation(
       async () => {
-        const msg = await updatePost(popupShopping.shoppingId, popupShopping.title, popupShopping.count, popupShopping.unit, popupShopping.priorityColor);
+        const msg = await updatePost(popupShopping.shoppingId, popupShopping.title, popupShopping.count, normalizedUnit, popupShopping.priorityColor);
         await sortShoppingPosts();
         return msg;
       },
@@ -577,12 +587,16 @@ const ShoppingTab = () => {
     }
   };
 
-  const handleDeleteList = async (shoppingListId: string) => {
+  const handleDeleteList = async (shoppingListId: string, shoppingListName?: string) => {
     if (!canWrite) {
       return;
     }
 
-    if (confirm("Confirmer la suppression ?")) {
+    const confirmationMessage = shoppingListName
+      ? `Supprimer le panier "${shoppingListName}" ?`
+      : "Confirmer la suppression ?";
+
+    if (confirm(confirmationMessage)) {
       await handleAsyncOperation(
         async () => {
           const msg = await deletePosts(shoppingListId);
@@ -601,7 +615,7 @@ const ShoppingTab = () => {
   const handleCountChange = (quantity: { count: number; unit: string }) => {
     setIsCountValid(countRegex.test(String(quantity.count)));
     setCount(quantity.count);
-    setUnit(quantity.unit);
+    setUnit(normalizeShoppingUnit(quantity.unit));
   };
 
   const handleQuickAddCountChange = (quantity: { count: number; unit: string }) => {
@@ -609,7 +623,7 @@ const ShoppingTab = () => {
     setQuickAddItem((prevItem) => ({
       ...prevItem,
       count: quantity.count,
-      unit: quantity.unit,
+      unit: normalizeShoppingUnit(quantity.unit),
     }));
   };
 
@@ -632,6 +646,7 @@ const ShoppingTab = () => {
     }
 
     const trimmedTitle = quickAddItem.title.trim();
+    const normalizedUnit = normalizeShoppingUnit(quickAddItem.unit);
 
     if (!trimmedTitle || !isQuickAddCountValid) {
       return;
@@ -639,7 +654,7 @@ const ShoppingTab = () => {
 
     await handleAsyncOperation(
       async () => {
-        const msg = await createPost(activeList._id, trimmedTitle, quickAddItem.count, quickAddItem.unit, quickAddItem.priorityColor);
+        const msg = await createPost(activeList._id, trimmedTitle, quickAddItem.count, normalizedUnit, quickAddItem.priorityColor);
         await sortShoppingPosts();
         return msg;
       },
@@ -651,13 +666,12 @@ const ShoppingTab = () => {
           upsertShoppingHistory(currentHistory, {
             title: trimmedTitle,
             count: quickAddItem.count,
-            unit: quickAddItem.unit,
+            unit: normalizedUnit,
             priorityColor: quickAddItem.priorityColor,
           })
         );
         setQuickAddItem(DEFAULT_QUICK_ADD);
         setIsQuickAddCountValid(true);
-        quickAddInputRef.current?.focus();
       }
     });
   };
@@ -682,11 +696,10 @@ const ShoppingTab = () => {
     setQuickAddItem({
       title: suggestion.title,
       count: suggestion.count || 1,
-      unit: suggestion.unit,
+      unit: normalizeShoppingUnit(suggestion.unit),
       priorityColor: suggestion.priorityColor ?? 0,
     });
     setIsQuickAddCountValid(true);
-    quickAddInputRef.current?.focus();
   };
 
   const handleDeleteHistoryEntry = (historyKey: string) => {
@@ -770,7 +783,7 @@ const ShoppingTab = () => {
               title="Supprimer le panier"
               disabled={!canWrite}
               onClick={() => {
-                void handleDeleteList(shoppingItem._id);
+                void handleDeleteList(shoppingItem._id, getDisplayListName(shoppingItem));
               }}
             >
               <i className="fa-solid fa-trash-can"></i>
@@ -783,7 +796,7 @@ const ShoppingTab = () => {
 
       <PostValidationPopup
         postName="article"
-        actionType="Update"
+        actionType="Modifier"
         showPopup={showUpdatePopup}
         togglePopup={closeUpdatePopup}
         handleValidate={handleUpdatePost}
@@ -793,6 +806,8 @@ const ShoppingTab = () => {
         inputs={countInput()}
         isFieldValid={isCountValid}
         compactPriorityPicker={true}
+        priorityMode="select"
+        priorityOptions={PRIORITY_OPTIONS}
       />
 
       <div className="shopping-basket-items">
@@ -851,20 +866,45 @@ const ShoppingTab = () => {
 
                 <div className="shopping-board-basket-rail" role="tablist" aria-label="Choisir le panier actif">
                   {shoppingItems.map((shoppingItem, index) => (
-                    <button
+                    <div
                       key={shoppingItem._id}
-                      type="button"
-                      role="tab"
-                      aria-selected={shoppingItem._id === activeList._id}
-                      className={["shopping-basket-tab", shoppingItem._id === activeList._id ? "active" : ""].filter(Boolean).join(" ")}
+                      className="shopping-basket-tab-shell"
                       style={getListAccentStyle(index)}
-                      onClick={() => setSelectedListId(shoppingItem._id)}
                     >
-                      <span className="shopping-basket-tab-name">{getDisplayListName(shoppingItem)}</span>
-                      <span className="shopping-basket-tab-meta">
-                        {shoppingItem.shoppingList.length} {shoppingItem.shoppingList.length > 1 ? "articles" : "article"}
-                      </span>
-                    </button>
+                      <button
+                        type="button"
+                        role="tab"
+                        aria-selected={shoppingItem._id === activeList._id}
+                        className={[
+                          "shopping-basket-tab",
+                          canWrite ? "has-delete" : "",
+                          shoppingItem._id === activeList._id ? "active" : "",
+                        ]
+                          .filter(Boolean)
+                          .join(" ")}
+                        onClick={() => setSelectedListId(shoppingItem._id)}
+                      >
+                        <span className="shopping-basket-tab-name">{getDisplayListName(shoppingItem)}</span>
+                        <span className="shopping-basket-tab-meta">
+                          {shoppingItem.shoppingList.length} {shoppingItem.shoppingList.length > 1 ? "articles" : "article"}
+                        </span>
+                      </button>
+
+                      {canWrite && (
+                        <button
+                          type="button"
+                          className="shopping-basket-tab-remove"
+                          title={`Supprimer ${getDisplayListName(shoppingItem)}`}
+                          aria-label={`Supprimer ${getDisplayListName(shoppingItem)}`}
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            void handleDeleteList(shoppingItem._id, getDisplayListName(shoppingItem));
+                          }}
+                        >
+                          <i className="fa-solid fa-trash-can"></i>
+                        </button>
+                      )}
+                    </div>
                   ))}
                 </div>
               </div>
@@ -875,14 +915,12 @@ const ShoppingTab = () => {
                     <p className="eyebrow">Ajout rapide</p>
                     <h2 className="shopping-quick-add-title">Ajouter dans {getDisplayListName(activeList)}</h2>
                   </div>
-                  <span className="shopping-quick-add-date">{activeList.date}</span>
                 </div>
 
                 <div className="shopping-quick-add-fields">
                   <label className="shopping-quick-add-field shopping-quick-add-field-title">
                     <span className="shopping-quick-add-label">Article</span>
                     <input
-                      ref={quickAddInputRef}
                       type="text"
                       className="input shopping-quick-add-input"
                       disabled={!canWrite}

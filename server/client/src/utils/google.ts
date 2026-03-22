@@ -94,7 +94,7 @@ export const requestGoogleCalendarAccessToken = async (interactive = true): Prom
   const googleAccounts = window.google?.accounts;
 
   if (!clientId || !googleAccounts?.oauth2) {
-    throw new Error("Google Calendar indisponible");
+    throw new Error("Agenda Google indisponible");
   }
 
   return new Promise<string>((resolve, reject) => {
@@ -103,7 +103,7 @@ export const requestGoogleCalendarAccessToken = async (interactive = true): Prom
       scope: GOOGLE_CALENDAR_SCOPE,
       callback: (response) => {
         if (response.error || !response.access_token) {
-          reject(new Error(response.error_description || "Connexion Google Calendar refusee"));
+          reject(new Error(response.error_description || "Connexion a l'agenda Google refusee"));
           return;
         }
 
@@ -152,13 +152,13 @@ export const fetchGoogleCalendarEvents = async (timeMin: Date, timeMax: Date): P
 
   if (response.status === 401) {
     clearGoogleCalendarSession();
-    throw new Error("La connexion Google Calendar a expire");
+    throw new Error("La connexion a l'agenda Google a expire");
   }
 
   const payload = await response.json();
 
   if (!response.ok) {
-    throw new Error(payload.error?.message || "Impossible de recuperer le Google Calendar");
+    throw new Error(payload.error?.message || "Impossible de recuperer l'agenda Google");
   }
 
   return (payload.items || []).map((item: any) => ({

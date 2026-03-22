@@ -20,7 +20,7 @@ interface ApiResponse extends ApiEnvelope<{ posts?: ReminderPost[]; post?: Remin
 /**************************** Get all reminder-posts  ********************************/
 const getPosts = async (): Promise<{ posts: ReminderPost[] }> => {
   const res = await fetchWithAuth("/api/reminder-posts");
-  const data = await readApiResponse<ApiResponse>(res, "Failed to fetch posts");
+  const data = await readApiResponse<ApiResponse>(res, "Impossible de charger les taches");
 
   const posts = data.data?.posts || data.posts || [];
   return { posts };
@@ -40,7 +40,7 @@ const createPost = async (payload: ReminderPostPayload): Promise<ApiResponse> =>
     body: JSON.stringify(payload),
   });
 
-  const data = await readApiResponse<ApiResponse>(res, "Failed to create post");
+  const data = await readApiResponse<ApiResponse>(res, "Impossible de creer la tache");
 
   return {
     success: getApiMessage(data),
@@ -55,7 +55,7 @@ const deletePost = async (_id: string): Promise<ApiResponse> => {
     method: "DELETE",
   });
 
-  const data = await readApiResponse<ApiResponse>(res, "Failed to delete post");
+  const data = await readApiResponse<ApiResponse>(res, "Impossible de supprimer la tache");
 
   return {
     success: getApiMessage(data),
@@ -77,7 +77,7 @@ const updatePost = async (_id: string, payload: ReminderPostPayload): Promise<Ap
     body: JSON.stringify(payload),
   });
 
-  const data = await readApiResponse<ApiResponse>(res, "Failed to update post");
+  const data = await readApiResponse<ApiResponse>(res, "Impossible de mettre a jour la tache");
 
   return {
     success: getApiMessage(data),
@@ -95,7 +95,7 @@ const reorderPosts = async (orderedIds: string[]): Promise<ApiResponse> => {
     body: JSON.stringify({ orderedIds }),
   });
 
-  const data = await readApiResponse<ApiResponse>(res, "Failed to reorder posts");
+  const data = await readApiResponse<ApiResponse>(res, "Impossible de reordonner les taches");
 
   return {
     success: getApiMessage(data),

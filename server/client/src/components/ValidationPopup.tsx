@@ -20,7 +20,7 @@ const ValidationPopup = ({ show, title, onClose, onValidate, children, isValid =
         className="validate-button"
         onClick={onValidate}
         disabled={!isValid} >
-        OK
+        Valider
       </button>}
       children={children}
     />

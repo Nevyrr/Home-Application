@@ -383,7 +383,7 @@ const Dashboard = () => {
               </div>
 
               <p className="profile-admin-copy">
-                Les admins voient tous les comptes. Tu peux passer un membre en admin, readonly ou writable, puis supprimer les comptes non-admin.
+                Les administrateurs voient tous les comptes. Tu peux passer un membre en administrateur, en lecture seule ou en modification, puis supprimer les comptes non administrateurs.
               </p>
 
               {isLoadingUsers ? (
@@ -417,9 +417,9 @@ const Dashboard = () => {
                                 )
                               }
                             >
-                              <option value="admin">Admin</option>
-                              <option value="writable">Writable</option>
-                              <option value="readonly">Readonly</option>
+                              <option value="admin">Administrateur</option>
+                              <option value="writable">Modification</option>
+                              <option value="readonly">Lecture seule</option>
                             </select>
                           </label>
 
@@ -457,7 +457,7 @@ const Dashboard = () => {
                 <div className="profile-stats-grid">
                   <article className="profile-stat-card">
                     <span className="profile-stat-value">{stats.shoppingLists}</span>
-                    <span className="profile-stat-label">Listes shopping</span>
+                    <span className="profile-stat-label">Listes de courses</span>
                   </article>
                   <article className="profile-stat-card">
                     <span className="profile-stat-value">{stats.shoppingItems}</span>
