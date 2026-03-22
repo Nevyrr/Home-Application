@@ -10,7 +10,7 @@ interface OverviewStatItem {
 interface OverviewHeroProps {
   eyebrow: string;
   title: ReactNode;
-  subtitle: ReactNode;
+  subtitle?: ReactNode;
   badgeIcon: string;
   stats: OverviewStatItem[];
   className?: string;
@@ -37,7 +37,7 @@ const OverviewHero = ({
       <div>
         <p className="eyebrow">{eyebrow}</p>
         <h1 className="title nono-title">{title}</h1>
-        <p className="nono-subtitle">{subtitle}</p>
+        {subtitle ? <p className="nono-subtitle">{subtitle}</p> : null}
       </div>
     </div>
 

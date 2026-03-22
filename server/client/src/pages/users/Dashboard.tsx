@@ -281,12 +281,12 @@ const Dashboard = () => {
       {error && <Alert msg={error} setMsg={setError} />}
 
       <div className="profile-hero">
-        <div className="profile-avatar">{initials || "U"}</div>
+        <div className="profile-hero-main">
+          <div className="profile-avatar">{initials || "U"}</div>
 
-        <div className="profile-copy">
-          <p className="eyebrow">Compte</p>
-          <h1 className="title profile-title">Profil utilisateur</h1>
-          <p className="profile-subtitle">Retrouve tes informations, tes preferences et un resume rapide de ton espace.</p>
+          <div className="profile-copy">
+            <h1 className="title profile-title">Profil utilisateur</h1>
+          </div>
         </div>
 
         <div className="profile-meta">
@@ -323,10 +323,21 @@ const Dashboard = () => {
                   {displayEmail}
                 </strong>
               </div>
-              <div className="profile-summary-card">
-                <span className="profile-summary-label">Notifications</span>
-                <strong className="profile-summary-value">{notificationsEnabled ? "Activees" : "Desactivees"}</strong>
-              </div>
+              <label className={`profile-summary-card profile-toggle-card ${!canWrite ? "is-disabled" : ""}`}>
+                <div className="profile-toggle-copy">
+                  <span className="profile-summary-label">Notifications</span>
+                  <strong className="profile-summary-value">
+                    {notificationsEnabled ? "Activees" : "Desactivees"}
+                  </strong>
+                </div>
+                <input
+                  className="checkbox-theme"
+                  type="checkbox"
+                  checked={notificationsEnabled}
+                  disabled={!canWrite || isUpdatingNotifications}
+                  onChange={handleCheckboxMailChange}
+                />
+              </label>
             </div>
 
             <form className="profile-form" onSubmit={handleProfileSubmit}>
@@ -431,29 +442,6 @@ const Dashboard = () => {
         </div>
 
         <aside className="profile-side">
-          <section className="profile-panel">
-            <div className="profile-panel-head">
-              <div>
-                <p className="eyebrow">Preferences</p>
-                <h2>Communication</h2>
-              </div>
-            </div>
-
-            <label className={`profile-toggle-card ${!canWrite ? "is-disabled" : ""}`}>
-              <div>
-                <strong>Recevoir les emails de l'application</strong>
-                <p>Active un rappel par email quand l'application envoie des notifications utiles.</p>
-              </div>
-              <input
-                className="checkbox-theme"
-                type="checkbox"
-                checked={notificationsEnabled}
-                disabled={!canWrite || isUpdatingNotifications}
-                onChange={handleCheckboxMailChange}
-              />
-            </label>
-          </section>
-
           <section className="profile-panel">
             <div className="profile-panel-head">
               <div>

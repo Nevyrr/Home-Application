@@ -779,10 +779,6 @@ const ShoppingTab = () => {
           </div>
         </div>
 
-        <p className="shopping-basket-caption">
-          <i className="fa-solid fa-basket-shopping text-primary"></i>
-          {shoppingItem.shoppingList.length} {shoppingItem.shoppingList.length > 1 ? "articles" : "article"} dans ce panier
-        </p>
       </div>
 
       <PostValidationPopup
@@ -833,9 +829,6 @@ const ShoppingTab = () => {
                 <i className="fa-solid fa-basket-shopping text-primary"></i>
                 Panier de courses
               </h1>
-              <p className="shopping-board-description">
-              Un panier actif clair, un ajout rapide, et un historique d'articles separe pour gagner du temps.
-              </p>
             </div>
 
           <button
@@ -854,7 +847,6 @@ const ShoppingTab = () => {
               <div className="shopping-board-switcher">
                 <div className="shopping-board-switcher-copy">
                   <p className="shopping-board-switcher-label">Panier actif</p>
-                  <p className="shopping-board-switcher-note">Un seul panier visible pour aller plus vite, surtout a deux en magasin.</p>
                 </div>
 
                 <div className="shopping-board-basket-rail" role="tablist" aria-label="Choisir le panier actif">

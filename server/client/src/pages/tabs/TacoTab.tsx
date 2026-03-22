@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import DatePicker, { registerLocale } from "react-datepicker";
 import { fr } from "date-fns/locale/fr";
 import "react-datepicker/dist/react-datepicker.css";
-import { Alert, ImageUpload, OverviewHero, OverviewHighlightsPanel, Success } from "../../components/index.ts";
+import { Alert, ImageUpload, OverviewHero, Success } from "../../components/index.ts";
 import {
   getTacoData,
   updateAntiPuceDate,
@@ -25,7 +25,7 @@ interface TacoScheduleCardProps {
   title: string;
   icon: string;
   accentClass: string;
-  description: string;
+  description?: string;
   primaryLabel: string;
   primaryValue: string;
   onPrimaryChange: (date: string) => Promise<void>;
@@ -157,27 +157,25 @@ const getNextMilestone = (taco: Taco): { label: string; date: string; overdue: b
   };
 };
 
-const getLatestCare = (taco: Taco): { label: string; date: string } | null => {
-  const entries = [
-    { label: "Vermifuge", date: taco.vermifugeDate },
-    { label: "Anti-puce", date: taco.antiPuceDate },
-    { label: "Vaccin annuel", date: taco.annualVaccineDate },
-  ]
-    .map((entry) => ({
-      ...entry,
-      parsedDate: parseStoredDate(entry.date),
-    }))
-    .filter((entry): entry is { label: string; date: string; parsedDate: Date } => Boolean(entry.parsedDate))
-    .sort((a, b) => b.parsedDate.getTime() - a.parsedDate.getTime());
+const getScheduleSortMeta = (dateValues: Array<string | undefined>): { bucket: number; sortValue: number } => {
+  const parsedDates = dateValues
+    .map((dateValue) => parseStoredDate(dateValue))
+    .filter((date): date is Date => Boolean(date))
+    .map((date) => startOfDay(date).getTime());
 
-  if (entries.length === 0) {
-    return null;
+  if (parsedDates.length === 0) {
+    return { bucket: 2, sortValue: Number.POSITIVE_INFINITY };
   }
 
-  return {
-    label: entries[0].label,
-    date: entries[0].date,
-  };
+  const todayTimestamp = startOfDay(new Date()).getTime();
+  const upcomingDates = parsedDates.filter((timestamp) => timestamp >= todayTimestamp).sort((a, b) => a - b);
+
+  if (upcomingDates.length > 0) {
+    return { bucket: 0, sortValue: upcomingDates[0] };
+  }
+
+  const closestPastDate = [...parsedDates].sort((a, b) => b - a)[0];
+  return { bucket: 1, sortValue: -closestPastDate };
 };
 
 const TacoScheduleCard = ({
@@ -200,7 +198,7 @@ const TacoScheduleCard = ({
       </span>
       <div>
         <h3>{title}</h3>
-        <p>{description}</p>
+        {description ? <p>{description}</p> : null}
       </div>
     </div>
 
@@ -277,17 +275,63 @@ const TacoTab = () => {
   };
 
   const nextMilestone = getNextMilestone(taco);
-  const latestCare = getLatestCare(taco);
-  const filledItemsCount = [
-    taco.vermifugeDate,
-    taco.vermifugeReminder,
-    taco.antiPuceDate,
-    taco.antiPuceReminder,
-    taco.annualVaccineDate,
-    taco.annualVaccineReminder,
-  ].filter(Boolean).length;
-  const reminderCount = [taco.vermifugeReminder, taco.antiPuceReminder, taco.annualVaccineReminder].filter(Boolean)
-    .length;
+  const scheduleCards = [
+    {
+      key: "vermifuge",
+      title: "Vermifuge",
+      icon: "fa-capsules",
+      accentClass: "accent-sky",
+      primaryLabel: "Date du traitement",
+      primaryValue: taco.vermifugeDate,
+      onPrimaryChange: (date: string) => saveDate(updateVermifugeDate, date),
+      secondaryLabel: "Rappel",
+      secondaryValue: taco.vermifugeReminder,
+      onSecondaryChange: (date: string) => saveDate(updateVermifugeReminder, date),
+      sortDates: [taco.vermifugeReminder, taco.vermifugeDate],
+    },
+    {
+      key: "anti-puce",
+      title: "Anti-puce",
+      icon: "fa-bug",
+      accentClass: "accent-apricot",
+      primaryLabel: "Date d'application",
+      primaryValue: taco.antiPuceDate,
+      onPrimaryChange: (date: string) => saveDate(updateAntiPuceDate, date),
+      secondaryLabel: "Rappel",
+      secondaryValue: taco.antiPuceReminder,
+      onSecondaryChange: (date: string) => saveDate(updateAntiPuceReminder, date),
+      sortDates: [taco.antiPuceReminder, taco.antiPuceDate],
+    },
+    {
+      key: "vaccine",
+      title: "Vaccin annuel",
+      icon: "fa-syringe",
+      accentClass: "accent-mint",
+      primaryLabel: "Date du vaccin",
+      primaryValue: taco.annualVaccineDate,
+      onPrimaryChange: (date: string) => saveDate(updateAnnualVaccineDate, date),
+      secondaryLabel: "Rappel",
+      secondaryValue: taco.annualVaccineReminder,
+      onSecondaryChange: (date: string) => saveDate(updateAnnualVaccineReminder, date),
+      sortDates: [taco.annualVaccineReminder, taco.annualVaccineDate],
+    },
+  ]
+    .map((card, index) => ({
+      ...card,
+      index,
+      sortMeta: getScheduleSortMeta(card.sortDates),
+    }))
+    .sort((leftCard, rightCard) => {
+      if (leftCard.sortMeta.bucket !== rightCard.sortMeta.bucket) {
+        return leftCard.sortMeta.bucket - rightCard.sortMeta.bucket;
+      }
+
+      if (leftCard.sortMeta.sortValue !== rightCard.sortMeta.sortValue) {
+        return leftCard.sortMeta.sortValue - rightCard.sortMeta.sortValue;
+      }
+
+      return leftCard.index - rightCard.index;
+    });
   const heroStats = [
     {
       label: "Age",
@@ -303,38 +347,9 @@ const TacoTab = () => {
         : "Ajoutez un premier rappel",
     },
     {
-      label: "Reperes enregistres",
-      value: `${filledItemsCount}/6`,
-      note: latestCare
-        ? `Dernier soin: ${latestCare.label}${reminderCount > 0 ? ` / ${reminderCount}/3 rappels actifs` : ""}`
-        : reminderCount > 0
-          ? `${reminderCount}/3 rappels actifs`
-          : "Aucun rappel programme",
-    },
-  ];
-  const highlightItems = [
-    {
-      label: "Date de naissance",
-      value: formatDisplayDate(taco.birthDate),
-      note: "Repere fixe pour calculer son age",
-    },
-    {
-      label: "Age actuel",
-      value: formatPetAge(taco.birthDate),
-      note: "Calcule a partir de sa date de naissance",
-    },
-    {
       label: "Poids",
       value: formatWeight(taco.weightKg),
       note: "Derniere mesure enregistree",
-    },
-    {
-      label: "Point d'attention",
-      value: nextMilestone ? nextMilestone.label : "Aucun rappel programme",
-      note: nextMilestone
-        ? `${nextMilestone.overdue ? "A revoir depuis le" : "Prevu le"} ${formatDisplayDate(nextMilestone.date)}`
-        : "Ajoutez la prochaine date utile",
-      className: "wide",
     },
   ];
 
@@ -346,7 +361,6 @@ const TacoTab = () => {
       <OverviewHero
         eyebrow="Suivi compagnon"
         title="TACO"
-        subtitle="Tableau adapté au suivi de Taco: traitements, rappels utiles et ordonnances toujours sous la main, sans surcharge visuelle."
         badgeIcon="fa-dog"
         stats={heroStats}
         className="taco-hero"
@@ -364,54 +378,14 @@ const TacoTab = () => {
             </div>
 
             <div className="nono-card-grid">
-              <TacoScheduleCard
-                title="Vermifuge"
-                icon="fa-capsules"
-                accentClass="accent-sky"
-                description="Pour noter la derniere prise et le prochain rappel a anticiper."
-                primaryLabel="Date du traitement"
-                primaryValue={taco.vermifugeDate}
-                onPrimaryChange={(date) => saveDate(updateVermifugeDate, date)}
-                secondaryLabel="Rappel"
-                secondaryValue={taco.vermifugeReminder}
-                onSecondaryChange={(date) => saveDate(updateVermifugeReminder, date)}
-                disabled={!canWrite}
-              />
-
-              <TacoScheduleCard
-                title="Anti-puce"
-                icon="fa-bug"
-                accentClass="accent-apricot"
-                description="Pratique pour garder une vision claire sur la protection en cours."
-                primaryLabel="Date d'application"
-                primaryValue={taco.antiPuceDate}
-                onPrimaryChange={(date) => saveDate(updateAntiPuceDate, date)}
-                secondaryLabel="Rappel"
-                secondaryValue={taco.antiPuceReminder}
-                onSecondaryChange={(date) => saveDate(updateAntiPuceReminder, date)}
-                disabled={!canWrite}
-              />
-
-              <TacoScheduleCard
-                title="Vaccin annuel"
-                icon="fa-syringe"
-                accentClass="accent-mint"
-                description="Pour conserver le prochain rendez-vous ou la date du dernier vaccin."
-                primaryLabel="Date du vaccin"
-                primaryValue={taco.annualVaccineDate}
-                onPrimaryChange={(date) => saveDate(updateAnnualVaccineDate, date)}
-                secondaryLabel="Rappel"
-                secondaryValue={taco.annualVaccineReminder}
-                onSecondaryChange={(date) => saveDate(updateAnnualVaccineReminder, date)}
-                disabled={!canWrite}
-              />
+              {scheduleCards.map(({ key, sortDates: _sortDates, sortMeta: _sortMeta, index: _index, ...card }) => (
+                <TacoScheduleCard key={key} {...card} disabled={!canWrite} />
+              ))}
             </div>
           </section>
         </div>
 
         <aside className="nono-side">
-          <OverviewHighlightsPanel eyebrow="Vue rapide" title="Infos du moment" items={highlightItems} />
-
           <section className="nono-panel">
             <div className="nono-panel-head">
               <div>

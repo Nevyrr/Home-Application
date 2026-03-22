@@ -13,6 +13,8 @@ Créez un fichier `.env` à la racine du dossier `server` avec :
 ```env
 DB_URI=your_mongodb_connection_string
 SECRET=your_jwt_secret_key
+ACCESS_TOKEN_TTL=30d
+REFRESH_TOKEN_TTL=60d
 ```
 
 ## 🚀 Démarrage

@@ -55,13 +55,6 @@
   line-height: 1;
 }
 
-.shopping-board-description {
-  margin-top: 0.95rem;
-  color: var(--text-subheading);
-  font-size: 0.98rem;
-  line-height: 1.7;
-}
-
 .shopping-board-create {
   min-height: 3.2rem;
   width: fit-content;
@@ -109,12 +102,6 @@
   color: var(--text-heading);
   font-size: 1.02rem;
   font-weight: 800;
-}
-
-.shopping-board-switcher-note {
-  margin: 0;
-  color: var(--text-muted);
-  font-size: 0.9rem;
 }
 
 .shopping-board-basket-rail {
@@ -486,20 +473,6 @@
   border-color: rgba(214, 90, 49, 0.28);
 }
 
-.shopping-basket-caption {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.55rem;
-  width: fit-content;
-  margin: 0;
-  padding: 0.5rem 0.82rem;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--shopping-accent-soft) 76%, var(--bg-panel));
-  color: var(--text-subheading);
-  font-size: 0.82rem;
-  font-weight: 700;
-}
-
 .shopping-basket-items {
   display: grid;
   gap: 0.82rem;
@@ -831,11 +804,6 @@
 
   .shopping-board-title {
     font-size: 1.65rem;
-  }
-
-  .shopping-board-description,
-  .shopping-board-switcher-note {
-    font-size: 0.9rem;
   }
 
   .shopping-board-switcher,

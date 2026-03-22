@@ -28,10 +28,14 @@ const shouldSkipBodyParsing = (req: Request): boolean =>
 
 app.use(
   helmet({
+    crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" },
     crossOriginResourcePolicy: false,
     crossOriginEmbedderPolicy: false,
     contentSecurityPolicy: {
       directives: {
+        scriptSrc: ["'self'", "https://accounts.google.com", "https://apis.google.com"],
+        frameSrc: ["'self'", "https://accounts.google.com"],
+        connectSrc: ["'self'", "https://accounts.google.com", "https://oauth2.googleapis.com", "https://www.googleapis.com"],
         imgSrc: ["'self'", "data:", "blob:"],
       },
     },

@@ -1621,7 +1621,7 @@
     }
 
     .nono-hero-copy {
-        @apply flex flex-col gap-4 md:flex-row md:items-start;
+        @apply flex flex-col gap-4 md:flex-row md:items-center;
     }
 
     .nono-badge {
@@ -1738,6 +1738,10 @@
         border-left: 4px solid #9a8cd6;
     }
 
+    .nono-schedule-card.accent-rose {
+        border-left: 4px solid #e8899b;
+    }
+
     .nono-schedule-head {
         @apply mb-4 flex items-start gap-3;
     }
@@ -1828,8 +1832,393 @@
         line-height: 1.6;
     }
 
+    .nono-tracker-grid {
+        display: grid;
+        gap: 1rem;
+    }
+
+    .nono-tracker-top-grid,
+    .nono-tracker-bottom-grid {
+        display: grid;
+        gap: 1rem;
+    }
+
+    .nono-tracker-card {
+        display: grid;
+        gap: 1rem;
+        grid-template-rows: auto auto minmax(0, 1fr);
+        height: 100%;
+        align-content: start;
+    }
+
+    .nono-bottle-panel {
+        background:
+            radial-gradient(circle at top right, rgba(99, 167, 235, 0.12), transparent 34%),
+            linear-gradient(180deg, rgba(255, 255, 255, 0.66), rgba(255, 255, 255, 0.5));
+    }
+
+    .nono-bottle-panel-grid {
+        display: grid;
+        gap: 1rem;
+    }
+
+    .nono-bottle-panel-main,
+    .nono-bottle-panel-chart {
+        display: grid;
+        gap: 1rem;
+        align-content: start;
+    }
+
+    .nono-bottle-panel-chart {
+        padding-top: 1rem;
+        border-top: 1px solid rgba(20, 108, 148, 0.12);
+    }
+
+    .nono-weight-panel {
+        background:
+            radial-gradient(circle at top right, rgba(77, 182, 141, 0.14), transparent 34%),
+            linear-gradient(180deg, rgba(255, 255, 255, 0.66), rgba(255, 255, 255, 0.5));
+    }
+
+    .nono-weight-panel-grid {
+        display: grid;
+        gap: 1rem;
+    }
+
+    .nono-weight-panel-main,
+    .nono-weight-panel-chart {
+        display: grid;
+        gap: 1rem;
+        align-content: start;
+    }
+
+    .nono-weight-panel-chart {
+        padding-top: 1rem;
+        border-top: 1px solid rgba(20, 108, 148, 0.12);
+    }
+
+    .nono-chart-panel {
+        background:
+            radial-gradient(circle at top right, rgba(99, 167, 235, 0.14), transparent 32%),
+            linear-gradient(180deg, rgba(255, 255, 255, 0.66), rgba(255, 255, 255, 0.5));
+    }
+
+    .nono-form-grid {
+        display: grid;
+        gap: 0.85rem;
+    }
+
+    .nono-tracker-form {
+        display: grid;
+        gap: 1rem;
+        align-content: start;
+    }
+
+    .nono-diaper-row {
+        display: grid;
+        gap: 0.85rem;
+    }
+
+    .nono-submit {
+        justify-self: start;
+    }
+
+    .nono-inline-stats {
+        display: grid;
+        gap: 0.75rem;
+    }
+
+    .nono-inline-stat {
+        @apply rounded-[1.1rem] px-4 py-3;
+        background: rgba(255, 255, 255, 0.58);
+        border: 1px solid rgba(20, 108, 148, 0.1);
+    }
+
+    .nono-inline-stat span,
+    .nono-inline-stat small {
+        display: block;
+        color: var(--text-muted);
+    }
+
+    .nono-inline-stat span {
+        margin-bottom: 0.3rem;
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+    }
+
+    .nono-inline-stat strong {
+        display: block;
+        color: var(--text-heading);
+        font-size: 1rem;
+        font-weight: 800;
+    }
+
+    .nono-inline-stat small {
+        margin-top: 0.3rem;
+        font-size: 0.84rem;
+        line-height: 1.5;
+    }
+
+    .nono-toggle-card {
+        @apply flex items-center justify-between gap-4 rounded-[1rem] px-4 py-3;
+        background: rgba(255, 255, 255, 0.52);
+        border: 1px solid rgba(20, 108, 148, 0.1);
+        min-height: 3.2rem;
+        width: 100%;
+    }
+
+    .nono-toggle-copy {
+        min-width: 0;
+        display: grid;
+        gap: 0.15rem;
+    }
+
+    .nono-toggle-label {
+        color: var(--text-heading);
+        font-size: 0.92rem;
+        font-weight: 700;
+        line-height: 1.3;
+    }
+
+    .nono-toggle-hint {
+        color: var(--text-muted);
+        font-size: 0.78rem;
+        line-height: 1.4;
+    }
+
+    .nono-toggle-card .checkbox-theme {
+        margin-left: auto;
+        flex-shrink: 0;
+    }
+
+    .nono-history {
+        display: grid;
+        gap: 0.7rem;
+        min-height: 0;
+        grid-template-rows: auto minmax(0, 1fr);
+    }
+
+    .nono-history h3 {
+        font-size: 0.96rem;
+        font-weight: 800;
+        color: var(--text-heading);
+    }
+
+    .nono-history-body {
+        --nono-history-item-height: 4.85rem;
+        min-height: calc(var(--nono-history-item-height) * 3 + 0.65rem * 2);
+        max-height: calc(var(--nono-history-item-height) * 3 + 0.65rem * 2);
+    }
+
+    .nono-history-list {
+        display: grid;
+        gap: 0.65rem;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        max-height: 100%;
+        overflow-y: auto;
+        padding-right: 0.35rem;
+        align-content: start;
+        scrollbar-width: thin;
+        scrollbar-color: color-mix(in srgb, var(--primary) 42%, transparent) transparent;
+    }
+
+    .nono-history-list::-webkit-scrollbar {
+        width: 0.45rem;
+    }
+
+    .nono-history-list::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .nono-history-list::-webkit-scrollbar-thumb {
+        border-radius: 999px;
+        background: color-mix(in srgb, var(--primary) 34%, transparent);
+    }
+
+    .nono-history-item {
+        @apply rounded-[1rem] px-4 py-3;
+        background: rgba(255, 255, 255, 0.46);
+        border: 1px solid rgba(20, 108, 148, 0.1);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.75rem;
+        min-height: 4.85rem;
+    }
+
+    .nono-history-main {
+        min-width: 0;
+        display: grid;
+        gap: 0.2rem;
+        flex: 1;
+    }
+
+    .nono-history-item strong {
+        color: var(--text-heading);
+        font-weight: 800;
+    }
+
+    .nono-history-item span {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        line-height: 1.4;
+    }
+
+    .nono-history-delete {
+        width: 2.2rem;
+        height: 2.2rem;
+        color: var(--danger);
+        flex-shrink: 0;
+    }
+
+    .nono-history-delete:hover {
+        background: rgba(214, 90, 49, 0.08);
+    }
+
+    .nono-history-empty {
+        color: var(--text-muted);
+        display: grid;
+        place-items: center;
+        min-height: 100%;
+        text-align: center;
+        line-height: 1.6;
+    }
+
+    .nono-chart-meta {
+        display: grid;
+        gap: 0.75rem;
+    }
+
+    .nono-chart-kpi {
+        @apply rounded-[1.1rem] px-4 py-3;
+        background: rgba(255, 255, 255, 0.52);
+        border: 1px solid rgba(20, 108, 148, 0.1);
+    }
+
+    .nono-chart-kpi span,
+    .nono-chart-kpi small {
+        display: block;
+        color: var(--text-muted);
+    }
+
+    .nono-chart-kpi span {
+        margin-bottom: 0.3rem;
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+    }
+
+    .nono-chart-kpi strong {
+        display: block;
+        color: var(--text-heading);
+        font-size: 1rem;
+        font-weight: 800;
+    }
+
+    .nono-chart-kpi small {
+        margin-top: 0.3rem;
+        font-size: 0.84rem;
+        line-height: 1.5;
+    }
+
+    .nono-chart-shell {
+        display: grid;
+        gap: 0.85rem;
+    }
+
+    .nono-chart-plot {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 0.85rem;
+        align-items: stretch;
+    }
+
+    .nono-bottle-chart {
+        width: 100%;
+        min-height: 14rem;
+        border-radius: 1.2rem;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.34));
+        border: 1px solid rgba(20, 108, 148, 0.08);
+    }
+
+    .nono-chart-grid-line {
+        stroke: rgba(20, 108, 148, 0.12);
+        stroke-width: 0.5;
+        stroke-dasharray: 1.6 2.2;
+    }
+
+    .nono-chart-area {
+        fill: url(#nono-bottle-chart-fill);
+    }
+
+    .nono-chart-line {
+        fill: none;
+        stroke: #146c94;
+        stroke-width: 1.8;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
+
+    .nono-chart-point-shadow {
+        fill: rgba(20, 108, 148, 0.18);
+    }
+
+    .nono-chart-point {
+        fill: #146c94;
+    }
+
+    .nono-weight-chart-area {
+        fill: url(#nono-weight-chart-fill);
+    }
+
+    .nono-weight-chart-line {
+        fill: none;
+        stroke: #2d8f6d;
+        stroke-width: 1.8;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
+
+    .nono-weight-chart-point-shadow {
+        fill: rgba(45, 143, 109, 0.2);
+    }
+
+    .nono-weight-chart-point {
+        fill: #2d8f6d;
+    }
+
+    .nono-chart-y-axis {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: 0.75rem;
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        white-space: nowrap;
+    }
+
+    .nono-chart-axis {
+        display: flex;
+        justify-content: space-between;
+        gap: 0.75rem;
+        font-size: 0.82rem;
+        color: var(--text-muted);
+    }
+
+    .nono-chart-empty {
+        @apply rounded-[1.15rem] px-4 py-5;
+        background: rgba(255, 255, 255, 0.52);
+        border: 1px dashed rgba(20, 108, 148, 0.18);
+        color: var(--text-muted);
+        line-height: 1.6;
+    }
+
     @media (min-width: 720px) {
-        .nono-stats,
         .nono-highlight-grid {
             grid-template-columns: repeat(3, minmax(0, 1fr));
         }
@@ -1837,11 +2226,34 @@
         .nono-highlight-card.wide {
             grid-column: 1 / -1;
         }
+
+        .nono-form-grid,
+        .nono-inline-stats,
+        .nono-chart-meta {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .nono-diaper-row {
+            grid-template-columns: minmax(0, 1fr) minmax(13rem, 14rem);
+            align-items: end;
+        }
+
+        .nono-toggle-card {
+            justify-self: end;
+        }
+
+        .nono-tracker-bottom-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
     }
 
     @media (min-width: 980px) {
         .nono-card-grid {
             grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .nono-tracker-top-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
         }
     }
 
@@ -1854,12 +2266,16 @@
         .nono-hero {
             flex-direction: row;
             justify-content: space-between;
-            align-items: flex-end;
+            align-items: center;
         }
 
         .nono-stats {
+            grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+            min-width: min(45rem, 100%);
+        }
+
+        .nono-chart-meta {
             grid-template-columns: repeat(3, minmax(0, 1fr));
-            min-width: min(34rem, 100%);
         }
     }
 
@@ -2430,7 +2846,6 @@
         color: var(--text-heading);
     }
 
-    .calendar-card-copy,
     .calendar-sync-note,
     .calendar-empty-copy,
     .calendar-external-location {
@@ -3440,6 +3855,76 @@
         border-color: var(--border);
     }
 
+    [data-theme="dark"] .nono-hero {
+        background:
+            radial-gradient(circle at top right, rgba(255, 169, 134, 0.14), transparent 32%),
+            radial-gradient(circle at bottom left, rgba(76, 183, 216, 0.14), transparent 28%),
+            var(--bg-soft);
+    }
+
+    [data-theme="dark"] .nono-panel,
+    [data-theme="dark"] .nono-stat,
+    [data-theme="dark"] .nono-schedule-card,
+    [data-theme="dark"] .nono-highlight-card {
+        border-color: color-mix(in srgb, var(--primary) 18%, var(--border));
+        box-shadow: var(--shadow-xs);
+    }
+
+    [data-theme="dark"] .nono-chart-panel {
+        background:
+            radial-gradient(circle at top right, rgba(76, 183, 216, 0.15), transparent 32%),
+            linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 42%),
+            color-mix(in srgb, var(--bg) 80%, rgba(76, 183, 216, 0.08));
+    }
+
+    [data-theme="dark"] .nono-bottle-panel {
+        background:
+            radial-gradient(circle at top right, rgba(76, 183, 216, 0.16), transparent 34%),
+            linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 38%),
+            color-mix(in srgb, rgba(76, 183, 216, 0.08) 28%, var(--bg-panel));
+    }
+
+    [data-theme="dark"] .nono-weight-panel {
+        background:
+            radial-gradient(circle at top right, rgba(87, 197, 160, 0.16), transparent 34%),
+            linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 38%),
+            color-mix(in srgb, rgba(87, 197, 160, 0.08) 28%, var(--bg-panel));
+    }
+
+    [data-theme="dark"] .nono-toggle-card,
+    [data-theme="dark"] .nono-inline-stat,
+    [data-theme="dark"] .nono-chart-kpi,
+    [data-theme="dark"] .nono-history-item,
+    [data-theme="dark"] .nono-chart-empty {
+        background: color-mix(in srgb, var(--bg-panel) 94%, rgba(255, 255, 255, 0.03));
+        border-color: color-mix(in srgb, var(--primary) 18%, var(--border));
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    }
+
+    [data-theme="dark"] .nono-bottle-chart {
+        background:
+            linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.005)),
+            color-mix(in srgb, var(--bg) 84%, rgba(76, 183, 216, 0.05));
+        border-color: color-mix(in srgb, var(--primary) 18%, var(--border));
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    }
+
+    [data-theme="dark"] .nono-chart-grid-line {
+        stroke: rgba(76, 183, 216, 0.16);
+    }
+
+    [data-theme="dark"] .nono-chart-point-shadow {
+        fill: rgba(76, 183, 216, 0.24);
+    }
+
+    [data-theme="dark"] .nono-weight-chart-point-shadow {
+        fill: rgba(87, 197, 160, 0.26);
+    }
+
+    [data-theme="dark"] .nono-history-delete:hover {
+        background: rgba(214, 90, 49, 0.14);
+    }
+
     .taco-badge,
     .taco-file-pill,
     .taco-gallery-card,
@@ -3486,7 +3971,9 @@
     }
 
     .profile-hero {
-        @apply flex flex-col gap-4 rounded-[1.8rem] p-5 md:flex-row md:items-center md:justify-between;
+        display: grid;
+        gap: 1rem;
+        @apply rounded-[1.8rem] p-5;
         background:
             radial-gradient(circle at top right, rgba(31, 138, 112, 0.1), transparent 24%),
             linear-gradient(180deg, rgba(255, 255, 255, 0.16), transparent 35%),
@@ -3502,6 +3989,13 @@
             var(--bg-soft);
     }
 
+    .profile-hero-main {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        min-width: 0;
+    }
+
     .profile-avatar {
         width: 4.75rem;
         height: 4.75rem;
@@ -3509,24 +4003,25 @@
         background: var(--btn-bg);
         color: #fff;
         box-shadow: var(--shadow-sm);
+        flex-shrink: 0;
     }
 
     .profile-copy {
+        display: flex;
+        align-items: center;
         flex: 1;
         min-width: 0;
+        text-align: left;
     }
 
     .profile-title {
-        margin-bottom: 0.5rem;
-    }
-
-    .profile-subtitle {
-        max-width: 42rem;
-        color: var(--text-muted);
+        margin: 0;
+        line-height: 1.1;
     }
 
     .profile-meta {
         @apply flex flex-wrap gap-2;
+        align-items: flex-start;
     }
 
     .profile-pill {
@@ -3562,6 +4057,15 @@
     }
 
     @media (min-width: 1100px) {
+        .profile-hero {
+            grid-template-columns: minmax(0, 1fr) auto;
+            align-items: center;
+        }
+
+        .profile-meta {
+            justify-content: flex-end;
+        }
+
         .profile-grid {
             grid-template-columns: minmax(0, 1.1fr) minmax(21rem, 0.9fr);
             align-items: start;
@@ -3734,6 +4238,15 @@
     .profile-toggle-card {
         @apply flex items-center justify-between gap-4;
         cursor: pointer;
+    }
+
+    .profile-toggle-copy {
+        min-width: 0;
+    }
+
+    .profile-toggle-card .checkbox-theme {
+        flex-shrink: 0;
+        margin-left: auto;
     }
 
     .profile-toggle-card.is-disabled {
@@ -4045,9 +4558,6 @@
             align-items: flex-start;
         }
 
-        .profile-toggle-card {
-            align-items: flex-start;
-        }
     }
 
     @media (max-width: 640px) {
@@ -4190,7 +4700,9 @@
         }
 
         .profile-toggle-card {
-            flex-direction: column;
+            flex-direction: row;
+            align-items: center;
+            flex-wrap: nowrap;
         }
     }
 }

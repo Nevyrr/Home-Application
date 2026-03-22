@@ -90,8 +90,29 @@ export interface INono extends Document {
   vitaminReminder: string;
   administrativeReminder: string;
   notes: string;
+  bottleEntries: INonoBottleEntry[];
+  diaperEntries: INonoDiaperEntry[];
+  weightEntries: INonoWeightEntry[];
   createdAt?: Date;
   updatedAt?: Date;
+}
+
+export interface INonoBottleEntry {
+  _id?: Types.ObjectId;
+  timestamp: string;
+  amountMl: number;
+}
+
+export interface INonoDiaperEntry {
+  _id?: Types.ObjectId;
+  timestamp: string;
+  hasPoop: boolean;
+}
+
+export interface INonoWeightEntry {
+  _id?: Types.ObjectId;
+  date: string;
+  weightKg: number;
 }
 
 export interface AuthRequest extends Request {

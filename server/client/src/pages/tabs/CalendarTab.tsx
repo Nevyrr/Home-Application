@@ -357,9 +357,6 @@ const CalendarTab = () => {
               <div>
                 <p className="eyebrow">Google Calendar</p>
                 <h2 className="calendar-card-title">Agenda Gmail</h2>
-                <p className="calendar-card-copy">
-                  Les evenements Google sont importes en lecture seule dans cet onglet.
-                </p>
               </div>
               <span
                 className={`calendar-status-pill ${

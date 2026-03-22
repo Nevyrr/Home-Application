@@ -60,6 +60,9 @@ export const AppProvider = ({ children }: AppProviderProps) => {
     vitaminReminder: "",
     administrativeReminder: "",
     notes: "",
+    bottleEntries: [],
+    diaperEntries: [],
+    weightEntries: [],
   });
 
   const value: AppState = {

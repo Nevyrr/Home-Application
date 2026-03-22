@@ -19,6 +19,9 @@ const emptyNonoData: Nono = {
   vitaminReminder: "",
   administrativeReminder: "",
   notes: "",
+  bottleEntries: [],
+  diaperEntries: [],
+  weightEntries: [],
 };
 
 const jsonHeaders = {
@@ -32,13 +35,23 @@ const buildSuccessResponse = (data: ApiResponse): ApiResponse => ({
 
 const postNonoUpdate = async (
   path: string,
-  payload: Record<string, string>,
+  payload: Record<string, string | number | boolean>,
   fallbackMessage: string
 ): Promise<ApiResponse> => {
   const res = await fetchWithAuth(path, {
     method: "POST",
     headers: jsonHeaders,
     body: JSON.stringify(payload),
+  });
+
+  const data = await readApiResponse<ApiResponse>(res, fallbackMessage);
+  return buildSuccessResponse(data);
+};
+
+const deleteNonoEntry = async (path: string, fallbackMessage: string): Promise<ApiResponse> => {
+  const res = await fetchWithAuth(path, {
+    method: "DELETE",
+    headers: jsonHeaders,
   });
 
   const data = await readApiResponse<ApiResponse>(res, fallbackMessage);
@@ -81,7 +94,31 @@ const updateAdministrativeReminder = async (date: string): Promise<ApiResponse> 
 const updateNonoNotes = async (notes: string): Promise<ApiResponse> =>
   postNonoUpdate("/api/nono/notes", { notes }, "Failed to update nono notes");
 
+const addBottleEntry = async (amountMl: number, timestamp: string): Promise<ApiResponse> =>
+  postNonoUpdate("/api/nono/bottles", { amountMl, timestamp }, "Failed to add bottle entry");
+
+const addDiaperEntry = async (timestamp: string, hasPoop: boolean): Promise<ApiResponse> =>
+  postNonoUpdate("/api/nono/diapers", { timestamp, hasPoop }, "Failed to add diaper entry");
+
+const addWeightEntry = async (date: string, weightKg: number): Promise<ApiResponse> =>
+  postNonoUpdate("/api/nono/weights", { date, weightKg }, "Failed to add weight entry");
+
+const deleteBottleEntry = async (entryId: string): Promise<ApiResponse> =>
+  deleteNonoEntry(`/api/nono/bottles/${entryId}`, "Failed to delete bottle entry");
+
+const deleteDiaperEntry = async (entryId: string): Promise<ApiResponse> =>
+  deleteNonoEntry(`/api/nono/diapers/${entryId}`, "Failed to delete diaper entry");
+
+const deleteWeightEntry = async (entryId: string): Promise<ApiResponse> =>
+  deleteNonoEntry(`/api/nono/weights/${entryId}`, "Failed to delete weight entry");
+
 export {
+  addBottleEntry,
+  addDiaperEntry,
+  addWeightEntry,
+  deleteBottleEntry,
+  deleteDiaperEntry,
+  deleteWeightEntry,
   getNonoData,
   updateAdministrativeReminder,
   updateBirthDate,

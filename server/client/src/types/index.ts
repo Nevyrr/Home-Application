@@ -106,8 +106,29 @@ export interface Nono {
   vitaminReminder: string;
   administrativeReminder: string;
   notes: string;
+  bottleEntries: NonoBottleEntry[];
+  diaperEntries: NonoDiaperEntry[];
+  weightEntries: NonoWeightEntry[];
   createdAt?: string;
   updatedAt?: string;
+}
+
+export interface NonoBottleEntry {
+  _id?: string;
+  timestamp: string;
+  amountMl: number;
+}
+
+export interface NonoDiaperEntry {
+  _id?: string;
+  timestamp: string;
+  hasPoop: boolean;
+}
+
+export interface NonoWeightEntry {
+  _id?: string;
+  date: string;
+  weightKg: number;
 }
 
 export interface AppState {

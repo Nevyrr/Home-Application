@@ -1,4 +1,5 @@
 import type { Request, Response } from "express";
+import { Types } from "mongoose";
 import cron from "node-cron";
 import NonoModel from "../models/NonoModel.js";
 import { sendEmail } from "../config/nodeMailConfig.js";
@@ -26,6 +27,9 @@ const EMPTY_NONO_DATA = {
   vitaminReminder: "",
   administrativeReminder: "",
   notes: "",
+  bottleEntries: [],
+  diaperEntries: [],
+  weightEntries: [],
 };
 
 const parseStoredDate = (dateString: string): Date | null => {
@@ -101,8 +105,29 @@ const getOrCreateNono = async () => {
   const existingNono = await NonoModel.findOne();
 
   if (existingNono) {
+    let shouldSave = false;
+
     if (!existingNono.birthDate) {
       existingNono.birthDate = DEFAULT_NONO_BIRTH_DATE;
+      shouldSave = true;
+    }
+
+    if (!Array.isArray(existingNono.bottleEntries)) {
+      existingNono.bottleEntries = [];
+      shouldSave = true;
+    }
+
+    if (!Array.isArray(existingNono.diaperEntries)) {
+      existingNono.diaperEntries = [];
+      shouldSave = true;
+    }
+
+    if (!Array.isArray(existingNono.weightEntries)) {
+      existingNono.weightEntries = [];
+      shouldSave = true;
+    }
+
+    if (shouldSave) {
       await existingNono.save();
     }
 
@@ -120,11 +145,192 @@ const readStringValue = (value: unknown, label: string): string => {
   return value.trim();
 };
 
+const readTimestampValue = (value: unknown, label: string): string => {
+  if (typeof value !== "string") {
+    throw createError(`${label} invalide`, 400);
+  }
+
+  const parsedDate = new Date(value);
+
+  if (Number.isNaN(parsedDate.getTime())) {
+    throw createError(`${label} invalide`, 400);
+  }
+
+  return parsedDate.toISOString();
+};
+
+const readDateOnlyValue = (value: unknown, label: string): string => {
+  if (typeof value !== "string") {
+    throw createError(`${label} invalide`, 400);
+  }
+
+  const trimmedValue = value.trim();
+
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(trimmedValue)) {
+    throw createError(`${label} invalide`, 400);
+  }
+
+  const parsedDate = new Date(`${trimmedValue}T00:00:00`);
+
+  if (Number.isNaN(parsedDate.getTime())) {
+    throw createError(`${label} invalide`, 400);
+  }
+
+  return trimmedValue;
+};
+
+const readPositiveNumber = (value: unknown, label: string): number => {
+  if (typeof value !== "number" || !Number.isFinite(value) || value <= 0) {
+    throw createError(`${label} invalide`, 400);
+  }
+
+  return value;
+};
+
+const readBooleanValue = (value: unknown, label: string): boolean => {
+  if (typeof value !== "boolean") {
+    throw createError(`${label} invalide`, 400);
+  }
+
+  return value;
+};
+
+const readObjectIdValue = (value: unknown, label: string): Types.ObjectId => {
+  if (typeof value !== "string" || !Types.ObjectId.isValid(value)) {
+    throw createError(`${label} invalide`, 400);
+  }
+
+  return new Types.ObjectId(value);
+};
+
 const updateNonoField = async (field: NonoField, value: string) => {
   const updatedNono = await NonoModel.findOneAndUpdate(
     {},
     { [field]: value },
     { new: true, upsert: true, setDefaultsOnInsert: true }
+  );
+
+  if (!updatedNono) {
+    throw createError("Donnees Nono non trouvees", 404);
+  }
+
+  return updatedNono;
+};
+
+const appendBottleEntry = async (amountMl: number, timestamp: string) => {
+  const updatedNono = await NonoModel.findOneAndUpdate(
+    {},
+    {
+      $push: {
+        bottleEntries: {
+          $each: [{ amountMl, timestamp }],
+          $sort: { timestamp: -1 },
+        },
+      },
+    },
+    { new: true, upsert: true, setDefaultsOnInsert: true }
+  );
+
+  if (!updatedNono) {
+    throw createError("Donnees Nono non trouvees", 404);
+  }
+
+  return updatedNono;
+};
+
+const appendDiaperEntry = async (timestamp: string, hasPoop: boolean) => {
+  const updatedNono = await NonoModel.findOneAndUpdate(
+    {},
+    {
+      $push: {
+        diaperEntries: {
+          $each: [{ timestamp, hasPoop }],
+          $sort: { timestamp: -1 },
+        },
+      },
+    },
+    { new: true, upsert: true, setDefaultsOnInsert: true }
+  );
+
+  if (!updatedNono) {
+    throw createError("Donnees Nono non trouvees", 404);
+  }
+
+  return updatedNono;
+};
+
+const appendWeightEntry = async (date: string, weightKg: number) => {
+  const updatedNono = await NonoModel.findOneAndUpdate(
+    {},
+    {
+      $push: {
+        weightEntries: {
+          $each: [{ date, weightKg }],
+          $sort: { date: -1 },
+        },
+      },
+    },
+    { new: true, upsert: true, setDefaultsOnInsert: true }
+  );
+
+  if (!updatedNono) {
+    throw createError("Donnees Nono non trouvees", 404);
+  }
+
+  return updatedNono;
+};
+
+const removeBottleEntry = async (entryId: Types.ObjectId) => {
+  const updatedNono = await NonoModel.findOneAndUpdate(
+    {},
+    {
+      $pull: {
+        bottleEntries: {
+          _id: entryId,
+        },
+      },
+    },
+    { new: true }
+  );
+
+  if (!updatedNono) {
+    throw createError("Donnees Nono non trouvees", 404);
+  }
+
+  return updatedNono;
+};
+
+const removeDiaperEntry = async (entryId: Types.ObjectId) => {
+  const updatedNono = await NonoModel.findOneAndUpdate(
+    {},
+    {
+      $pull: {
+        diaperEntries: {
+          _id: entryId,
+        },
+      },
+    },
+    { new: true }
+  );
+
+  if (!updatedNono) {
+    throw createError("Donnees Nono non trouvees", 404);
+  }
+
+  return updatedNono;
+};
+
+const removeWeightEntry = async (entryId: Types.ObjectId) => {
+  const updatedNono = await NonoModel.findOneAndUpdate(
+    {},
+    {
+      $pull: {
+        weightEntries: {
+          _id: entryId,
+        },
+      },
+    },
+    { new: true }
   );
 
   if (!updatedNono) {
@@ -186,7 +392,52 @@ const updateNotes = async (req: Request, res: Response): Promise<void> => {
   sendNonoUpdate(res, updatedNono, "Pense-bete mis a jour avec succes");
 };
 
+const addBottleEntry = async (req: Request, res: Response): Promise<void> => {
+  const updatedNono = await appendBottleEntry(
+    readPositiveNumber(req.body.amountMl, "Quantite du biberon"),
+    readTimestampValue(req.body.timestamp, "Heure du biberon")
+  );
+  sendSuccess(res, { nono: [updatedNono] }, "Biberon enregistre avec succes");
+};
+
+const addDiaperEntry = async (req: Request, res: Response): Promise<void> => {
+  const updatedNono = await appendDiaperEntry(
+    readTimestampValue(req.body.timestamp, "Heure de la couche"),
+    readBooleanValue(req.body.hasPoop, "Etat de la couche")
+  );
+  sendSuccess(res, { nono: [updatedNono] }, "Changement de couche enregistre avec succes");
+};
+
+const addWeightEntry = async (req: Request, res: Response): Promise<void> => {
+  const updatedNono = await appendWeightEntry(
+    readDateOnlyValue(req.body.date, "Date du poids"),
+    readPositiveNumber(req.body.weightKg, "Poids")
+  );
+  sendSuccess(res, { nono: [updatedNono] }, "Poids enregistre avec succes");
+};
+
+const deleteBottleEntry = async (req: Request, res: Response): Promise<void> => {
+  const updatedNono = await removeBottleEntry(readObjectIdValue(req.params.entryId, "Biberon"));
+  sendSuccess(res, { nono: [updatedNono] }, "Biberon supprime avec succes");
+};
+
+const deleteDiaperEntry = async (req: Request, res: Response): Promise<void> => {
+  const updatedNono = await removeDiaperEntry(readObjectIdValue(req.params.entryId, "Couche"));
+  sendSuccess(res, { nono: [updatedNono] }, "Changement de couche supprime avec succes");
+};
+
+const deleteWeightEntry = async (req: Request, res: Response): Promise<void> => {
+  const updatedNono = await removeWeightEntry(readObjectIdValue(req.params.entryId, "Poids"));
+  sendSuccess(res, { nono: [updatedNono] }, "Poids supprime avec succes");
+};
+
 export {
+  addBottleEntry,
+  addDiaperEntry,
+  addWeightEntry,
+  deleteBottleEntry,
+  deleteDiaperEntry,
+  deleteWeightEntry,
   getNonoData,
   updateAdministrativeReminder,
   updateBirthDate,
