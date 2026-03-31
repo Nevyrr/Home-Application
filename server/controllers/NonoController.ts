@@ -116,6 +116,15 @@ const getOrCreateNono = async () => {
       shouldSave = true;
     }
 
+    existingNono.bottleEntries.forEach((entry) => {
+      const normalizedDate = getBottleEntryDate(entry);
+
+      if (normalizedDate && entry.date !== normalizedDate) {
+        entry.date = normalizedDate;
+        shouldSave = true;
+      }
+    });
+
     if (!Array.isArray(existingNono.weightEntries)) {
       existingNono.weightEntries = [];
       shouldSave = true;
@@ -139,18 +148,12 @@ const readStringValue = (value: unknown, label: string): string => {
   return value.trim();
 };
 
-const readTimestampValue = (value: unknown, label: string): string => {
-  if (typeof value !== "string") {
-    throw createError(`${label} invalide`, 400);
-  }
+const toDateOnlyValue = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = `${date.getMonth() + 1}`.padStart(2, "0");
+  const day = `${date.getDate()}`.padStart(2, "0");
 
-  const parsedDate = new Date(value);
-
-  if (Number.isNaN(parsedDate.getTime())) {
-    throw createError(`${label} invalide`, 400);
-  }
-
-  return parsedDate.toISOString();
+  return `${year}-${month}-${day}`;
 };
 
 const readDateOnlyValue = (value: unknown, label: string): string => {
@@ -171,6 +174,22 @@ const readDateOnlyValue = (value: unknown, label: string): string => {
   }
 
   return trimmedValue;
+};
+
+const getBottleEntryDate = (entry: { date?: string; timestamp?: string }): string => {
+  if (typeof entry.date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(entry.date.trim())) {
+    return entry.date.trim();
+  }
+
+  if (typeof entry.timestamp === "string") {
+    const parsedDate = new Date(entry.timestamp);
+
+    if (!Number.isNaN(parsedDate.getTime())) {
+      return toDateOnlyValue(parsedDate);
+    }
+  }
+
+  return "";
 };
 
 const readPositiveNumber = (value: unknown, label: string): number => {
@@ -203,14 +222,14 @@ const updateNonoField = async (field: NonoField, value: string) => {
   return updatedNono;
 };
 
-const appendBottleEntry = async (amountMl: number, timestamp: string) => {
+const appendBottleEntry = async (amountMl: number, date: string) => {
   const updatedNono = await NonoModel.findOneAndUpdate(
     {},
     {
       $push: {
         bottleEntries: {
-          $each: [{ amountMl, timestamp }],
-          $sort: { timestamp: -1 },
+          $each: [{ amountMl, date, timestamp: new Date().toISOString() }],
+          $sort: { date: -1, timestamp: -1 },
         },
       },
     },
@@ -340,7 +359,7 @@ const updateNotes = async (req: Request, res: Response): Promise<void> => {
 const addBottleEntry = async (req: Request, res: Response): Promise<void> => {
   const updatedNono = await appendBottleEntry(
     readPositiveNumber(req.body.amountMl, "Quantite du biberon"),
-    readTimestampValue(req.body.timestamp, "Heure du biberon")
+    readDateOnlyValue(req.body.date, "Jour du biberon")
   );
   sendSuccess(res, { nono: [updatedNono] }, "Biberon enregistre avec succes");
 };

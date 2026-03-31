@@ -98,7 +98,8 @@ export interface INono extends Document {
 
 export interface INonoBottleEntry {
   _id?: Types.ObjectId;
-  timestamp: string;
+  date?: string;
+  timestamp?: string;
   amountMl: number;
 }
 

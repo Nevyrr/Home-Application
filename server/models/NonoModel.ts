@@ -40,9 +40,12 @@ const NonoSchema = new Schema<INono>(
     bottleEntries: {
       type: [
         {
-          timestamp: {
+          date: {
             type: String,
             required: true,
+          },
+          timestamp: {
+            type: String,
           },
           amountMl: {
             type: Number,

@@ -93,8 +93,8 @@ const updateAdministrativeReminder = async (date: string): Promise<ApiResponse> 
 const updateNonoNotes = async (notes: string): Promise<ApiResponse> =>
   postNonoUpdate("/api/nono/notes", { notes }, "Impossible de mettre a jour les notes de Nono");
 
-const addBottleEntry = async (amountMl: number, timestamp: string): Promise<ApiResponse> =>
-  postNonoUpdate("/api/nono/bottles", { amountMl, timestamp }, "Impossible d'ajouter le biberon");
+const addBottleEntry = async (amountMl: number, date: string): Promise<ApiResponse> =>
+  postNonoUpdate("/api/nono/bottles", { amountMl, date }, "Impossible d'ajouter le biberon");
 
 const addWeightEntry = async (date: string, weightKg: number): Promise<ApiResponse> =>
   postNonoUpdate("/api/nono/weights", { date, weightKg }, "Impossible d'ajouter la pesee");

@@ -114,7 +114,8 @@ export interface Nono {
 
 export interface NonoBottleEntry {
   _id?: string;
-  timestamp: string;
+  date?: string;
+  timestamp?: string;
   amountMl: number;
 }
 

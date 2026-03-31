@@ -26,6 +26,7 @@ registerLocale("fr", fr);
 
 const DEFAULT_NONO_BIRTH_DATE = "18/03/2026";
 const DAY_IN_MS = 24 * 60 * 60 * 1000;
+const MAX_BOTTLE_CHART_POINTS = 50;
 
 interface NonoScheduleCardProps {
   title: string;
@@ -41,12 +42,18 @@ interface NonoScheduleCardProps {
   disabled?: boolean;
 }
 
-interface BottleChartProps {
-  entries: NonoBottleEntry[];
-}
-
 interface WeightChartProps {
   entries: NonoWeightEntry[];
+}
+
+interface DailyBottleChartEntry {
+  date: string;
+  amountMl: number;
+  bottleCount: number;
+}
+
+interface BottleChartProps {
+  entries: DailyBottleChartEntry[];
 }
 
 interface NonoTrackerHistoryProps {
@@ -120,20 +127,6 @@ const toDateInputValue = (date: Date): string => {
   return new Date(date.getTime() - timezoneOffset).toISOString().slice(0, 10);
 };
 
-const toDateTimeLocalValue = (date: Date): string => {
-  const timezoneOffset = date.getTimezoneOffset() * 60 * 1000;
-  return new Date(date.getTime() - timezoneOffset).toISOString().slice(0, 16);
-};
-
-const parseDateTimeInput = (value: string): Date | null => {
-  if (!value) {
-    return null;
-  }
-
-  const parsedDate = new Date(value);
-  return Number.isNaN(parsedDate.getTime()) ? null : parsedDate;
-};
-
 const parseDateInput = (value: string): Date | null => {
   if (!value) {
     return null;
@@ -202,22 +195,6 @@ const formatBabyAge = (birthDate: string): string => {
   return `${formatYearCount(years)} ${months} mois`;
 };
 
-const formatDateTimeDisplay = (timestamp?: string | null): string => {
-  const parsedDate = parsePreciseTimestamp(timestamp);
-
-  if (!parsedDate) {
-    return "A definir";
-  }
-
-  return new Intl.DateTimeFormat("fr-FR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(parsedDate);
-};
-
 const formatDayDisplay = (dateString?: string | null): string => {
   const parsedDate = parseDayEntryDate(dateString);
 
@@ -229,21 +206,6 @@ const formatDayDisplay = (dateString?: string | null): string => {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
-  }).format(parsedDate);
-};
-
-const formatShortChartLabel = (timestamp: string): string => {
-  const parsedDate = parsePreciseTimestamp(timestamp);
-
-  if (!parsedDate) {
-    return "";
-  }
-
-  return new Intl.DateTimeFormat("fr-FR", {
-    day: "2-digit",
-    month: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
   }).format(parsedDate);
 };
 
@@ -263,6 +225,65 @@ const formatShortDayLabel = (dateString: string): string => {
 const getTimestampMs = (timestamp?: string | null): number => parsePreciseTimestamp(timestamp)?.getTime() || 0;
 
 const getDayMs = (dateString?: string | null): number => parseDayEntryDate(dateString)?.getTime() || 0;
+
+const getBottleEntryDate = (entry?: NonoBottleEntry | null): string => {
+  if (entry?.date) {
+    return entry.date;
+  }
+
+  const parsedTimestamp = parsePreciseTimestamp(entry?.timestamp);
+  return parsedTimestamp ? toDateInputValue(parsedTimestamp) : "";
+};
+
+const getBottleEntryDayMs = (entry?: NonoBottleEntry | null): number => getDayMs(getBottleEntryDate(entry));
+
+const compareBottleEntries = (leftEntry: NonoBottleEntry, rightEntry: NonoBottleEntry): number => {
+  const dayDifference = getBottleEntryDayMs(rightEntry) - getBottleEntryDayMs(leftEntry);
+
+  if (dayDifference !== 0) {
+    return dayDifference;
+  }
+
+  return getTimestampMs(rightEntry.timestamp) - getTimestampMs(leftEntry.timestamp);
+};
+
+const aggregateBottleEntriesByDay = (entries: NonoBottleEntry[]): DailyBottleChartEntry[] => {
+  const groupedEntries = new Map<string, DailyBottleChartEntry>();
+
+  entries.forEach((entry) => {
+    const date = getBottleEntryDate(entry);
+
+    if (!date) {
+      return;
+    }
+
+    const currentDay = groupedEntries.get(date);
+
+    if (currentDay) {
+      currentDay.amountMl += entry.amountMl;
+      currentDay.bottleCount += 1;
+      return;
+    }
+
+    groupedEntries.set(date, {
+      date,
+      amountMl: entry.amountMl,
+      bottleCount: 1,
+    });
+  });
+
+  return [...groupedEntries.values()].sort((a, b) => getDayMs(b.date) - getDayMs(a.date));
+};
+
+const pickAxisEntries = <T,>(entries: T[]): T[] => {
+  if (entries.length <= 3) {
+    return entries;
+  }
+
+  return [0, Math.floor((entries.length - 1) / 2), entries.length - 1]
+    .map((index) => entries[index])
+    .filter((entry, index, array) => array.indexOf(entry) === index);
+};
 
 const formatWeightKg = (weightKg?: number | null): string => {
   if (typeof weightKg !== "number" || Number.isNaN(weightKg)) {
@@ -337,10 +358,10 @@ const getScheduleSortMeta = (dateValues: Array<string | undefined>): { bucket: n
 
 const BottleChart = ({ entries }: BottleChartProps) => {
   if (entries.length === 0) {
-    return <p className="nono-chart-empty">Ajoutez un premier biberon pour afficher la courbe des quantites.</p>;
+    return <p className="nono-chart-empty">Ajoutez un premier biberon pour afficher la courbe des quantites par jour.</p>;
   }
 
-  const orderedEntries = [...entries].sort((a, b) => getTimestampMs(a.timestamp) - getTimestampMs(b.timestamp));
+  const orderedEntries = [...entries].sort((a, b) => getDayMs(a.date) - getDayMs(b.date));
   const values = orderedEntries.map((entry) => entry.amountMl);
   const minValue = Math.min(...values);
   const maxValue = Math.max(...values);
@@ -352,19 +373,24 @@ const BottleChart = ({ entries }: BottleChartProps) => {
     const y = 88 - ((entry.amountMl - lowerBound) / range) * 58;
     return { entry, x, y };
   });
+  const pointRadius = pointEntries.length > 40 ? 1.05 : pointEntries.length > 24 ? 1.25 : 1.6;
+  const pointShadowRadius = pointRadius + 0.7;
+  const lineStrokeWidth = pointEntries.length > 40 ? 1.2 : pointEntries.length > 24 ? 1.45 : 1.8;
   const linePoints = pointEntries.map((point) => `${point.x},${point.y}`).join(" ");
   const areaPoints = `${pointEntries[0].x},92 ${linePoints} ${pointEntries[pointEntries.length - 1].x},92`;
   const tickValues = [upperBound, lowerBound + range / 2, lowerBound].map((value) => Math.round(value));
-  const axisEntries = [
-    orderedEntries[0],
-    orderedEntries[Math.floor((orderedEntries.length - 1) / 2)],
-    orderedEntries[orderedEntries.length - 1],
-  ];
+  const axisEntries = pickAxisEntries(orderedEntries);
 
   return (
     <div className="nono-chart-shell">
       <div className="nono-chart-plot">
-        <svg className="nono-bottle-chart" viewBox="0 0 100 100" preserveAspectRatio="none" role="img" aria-label="Courbe des quantites de biberons">
+        <svg
+          className="nono-bottle-chart"
+          viewBox="0 0 100 100"
+          preserveAspectRatio="none"
+          role="img"
+          aria-label="Courbe des quantites de biberons par jour"
+        >
           <defs>
             <linearGradient id="nono-bottle-chart-fill" x1="0%" y1="0%" x2="0%" y2="100%">
               <stop offset="0%" stopColor="rgba(99, 167, 235, 0.35)" />
@@ -378,12 +404,15 @@ const BottleChart = ({ entries }: BottleChartProps) => {
           })}
 
           <polygon points={areaPoints} className="nono-chart-area" />
-          <polyline points={linePoints} className="nono-chart-line" />
+          <polyline points={linePoints} className="nono-chart-line" strokeWidth={lineStrokeWidth} />
 
           {pointEntries.map((point) => (
-            <g key={`${point.entry.timestamp}-${point.entry.amountMl}`}>
-              <circle cx={point.x} cy={point.y} r="2.3" className="nono-chart-point-shadow" />
-              <circle cx={point.x} cy={point.y} r="1.6" className="nono-chart-point" />
+            <g key={point.entry.date}>
+              <title>
+                {`${formatDayDisplay(point.entry.date)} : ${point.entry.amountMl} mL${point.entry.bottleCount > 1 ? ` (${point.entry.bottleCount} biberons)` : ""}`}
+              </title>
+              <circle cx={point.x} cy={point.y} r={pointShadowRadius} className="nono-chart-point-shadow" />
+              <circle cx={point.x} cy={point.y} r={pointRadius} className="nono-chart-point" />
             </g>
           ))}
         </svg>
@@ -397,7 +426,7 @@ const BottleChart = ({ entries }: BottleChartProps) => {
 
       <div className="nono-chart-axis">
         {axisEntries.map((entry, index) => (
-          <span key={`${entry.timestamp}-${index}`}>{formatShortChartLabel(entry.timestamp)}</span>
+          <span key={`${entry.date}-${index}`}>{formatShortDayLabel(entry.date)}</span>
         ))}
       </div>
     </div>
@@ -426,11 +455,7 @@ const WeightChart = ({ entries }: WeightChartProps) => {
   const tickValues = [upperBound, lowerBound + range / 2, lowerBound].map((value) =>
     Number(value.toFixed(3))
   );
-  const axisEntries = [
-    orderedEntries[0],
-    orderedEntries[Math.floor((orderedEntries.length - 1) / 2)],
-    orderedEntries[orderedEntries.length - 1],
-  ];
+  const axisEntries = pickAxisEntries(orderedEntries);
 
   return (
     <div className="nono-chart-shell">
@@ -612,7 +637,7 @@ const NonoTab = () => {
   const { error, success, setError, setSuccess, handleAsyncOperation } = useErrorHandler();
   const [notesDraft, setNotesDraft] = useState("");
   const [bottleAmountDraft, setBottleAmountDraft] = useState("90");
-  const [bottleTimestampDraft, setBottleTimestampDraft] = useState(() => toDateTimeLocalValue(new Date()));
+  const [bottleDateDraft, setBottleDateDraft] = useState(() => toDateInputValue(new Date()));
   const [weightDraft, setWeightDraft] = useState("");
   const [weightDateDraft, setWeightDateDraft] = useState(() => toDateInputValue(new Date()));
   const canWrite = canUserWrite(user);
@@ -633,16 +658,19 @@ const NonoTab = () => {
   }, [nono.notes]);
 
   const bottleEntries = useMemo(
-    () => [...(nono.bottleEntries || [])].sort((a, b) => getTimestampMs(b.timestamp) - getTimestampMs(a.timestamp)),
+    () => [...(nono.bottleEntries || [])].sort(compareBottleEntries),
     [nono.bottleEntries]
   );
   const weightEntries = useMemo(
     () => [...(nono.weightEntries || [])].sort((a, b) => getDayMs(b.date) - getDayMs(a.date)),
     [nono.weightEntries]
   );
+  const bottleChartEntries = useMemo(
+    () => aggregateBottleEntriesByDay(bottleEntries).slice(0, MAX_BOTTLE_CHART_POINTS).reverse(),
+    [bottleEntries]
+  );
 
   const latestWeight = weightEntries[0];
-  const chartEntries = bottleEntries.slice(0, 12).reverse();
   const recentBottleEntries = bottleEntries;
   const weightChartEntries = weightEntries.slice(0, 12).reverse();
   const recentWeightEntries = weightEntries;
@@ -749,20 +777,20 @@ const NonoTab = () => {
     }
 
     const amountMl = Number(bottleAmountDraft);
-    const timestamp = parseDateTimeInput(bottleTimestampDraft);
+    const parsedDate = parseDateInput(bottleDateDraft);
 
     await handleAsyncOperation(async () => {
       if (!Number.isFinite(amountMl) || amountMl <= 0) {
         throw new Error("Indiquez une quantite de biberon valide");
       }
 
-      if (!timestamp) {
-        throw new Error("Indiquez une heure valide pour le biberon");
+      if (!parsedDate || !bottleDateDraft) {
+        throw new Error("Indiquez une date valide pour le biberon");
       }
 
-      const response = await addBottleEntry(amountMl, timestamp.toISOString());
+      const response = await addBottleEntry(amountMl, bottleDateDraft);
       await loadNono();
-      setBottleTimestampDraft(toDateTimeLocalValue(new Date()));
+      setBottleDateDraft(toDateInputValue(new Date()));
       if (response.success) {
         setSuccess(response.success);
       }
@@ -872,7 +900,7 @@ const NonoTab = () => {
             icon="fa-bottle-water"
             accentClass="accent-sky"
             panelClassName="nono-bottle-panel"
-            chartTitle="Evolution des biberons"
+            chartTitle="Evolution des biberons par jour"
             canWrite={canWrite}
             submitLabel="Ajouter le biberon"
             onSubmit={() => {
@@ -895,13 +923,13 @@ const NonoTab = () => {
                 </label>
 
                 <label className="nono-field">
-                  <span>Heure du biberon</span>
+                  <span>Jour du biberon</span>
                   <input
-                    className="input"
-                    type="datetime-local"
-                    value={bottleTimestampDraft}
+                    className="input compact-native-date-input"
+                    type="date"
+                    value={bottleDateDraft}
                     disabled={!canWrite}
-                    onChange={(event) => setBottleTimestampDraft(event.target.value)}
+                    onChange={(event) => setBottleDateDraft(event.target.value)}
                   />
                 </label>
               </div>
@@ -913,10 +941,10 @@ const NonoTab = () => {
               children: (
                 <ul className="nono-history-list">
                   {recentBottleEntries.map((entry, index) => (
-                    <li key={entry._id || `${entry.timestamp}-${entry.amountMl}-${index}`} className="nono-history-item">
+                    <li key={entry._id || `${getBottleEntryDate(entry)}-${entry.amountMl}-${index}`} className="nono-history-item">
                       <div className="nono-history-main">
                         <strong>{entry.amountMl} mL</strong>
-                        <span>{formatDateTimeDisplay(entry.timestamp)}</span>
+                        <span>{formatDayDisplay(getBottleEntryDate(entry))}</span>
                       </div>
                       <button
                         className="icon-button nono-history-delete"
@@ -933,7 +961,7 @@ const NonoTab = () => {
                 </ul>
               ),
             }}
-            chart={<BottleChart entries={chartEntries} />}
+            chart={<BottleChart entries={bottleChartEntries} />}
           />
 
           <NonoTrackerPanel
