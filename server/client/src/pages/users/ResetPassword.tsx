@@ -30,11 +30,11 @@ const ResetPassword = () => {
     try {
       await handleAsyncOperation(async () => {
         await resetPassword(token, password);
-      }, "Mot de passe reinitialise");
-
-      window.setTimeout(() => {
-        navigate("/login");
-      }, 1200);
+      }, "Mot de passe reinitialise").then(() => {
+        window.setTimeout(() => {
+          navigate("/login");
+        }, 1200);
+      }).catch(() => undefined);
     } finally {
       setIsSubmitting(false);
     }
@@ -59,6 +59,7 @@ const ResetPassword = () => {
             className="input"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
+            autoComplete="new-password"
             autoFocus
           />
           <input
@@ -67,6 +68,7 @@ const ResetPassword = () => {
             className="input"
             value={passwordConfirm}
             onChange={(event) => setPasswordConfirm(event.target.value)}
+            autoComplete="new-password"
           />
           <button className="btn" disabled={isSubmitting || !token}>
             {isSubmitting ? "Validation..." : "Mettre a jour le mot de passe"}

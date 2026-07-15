@@ -33,7 +33,7 @@ const Login = () => {
       await loginUser(email, password);
       syncUserFromStorage();
       navigate("/dashboard");
-    }, null);
+    }, null).catch(() => undefined);
   };
 
   const handleGoogleLogin = async (credential: string) => {
@@ -41,7 +41,7 @@ const Login = () => {
       await loginWithGoogle(credential);
       syncUserFromStorage();
       navigate("/dashboard");
-    }, null);
+    }, null).catch(() => undefined);
   };
 
   return (
@@ -70,6 +70,7 @@ const Login = () => {
             className="input"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
+            autoComplete="username"
             autoFocus
           />
           <input
@@ -78,6 +79,7 @@ const Login = () => {
             className="input"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
+            autoComplete="current-password"
           />
           <button className="btn">Connexion</button>
         </form>

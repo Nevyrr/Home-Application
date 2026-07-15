@@ -273,7 +273,7 @@ const TacoTab = () => {
       if (response.success) {
         setSuccess(response.success);
       }
-    }, null);
+    }, null).catch(() => undefined);
   };
 
   const nextMilestone = getNextMilestone(taco);

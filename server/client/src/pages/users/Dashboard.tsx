@@ -208,7 +208,7 @@ const Dashboard = () => {
           name: trimmedName,
           email: trimmedEmail,
         });
-      }, "Profil mis a jour");
+      }, "Profil mis a jour").catch(() => undefined);
     } finally {
       setIsSavingProfile(false);
     }
@@ -252,7 +252,7 @@ const Dashboard = () => {
             currentUsers.map((currentUser) => (currentUser.id === managedUser.id ? updatedUser : currentUser))
           );
         }
-      }, "Niveau d'acces mis a jour");
+      }, "Niveau d'acces mis a jour").catch(() => undefined);
     } finally {
       setUpdatingUserId(null);
     }
@@ -269,7 +269,7 @@ const Dashboard = () => {
       await handleAsyncOperation(async () => {
         await deleteUserAccount(managedUser.id);
         setManagedUsers((currentUsers) => currentUsers.filter((currentUser) => currentUser.id !== managedUser.id));
-      }, "Compte supprime");
+      }, "Compte supprime").catch(() => undefined);
     } finally {
       setDeletingUserId(null);
     }

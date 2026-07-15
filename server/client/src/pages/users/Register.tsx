@@ -37,7 +37,7 @@ const Register = () => {
       await registerUser(formData.name, formData.email, formData.password, formData.passwordConfirm);
       syncUserFromStorage();
       navigate("/dashboard");
-    }, null);
+    }, null).catch(() => undefined);
   };
 
   const handleGoogleRegister = async (credential: string) => {
@@ -45,7 +45,7 @@ const Register = () => {
       await loginWithGoogle(credential);
       syncUserFromStorage();
       navigate("/dashboard");
-    }, null);
+    }, null).catch(() => undefined);
   };
 
   return (
@@ -74,6 +74,7 @@ const Register = () => {
             className="input"
             value={formData.name}
             onChange={(event) => setFormData({ ...formData, name: event.target.value })}
+            autoComplete="name"
             autoFocus
           />
           <input
@@ -82,6 +83,7 @@ const Register = () => {
             className="input"
             value={formData.email}
             onChange={(event) => setFormData({ ...formData, email: event.target.value })}
+            autoComplete="username"
           />
           <input
             type="password"
@@ -89,6 +91,7 @@ const Register = () => {
             className="input"
             value={formData.password}
             onChange={(event) => setFormData({ ...formData, password: event.target.value })}
+            autoComplete="new-password"
           />
           <input
             type="password"
@@ -96,6 +99,7 @@ const Register = () => {
             className="input"
             value={formData.passwordConfirm}
             onChange={(event) => setFormData({ ...formData, passwordConfirm: event.target.value })}
+            autoComplete="new-password"
           />
           <button className="btn">Creer mon compte</button>
         </form>

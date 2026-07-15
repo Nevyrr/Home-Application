@@ -201,7 +201,7 @@ const CalendarTab = () => {
       if (response.success) {
         setSuccess(response.success);
       }
-    }, null);
+    }, null).catch(() => undefined);
   };
 
   const handleUpdate = async () => {
@@ -221,7 +221,7 @@ const CalendarTab = () => {
       if (response.success) {
         setSuccess(response.success);
       }
-    }, null);
+    }, null).catch(() => undefined);
   };
 
   const handleDelete = async (_id: string) => {
@@ -239,7 +239,7 @@ const CalendarTab = () => {
       if (response.success) {
         setSuccess(response.success);
       }
-    }, null);
+    }, null).catch(() => undefined);
   };
 
   const handleClearDay = async () => {
@@ -258,7 +258,7 @@ const CalendarTab = () => {
 
       await filterEventsWithSelectedDate(selectedDate);
       setSuccess("Tous les evenements du jour ont ete supprimes");
-    }, null);
+    }, null).catch(() => undefined);
   };
 
   const dateInput = (): ReactNode => {

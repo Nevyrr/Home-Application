@@ -110,10 +110,14 @@ const addPost = async (req: AuthRequest, res: Response): Promise<void> => {
 };
 
 /************************************ Delete Shopping Post ************************************/
-const deletePost = async (req: Request, res: Response): Promise<void> => {
+const deletePost = async (req: AuthRequest, res: Response): Promise<void> => {
   // Check the ID is valid type
   if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
     throw createError("ID incorrect", 400);
+  }
+
+  if (!req.user) {
+    throw createError("Utilisateur non authentifié", 401);
   }
 
   const shoppingDayList = await ShoppingDay.findOne({
@@ -129,6 +133,17 @@ const deletePost = async (req: Request, res: Response): Promise<void> => {
   const shoppingPostIndex = shoppingDayList.shoppingList.findIndex((shoppingItem) => shoppingItem._id && shoppingItem._id.equals(new mongoose.Types.ObjectId(req.params.id)));
   if (shoppingPostIndex === -1) {
     throw createError("Article de course non trouvé", 404);
+  }
+
+  const shoppingPost = shoppingDayList.shoppingList[shoppingPostIndex];
+  const user = await User.findById(req.user._id);
+
+  if (!user) {
+    throw createError("Utilisateur non trouvé", 404);
+  }
+
+  if (!shoppingPost.user.equals(user._id) && !user.isAdmin) {
+    throw createError("Vous n'êtes pas autorisé à supprimer cet article", 403);
   }
 
   shoppingDayList.shoppingList.splice(shoppingPostIndex, 1);
@@ -184,21 +199,21 @@ const updatePost = async (req: AuthRequest, res: Response): Promise<void> => {
     throw createError("Utilisateur non trouvé", 404);
   }
 
-  const shoppingDay = {
-    id: req.params.id,
-    user: user._id,
-    username: user.name,
-    title,
-    count,
-    unit,
-    priorityColor
-  };
+  const shoppingPost = shoppingDayList.shoppingList[shoppingPostIndex];
 
-  shoppingDayList.shoppingList.splice(shoppingPostIndex, 1);
-  shoppingDayList.shoppingList.push(shoppingDay as any);
+  if (!shoppingPost.user.equals(user._id) && !user.isAdmin) {
+    throw createError("Vous n'êtes pas autorisé à modifier cet article", 403);
+  }
+
+  // Mise a jour en place pour conserver l'_id et la date de creation de l'article
+  shoppingPost.title = title;
+  shoppingPost.count = count;
+  shoppingPost.unit = unit;
+  shoppingPost.priorityColor = priorityColor;
+
   await shoppingDayList.save();
   const updatedShoppingDay = await ShoppingDay.findById(shoppingDayList._id);
-  sendUpdated(res, { shoppingPost: shoppingDay, shoppingDay: updatedShoppingDay }, `Article "${title}" mis à jour avec succès`);
+  sendUpdated(res, { shoppingPost, shoppingDay: updatedShoppingDay }, `Article "${title}" mis à jour avec succès`);
 };
 
 export { getPosts, addDate, updateDateItem, addPost, deletePost, deletePosts, updatePost };

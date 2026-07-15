@@ -324,7 +324,7 @@ const ReminderTab = () => {
       }
 
       resetEditor();
-    }, null);
+    }, null).catch(() => undefined);
   };
 
   const handleDelete = async (postId: string) => {
@@ -342,7 +342,7 @@ const ReminderTab = () => {
       if (response.success) {
         setSuccess(response.success);
       }
-    }, null);
+    }, null).catch(() => undefined);
   };
 
   const buildReorderedPosts = (

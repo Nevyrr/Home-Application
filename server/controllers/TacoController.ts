@@ -6,6 +6,7 @@ import ImageModel from "../models/ImageModel.js";
 import { sendEmail } from "../config/nodeMailConfig.js";
 import { createError } from "../middlewares/errorHandler.js";
 import { sendNotFound, sendSuccess } from "../utils/apiResponse.js";
+import { logger } from "../utils/logger.js";
 
 type TacoField =
   | "vermifugeDate"
@@ -59,36 +60,40 @@ const sendReminderEmails = (subject: string, message: string): void => {
 };
 
 cron.schedule("0 8 * * *", async () => {
-  const taco = await TacoModel.findOne();
+  try {
+    const taco = await TacoModel.findOne();
 
-  if (!taco) {
-    return;
-  }
+    if (!taco) {
+      return;
+    }
 
-  const currentDate = new Date();
-  const vermifugeReminderDate = parseReminderDate(taco.vermifugeReminder);
-  const antiPuceReminderDate = parseReminderDate(taco.antiPuceReminder);
-  const annualVaccineReminderDate = parseReminderDate(taco.annualVaccineReminder);
+    const currentDate = new Date();
+    const vermifugeReminderDate = parseReminderDate(taco.vermifugeReminder);
+    const antiPuceReminderDate = parseReminderDate(taco.antiPuceReminder);
+    const annualVaccineReminderDate = parseReminderDate(taco.annualVaccineReminder);
 
-  if (vermifugeReminderDate && vermifugeReminderDate.getTime() < currentDate.getTime()) {
-    sendReminderEmails(
-      "rappel vermifuge coco",
-      "La date du rappel du vermifuge pour Taco DAVIN est desormais depassee. Pensez a le faire au plus vite !"
-    );
-  }
+    if (vermifugeReminderDate && vermifugeReminderDate.getTime() < currentDate.getTime()) {
+      sendReminderEmails(
+        "rappel vermifuge coco",
+        "La date du rappel du vermifuge pour Taco DAVIN est desormais depassee. Pensez a le faire au plus vite !"
+      );
+    }
 
-  if (antiPuceReminderDate && antiPuceReminderDate.getTime() < currentDate.getTime()) {
-    sendReminderEmails(
-      "rappel anti-puce coco",
-      "La date du rappel de l'anti-puce pour Taco DAVIN est desormais depassee. Pensez a le faire au plus vite !"
-    );
-  }
+    if (antiPuceReminderDate && antiPuceReminderDate.getTime() < currentDate.getTime()) {
+      sendReminderEmails(
+        "rappel anti-puce coco",
+        "La date du rappel de l'anti-puce pour Taco DAVIN est desormais depassee. Pensez a le faire au plus vite !"
+      );
+    }
 
-  if (annualVaccineReminderDate && annualVaccineReminderDate.getTime() < currentDate.getTime()) {
-    sendReminderEmails(
-      "rappel vaccin annuel taco",
-      "La date du rappel du vaccin annuel pour Taco DAVIN est desormais depassee. Pensez a prendre rendez-vous au plus vite !"
-    );
+    if (annualVaccineReminderDate && annualVaccineReminderDate.getTime() < currentDate.getTime()) {
+      sendReminderEmails(
+        "rappel vaccin annuel taco",
+        "La date du rappel du vaccin annuel pour Taco DAVIN est desormais depassee. Pensez a prendre rendez-vous au plus vite !"
+      );
+    }
+  } catch (error) {
+    logger.error("Echec du job cron des rappels Taco", { error });
   }
 });
 

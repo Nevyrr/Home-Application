@@ -537,7 +537,7 @@ const ShoppingTab = () => {
       if (msg?.success) {
         setSuccess(msg.success);
       }
-    });
+    }).catch(() => undefined);
   };
 
   const handleUpdate = async () => {
@@ -558,7 +558,7 @@ const ShoppingTab = () => {
       if (msg?.success) {
         setSuccess(msg.success);
       }
-    });
+    }).catch(() => undefined);
   };
 
   const handleUpdatePost = async () => {
@@ -583,7 +583,7 @@ const ShoppingTab = () => {
         if (msg?.success) {
           setSuccess(msg.success);
         }
-      });
+      }).catch(() => undefined);
     }
   };
 
@@ -608,7 +608,7 @@ const ShoppingTab = () => {
         if (msg?.success) {
           setSuccess(msg.success);
         }
-      });
+      }).catch(() => undefined);
     }
   };
 
@@ -673,7 +673,7 @@ const ShoppingTab = () => {
         setQuickAddItem(DEFAULT_QUICK_ADD);
         setIsQuickAddCountValid(true);
       }
-    });
+    }).catch(() => undefined);
   };
 
   const handleNameChange = (shoppingItemId: string, name: string) => {

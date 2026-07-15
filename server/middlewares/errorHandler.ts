@@ -53,7 +53,7 @@ const handleZodError = (err: ZodError): { message: string; errors: Record<string
 /**
  * Gère les erreurs MongoDB
  */
-const handleMongoError = (err: any): { message: string; statusCode: number } => {
+const handleMongoError = (err: any): { message: string; statusCode: number; errors?: Record<string, string[]> } => {
   // Erreur de duplication (unique constraint)
   if (err.code === 11000) {
     const field = Object.keys(err.keyPattern)[0];
@@ -72,6 +72,7 @@ const handleMongoError = (err: any): { message: string; statusCode: number } => 
     return {
       message: 'Erreurs de validation',
       statusCode: 400,
+      errors,
     };
   }
 
@@ -120,6 +121,7 @@ export const errorHandler = (
     const mongoError = handleMongoError(err);
     statusCode = mongoError.statusCode;
     message = mongoError.message;
+    errors = mongoError.errors;
   }
   // Erreur standard
   else {

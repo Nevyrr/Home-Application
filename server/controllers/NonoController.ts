@@ -5,6 +5,7 @@ import NonoModel from "../models/NonoModel.js";
 import { sendEmail } from "../config/nodeMailConfig.js";
 import { createError } from "../middlewares/errorHandler.js";
 import { sendSuccess } from "../utils/apiResponse.js";
+import { logger } from "../utils/logger.js";
 
 type NonoField =
   | "birthDate"
@@ -61,43 +62,47 @@ const sendReminderEmails = (subject: string, message: string): void => {
 };
 
 cron.schedule("15 8 * * *", async () => {
-  const nono = await NonoModel.findOne();
+  try {
+    const nono = await NonoModel.findOne();
 
-  if (!nono) {
-    return;
-  }
-
-  const currentDate = startOfDay(new Date());
-  const reminders = [
-    {
-      date: nono.checkupReminder,
-      subject: "rappel rendez-vous nono",
-      message: "Le rappel du prochain rendez-vous pour Nono est dépassé. Pensez a verifier le suivi avec votre pediatre.",
-    },
-    {
-      date: nono.vaccineReminder,
-      subject: "rappel vaccin nono",
-      message: "Le rappel du prochain vaccin de Nono est dépassé. Pensez a verifier la date avec votre professionnel de sante.",
-    },
-    {
-      date: nono.vitaminReminder,
-      subject: "rappel vitamine nono",
-      message: "Le rappel vitamine de Nono est dépassé. Pensez a verifier le renouvellement.",
-    },
-    {
-      date: nono.administrativeReminder,
-      subject: "rappel demarche nono",
-      message: "Le rappel pour une demarche ou une relance de Nono est dépassé. Pensez a verifier les papiers en attente.",
-    },
-  ];
-
-  reminders.forEach((reminder) => {
-    const reminderDate = parseStoredDate(reminder.date);
-
-    if (reminderDate && reminderDate.getTime() < currentDate.getTime()) {
-      sendReminderEmails(reminder.subject, reminder.message);
+    if (!nono) {
+      return;
     }
-  });
+
+    const currentDate = startOfDay(new Date());
+    const reminders = [
+      {
+        date: nono.checkupReminder,
+        subject: "rappel rendez-vous nono",
+        message: "Le rappel du prochain rendez-vous pour Nono est dépassé. Pensez a verifier le suivi avec votre pediatre.",
+      },
+      {
+        date: nono.vaccineReminder,
+        subject: "rappel vaccin nono",
+        message: "Le rappel du prochain vaccin de Nono est dépassé. Pensez a verifier la date avec votre professionnel de sante.",
+      },
+      {
+        date: nono.vitaminReminder,
+        subject: "rappel vitamine nono",
+        message: "Le rappel vitamine de Nono est dépassé. Pensez a verifier le renouvellement.",
+      },
+      {
+        date: nono.administrativeReminder,
+        subject: "rappel demarche nono",
+        message: "Le rappel pour une demarche ou une relance de Nono est dépassé. Pensez a verifier les papiers en attente.",
+      },
+    ];
+
+    reminders.forEach((reminder) => {
+      const reminderDate = parseStoredDate(reminder.date);
+
+      if (reminderDate && reminderDate.getTime() < currentDate.getTime()) {
+        sendReminderEmails(reminder.subject, reminder.message);
+      }
+    });
+  } catch (error) {
+    logger.error("Echec du job cron des rappels Nono", { error });
+  }
 });
 
 const getOrCreateNono = async () => {

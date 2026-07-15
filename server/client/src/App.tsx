@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Layout from "./pages/Layout.tsx";
 import Login from "./pages/users/Login.tsx";
 import Register from "./pages/users/Register.tsx";
@@ -36,6 +36,7 @@ const App = () => {
             <Route path="reset-password" element={<ResetPassword />} />
           </Route>
 
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>
     </BrowserRouter>

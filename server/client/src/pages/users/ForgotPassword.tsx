@@ -15,7 +15,7 @@ const ForgotPassword = () => {
     try {
       await handleAsyncOperation(async () => {
         await requestPasswordReset(email);
-      }, "Si un compte existe pour cette adresse, un lien de reinitialisation a ete envoye.");
+      }, "Si un compte existe pour cette adresse, un lien de reinitialisation a ete envoye.").catch(() => undefined);
     } finally {
       setIsSubmitting(false);
     }
@@ -40,6 +40,7 @@ const ForgotPassword = () => {
             className="input"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
+            autoComplete="username"
             autoFocus
           />
           <button className="btn" disabled={isSubmitting}>

@@ -1,4 +1,5 @@
 import express from 'express';
+import rateLimit from 'express-rate-limit';
 import {
   registerUser,
   loginUser,
@@ -23,13 +24,32 @@ import { z } from 'zod';
 // Creating an instance of Express router
 const router = express.Router();
 
+// Limiteur dedie aux routes sensibles (login/register/reset) pour freiner le bruteforce,
+// en plus du rate-limit global applique a toute l'API
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 15,
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: (req, res) => {
+    res.status(429).json({
+      success: false,
+      error: "Trop de tentatives, veuillez reessayer plus tard.",
+      meta: {
+        timestamp: new Date().toISOString(),
+        path: req.path,
+      },
+    });
+  },
+});
+
 // Public routes
-router.post('/', validate(registerSchema), asyncHandler(registerUser));
-router.post('/login', validate(loginSchema), asyncHandler(loginUser));
-router.post('/google', validate(z.object({ credential: z.string().min(1) })), asyncHandler(loginWithGoogle));
-router.post('/forgot-password', validate(forgotPasswordSchema), asyncHandler(forgotPassword));
-router.post('/reset-password', validate(resetPasswordSchema), asyncHandler(resetPassword));
-router.post('/refresh', validate(z.object({ refreshToken: z.string() })), asyncHandler(refreshToken));
+router.post('/', authLimiter, validate(registerSchema), asyncHandler(registerUser));
+router.post('/login', authLimiter, validate(loginSchema), asyncHandler(loginUser));
+router.post('/google', authLimiter, validate(z.object({ credential: z.string().min(1) })), asyncHandler(loginWithGoogle));
+router.post('/forgot-password', authLimiter, validate(forgotPasswordSchema), asyncHandler(forgotPassword));
+router.post('/reset-password', authLimiter, validate(resetPasswordSchema), asyncHandler(resetPassword));
+router.post('/refresh', authLimiter, validate(z.object({ refreshToken: z.string() })), asyncHandler(refreshToken));
 
 // Protected routes
 router.get('/', auth, requireAdmin, asyncHandler(listUsers));
