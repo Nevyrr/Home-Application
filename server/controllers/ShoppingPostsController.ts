@@ -5,6 +5,9 @@ import User from "../models/UserModel.js";
 import { AuthRequest } from "../middlewares/auth.js";
 import { createError } from "../middlewares/errorHandler.js";
 import { sendSuccess, sendCreated, sendUpdated, sendDeleted } from "../utils/apiResponse.js";
+import { generateShoppingListFromDescription } from "../utils/aiShoppingAssistant.js";
+import { isAiConfigured } from "../config/aiClient.js";
+import { logger } from "../utils/logger.js";
 
 /************************************ Get All Posts ************************************/
 
@@ -216,5 +219,37 @@ const updatePost = async (req: AuthRequest, res: Response): Promise<void> => {
   sendUpdated(res, { shoppingPost, shoppingDay: updatedShoppingDay }, `Article "${title}" mis à jour avec succès`);
 };
 
-export { getPosts, addDate, updateDateItem, addPost, deletePost, deletePosts, updatePost };
+/************************************ Generation IA de liste de courses ************************************/
+const generateAiShoppingList = async (req: AuthRequest, res: Response): Promise<void> => {
+  const { description } = req.body as { description: string };
+
+  if (!isAiConfigured()) {
+    throw createError("L'assistant IA n'est pas configure sur ce serveur", 503);
+  }
+
+  let items;
+
+  try {
+    items = await generateShoppingListFromDescription(description);
+  } catch (error) {
+    logger.error("Echec de la generation IA de liste de courses", { error });
+    throw createError(
+      "Impossible de generer la liste avec l'IA. Reessaie avec une description differente.",
+      502
+    );
+  }
+
+  sendSuccess(res, { items }, `${items.length} article(s) propose(s) par l'IA`);
+};
+
+export {
+  getPosts,
+  addDate,
+  updateDateItem,
+  addPost,
+  deletePost,
+  deletePosts,
+  updatePost,
+  generateAiShoppingList,
+};
 

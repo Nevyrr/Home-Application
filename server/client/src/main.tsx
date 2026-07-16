@@ -3,6 +3,7 @@ import ReactDOM from "react-dom/client";
 import App from "./App.tsx";
 import "./style/theme.css";
 import "./style/app.css";
+import "./style/polish.css";
 import { AppProvider } from "./contexts/AppContext.tsx";
 import { ThemeProvider } from "./contexts/ThemeContext.tsx";
 import ErrorBoundary from "./components/ErrorBoundary.tsx";

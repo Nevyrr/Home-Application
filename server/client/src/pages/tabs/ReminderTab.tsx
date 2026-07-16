@@ -41,6 +41,7 @@ const EMPTY_EDITOR: ReminderPostPayload = {
   body: "",
   status: "todo",
   dueDate: "",
+  amount: null,
 };
 
 const normalizeDueDate = (dueDate?: string | Date | null): string => {
@@ -62,8 +63,17 @@ const toPayload = (post: ReminderPost): ReminderPostPayload => ({
   body: post.body || "",
   status: post.status || "todo",
   dueDate: normalizeDueDate(post.dueDate),
+  amount: post.amount ?? null,
   sortOrder: post.sortOrder,
 });
+
+const formatAmount = (amount?: number | null): string | null => {
+  if (typeof amount !== "number" || Number.isNaN(amount)) {
+    return null;
+  }
+
+  return amount.toLocaleString("fr-FR", { style: "currency", currency: "EUR" });
+};
 
 const compareByManualOrder = (a: ReminderPost, b: ReminderPost): number => {
   return (a.sortOrder ?? 0) - (b.sortOrder ?? 0);
@@ -112,6 +122,7 @@ const ReminderTaskCardContent = ({ post, canManage, onEdit, onDelete, dragHandle
       <div className="reminder-task-top">
         <div className="reminder-task-summary">
           <span className={`reminder-status-badge status-${post.status}`}>{getStatusLabel(post.status || "todo")}</span>
+          {formatAmount(post.amount) && <span className="reminder-amount-badge">{formatAmount(post.amount)}</span>}
           <div className="reminder-task-meta">
             <span>{post.username}</span>
             <span className="meta-separator">|</span>
@@ -574,6 +585,26 @@ const ReminderTab = () => {
                 />
               </label>
             </div>
+
+            <label className="reminder-field">
+              <span>Montant (optionnel)</span>
+              <input
+                type="number"
+                className="input"
+                disabled={!canWrite}
+                min="0"
+                step="0.01"
+                inputMode="decimal"
+                value={editor.amount ?? ""}
+                onChange={(event) =>
+                  updateEditor("amount", event.target.value === "" ? null : Number(event.target.value))
+                }
+                placeholder="Ex: 45.90"
+              />
+              <span className="reminder-field-hint">
+                Renseigne un montant et une echeance pour recevoir un email de rappel le jour J (utile pour une facture).
+              </span>
+            </label>
 
             <button className="btn" onClick={handleSubmit} disabled={!canWrite}>
               {editingId ? "Mettre a jour la tache" : "Ajouter a la liste"}

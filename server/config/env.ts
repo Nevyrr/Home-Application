@@ -16,6 +16,7 @@ interface EnvConfig {
   EMAIL_RECIPIENT_1?: string;
   EMAIL_RECIPIENT_2?: string;
   DEFAULT_ADMIN_EMAILS?: string;
+  ANTHROPIC_API_KEY?: string;
 }
 
 const requiredEnvVars = ['DB_URI', 'SECRET'] as const;
@@ -61,6 +62,7 @@ export const validateEnv = (): EnvConfig => {
     EMAIL_RECIPIENT_1: process.env.EMAIL_RECIPIENT_1,
     EMAIL_RECIPIENT_2: process.env.EMAIL_RECIPIENT_2,
     DEFAULT_ADMIN_EMAILS: process.env.DEFAULT_ADMIN_EMAILS,
+    ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY,
   };
 };
 

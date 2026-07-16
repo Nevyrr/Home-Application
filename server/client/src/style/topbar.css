@@ -145,31 +145,106 @@
     height: 2.55rem;
   }
 
-  .topbar-main,
+  /* La navigation principale vit desormais dans la bottom-tab-bar sur mobile */
+  .topbar-main {
+    display: none;
+  }
+
   .topbar-utility {
     overflow-x: auto;
     scrollbar-width: none;
     -ms-overflow-style: none;
+    justify-content: center;
+    width: 100%;
   }
 
-  .topbar-main::-webkit-scrollbar,
   .topbar-utility::-webkit-scrollbar {
     display: none;
   }
 
-  .topbar-main {
-    grid-template-columns: repeat(5, 3.15rem);
-    justify-content: space-between;
-  }
-
   .topbar-utility {
     grid-auto-columns: 3.15rem;
-    justify-content: start;
   }
 
   .topbar-button {
     height: 3.15rem;
     min-width: 3.15rem;
     border-radius: 1rem;
+  }
+}
+
+/* =========================
+   Bottom tab bar (mobile, style app native)
+   ========================= */
+.bottom-tab-bar {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .app-main {
+    /* !important : la regle de base .app-main (app.css) applique un shorthand
+       "padding: ... 2rem" une fois minifie, qui ecrase sinon ce padding-bottom
+       peu importe l'ordre des fichiers CSS dans le bundle final. */
+    padding-bottom: calc(7.5rem + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  .bottom-tab-bar {
+    position: fixed;
+    left: 0.75rem;
+    right: 0.75rem;
+    bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
+    z-index: 70;
+    display: flex;
+    align-items: stretch;
+    justify-content: space-between;
+    gap: 0.25rem;
+    padding: 0.5rem;
+    border-radius: 1.5rem;
+    border: 1px solid var(--border);
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.22), transparent 58%),
+      var(--bg-surface-elevated);
+    box-shadow: var(--shadow-lg);
+    backdrop-filter: blur(20px);
+  }
+
+  .bottom-tab-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3rem;
+    padding: 0.5rem 0.25rem;
+    border-radius: 1.05rem;
+    color: var(--text-muted) !important;
+    text-decoration: none;
+    transition: transform 0.2s ease, color 0.2s ease, background 0.2s ease;
+  }
+
+  .bottom-tab-icon {
+    font-size: 1.15rem;
+  }
+
+  .bottom-tab-label {
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+  }
+
+  .bottom-tab-item:active {
+    transform: scale(0.94);
+  }
+
+  .bottom-tab-item.is-active {
+    color: var(--text-heading) !important;
+    background:
+      linear-gradient(135deg, rgba(20, 108, 148, 0.18), rgba(31, 138, 112, 0.14)),
+      color-mix(in srgb, var(--bg-panel) 86%, transparent);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.28);
+  }
+
+  .bottom-tab-item.is-active .bottom-tab-icon {
+    color: var(--primary);
   }
 }

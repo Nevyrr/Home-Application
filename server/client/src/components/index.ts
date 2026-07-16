@@ -19,4 +19,5 @@ export { default as ThemeToggle } from "./ThemeToggle.tsx";
 export { default as GoogleSignInButton } from "./GoogleSignInButton.tsx";
 export { default as OverviewHero } from "./OverviewHero.tsx";
 export { default as OverviewHighlightsPanel } from "./OverviewHighlightsPanel.tsx";
+export { default as Skeleton } from "./Skeleton.tsx";
 

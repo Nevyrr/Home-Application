@@ -8,6 +8,17 @@ interface ApiResponse extends ApiEnvelope<{ posts?: ShoppingDay[] }> {
   error?: string;
 }
 
+export interface AiShoppingItem {
+  title: string;
+  count: number;
+  unit: string;
+}
+
+interface AiGenerateResponse extends ApiEnvelope<{ items?: AiShoppingItem[] }> {
+  items?: AiShoppingItem[];
+  success?: string;
+}
+
 /**************************** Get all shopping-posts  ********************************/
 const getPosts = async (): Promise<{ posts: ShoppingDay[] }> => {
   const res = await fetchWithAuth("/api/shopping-posts");
@@ -122,4 +133,35 @@ const updatePost = async (
   return { ...data, success: getApiMessage(data) };
 };
 
-export { getPosts, createDate, updateDateItem, createPost, deletePost, deletePosts, updatePost };
+/**************************** Generation IA de liste de courses  ******************************/
+const generateAiShoppingList = async (description: string): Promise<{ items: AiShoppingItem[]; success?: string }> => {
+  if (!description.trim()) {
+    throw Error("Decris ce dont tu as besoin");
+  }
+
+  const res = await fetchWithAuth("/api/shopping-posts/ai-generate", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ description }),
+  });
+
+  const data = await readApiResponse<AiGenerateResponse>(res, "Impossible de generer la liste avec l'IA");
+
+  return {
+    items: data.data?.items || data.items || [],
+    success: getApiMessage(data),
+  };
+};
+
+export {
+  getPosts,
+  createDate,
+  updateDateItem,
+  createPost,
+  deletePost,
+  deletePosts,
+  updatePost,
+  generateAiShoppingList,
+};

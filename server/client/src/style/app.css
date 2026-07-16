@@ -301,7 +301,7 @@
     }
 
     .input-field {
-        @apply mr-4 content-center w-full px-4 py-3 rounded-lg shadow-sm sm:text-sm transition-all duration-200;
+        @apply content-center w-full px-4 py-3 rounded-lg shadow-sm sm:text-sm transition-all duration-200;
         background-color: var(--bg-panel);
         color: var(--text-main);
         border: 2px solid var(--border);
@@ -321,7 +321,7 @@
     }
 
     .datepicker-input {
-        @apply text-sm rounded-lg flex w-full p-2.5 text-center transition-all duration-200 font-medium;
+        @apply text-base rounded-lg flex w-full p-2.5 text-center transition-all duration-200 font-medium;
         background-color: var(--bg-panel);
         color: var(--text-main);
         border: 2px solid var(--border);
@@ -510,7 +510,7 @@
     }
 
     .calendar-datepicker-input {
-        @apply text-center pl-8 w-full p-2 rounded-lg shadow-sm text-sm transition-all duration-200;
+        @apply text-center pl-8 w-full p-2 rounded-lg shadow-sm text-base transition-all duration-200;
         background-color: var(--bg-panel);
         color: var(--text-main);
         border: 1px solid var(--border);
@@ -925,10 +925,6 @@
 
     /* Phones */
     @media only screen and (max-width: 500px) {
-        .card {
-            @apply text-xs;
-        }
-
         .calendar-tab {
             @apply flex-col;
         }

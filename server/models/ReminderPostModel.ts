@@ -35,6 +35,14 @@ const ReminderPostSchema = new Schema<IReminderPost>({
         type: Date,
         default: null,
     },
+    amount: {
+        type: Number,
+        default: null,
+    },
+    dueDateNotifiedAt: {
+        type: Date,
+        default: null,
+    },
     sortOrder: {
         type: Number,
         required: true,

@@ -1,6 +1,16 @@
 import { CSSProperties, FormEvent, useCallback, useEffect, useRef, useState, ReactNode } from "react";
-import { Alert, PostValidationPopup, ShoppingPost, Success } from "../../components/index.ts";
-import { getPosts, createDate, updateDateItem, deletePost, deletePosts, createPost, updatePost } from "../../controllers/ShoppingPostsController.ts";
+import { Alert, PostValidationPopup, Skeleton, ShoppingPost, Success } from "../../components/index.ts";
+import {
+  getPosts,
+  createDate,
+  updateDateItem,
+  deletePost,
+  deletePosts,
+  createPost,
+  updatePost,
+  generateAiShoppingList,
+  AiShoppingItem,
+} from "../../controllers/ShoppingPostsController.ts";
 import { useApp } from "../../contexts/AppContext.tsx";
 import { useAuth, useErrorHandler } from "../../hooks/index.ts";
 import { convertStringToDate } from "../../utils/index.ts";
@@ -9,6 +19,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { fr } from "date-fns/locale/fr";
 import QuantityInput from "../../components/QuantityInput.tsx";
 import { DEFAULT_COMMON_GROCERY_PRESETS } from "../../constants/defaultShoppingHistory.ts";
+import { SHOPPING_UNITS } from "../../constants/index.ts";
 import { ShoppingDay, ShoppingPost as ShoppingPostType } from "../../types/index.ts";
 import { canUserWrite } from "../../utils/permissions.ts";
 import "../../style/shopping-board.css";
@@ -357,6 +368,10 @@ const ShoppingTab = () => {
       ? mergeShoppingHistory(buildDefaultShoppingHistory(), initialStoredHistoryRef.current || [])
       : trimShoppingHistory(initialStoredHistoryRef.current || [])
   );
+  const [aiDescription, setAiDescription] = useState<string>("");
+  const [isGeneratingAi, setIsGeneratingAi] = useState<boolean>(false);
+  const [isAddingAiItems, setIsAddingAiItems] = useState<boolean>(false);
+  const [aiProposedItems, setAiProposedItems] = useState<Array<AiShoppingItem & { selected: boolean }>>([]);
 
   const sortShoppingPosts = useCallback(async (showLoader = false) => {
     if (showLoader) {
@@ -509,7 +524,7 @@ const ShoppingTab = () => {
           return created;
         },
         null
-      );
+      ).catch(() => undefined);
 
       if (msg?.success) {
         setSuccess(msg.success);
@@ -674,6 +689,77 @@ const ShoppingTab = () => {
         setIsQuickAddCountValid(true);
       }
     }).catch(() => undefined);
+  };
+
+  const toggleAiItemSelection = (index: number) => {
+    setAiProposedItems((items) =>
+      items.map((item, itemIndex) => (itemIndex === index ? { ...item, selected: !item.selected } : item))
+    );
+  };
+
+  const updateAiItemField = (index: number, field: "title" | "count" | "unit", value: string | number) => {
+    setAiProposedItems((items) =>
+      items.map((item, itemIndex) => (itemIndex === index ? { ...item, [field]: value } : item))
+    );
+  };
+
+  const handleGenerateAiList = async () => {
+    if (!canWrite || !aiDescription.trim()) {
+      return;
+    }
+
+    setIsGeneratingAi(true);
+
+    try {
+      await handleAsyncOperation(async () => {
+        const response = await generateAiShoppingList(aiDescription.trim());
+        setAiProposedItems(
+          response.items.map((item) => ({
+            ...item,
+            // Filet de securite : si l'IA renvoie malgre tout une unite hors du systeme
+            // (g, Kg, mL, L), on retombe sur "" plutot que d'afficher une valeur incoherente.
+            unit: (SHOPPING_UNITS as readonly string[]).includes(normalizeShoppingUnit(item.unit))
+              ? normalizeShoppingUnit(item.unit)
+              : "",
+            selected: true,
+          }))
+        );
+      }, null).catch(() => undefined);
+    } finally {
+      setIsGeneratingAi(false);
+    }
+  };
+
+  const handleAddAiItems = async () => {
+    if (!canWrite || !activeList) {
+      return;
+    }
+
+    const selectedItems = aiProposedItems.filter(
+      (item) => item.selected && item.title.trim() !== "" && item.count > 0
+    );
+
+    if (selectedItems.length === 0) {
+      return;
+    }
+
+    setIsAddingAiItems(true);
+
+    try {
+      await handleAsyncOperation(async () => {
+        for (const item of selectedItems) {
+          await createPost(activeList._id, item.title.trim(), item.count, normalizeShoppingUnit(item.unit), 0);
+        }
+
+        await sortShoppingPosts();
+        setSuccess(`${selectedItems.length} article(s) ajoute(s) au panier`);
+      }, null).catch(() => undefined);
+
+      setAiProposedItems([]);
+      setAiDescription("");
+    } finally {
+      setIsAddingAiItems(false);
+    }
   };
 
   const handleNameChange = (shoppingItemId: string, name: string) => {
@@ -996,15 +1082,104 @@ const ShoppingTab = () => {
                 )}
               </form>
             </div>
+
+            <div className="shopping-ai-assistant">
+              <div className="shopping-ai-assistant-head">
+                <p className="eyebrow">Assistant IA</p>
+                <h2 className="shopping-quick-add-title">Decris ton repas, l'IA propose la liste</h2>
+              </div>
+
+              <div className="shopping-ai-assistant-form">
+                <textarea
+                  className="input shopping-ai-textarea"
+                  disabled={!canWrite}
+                  value={aiDescription}
+                  onChange={(event) => setAiDescription(event.target.value)}
+                  placeholder="Ex: Ce soir je fais des pates carbonara pour 4 personnes et une salade verte"
+                  rows={2}
+                />
+                <button
+                  type="button"
+                  className="ghost-button shopping-ai-generate-button"
+                  disabled={!canWrite || !aiDescription.trim() || isGeneratingAi}
+                  onClick={() => void handleGenerateAiList()}
+                >
+                  <i className="fa-solid fa-wand-magic-sparkles"></i>
+                  {isGeneratingAi ? "Generation..." : "Generer avec l'IA"}
+                </button>
+              </div>
+
+              {aiProposedItems.length > 0 && (
+                <div className="shopping-ai-proposed">
+                  <div className="shopping-ai-proposed-list">
+                    {aiProposedItems.map((item, index) => (
+                      <label key={index} className="shopping-ai-proposed-item">
+                        <input
+                          type="checkbox"
+                          className="checkbox-theme"
+                          checked={item.selected}
+                          onChange={() => toggleAiItemSelection(index)}
+                        />
+                        <input
+                          type="text"
+                          className="input shopping-ai-item-title"
+                          value={item.title}
+                          onChange={(event) => updateAiItemField(index, "title", event.target.value)}
+                        />
+                        <input
+                          type="number"
+                          className="input shopping-ai-item-count"
+                          min="0"
+                          step="0.1"
+                          value={item.count}
+                          onChange={(event) => updateAiItemField(index, "count", Number(event.target.value))}
+                        />
+                        <select
+                          className="input shopping-ai-item-unit"
+                          value={item.unit}
+                          onChange={(event) => updateAiItemField(index, "unit", event.target.value)}
+                        >
+                          {SHOPPING_UNITS.map((unitOption) => (
+                            <option key={unitOption} value={unitOption}>
+                              {unitOption || "u"}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                    ))}
+                  </div>
+
+                  <div className="shopping-ai-proposed-actions">
+                    <button
+                      type="button"
+                      className="btn shopping-ai-add-button"
+                      disabled={
+                        !canWrite || isAddingAiItems || aiProposedItems.every((item) => !item.selected)
+                      }
+                      onClick={() => void handleAddAiItems()}
+                    >
+                      {isAddingAiItems
+                        ? "Ajout..."
+                        : `Ajouter au panier (${aiProposedItems.filter((item) => item.selected).length})`}
+                    </button>
+                    <button type="button" className="ghost-button" onClick={() => setAiProposedItems([])}>
+                      Annuler
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           </>
         )}
       </div>
 
       <div className="shopping-board-main">
         {isLoadingLists && (
-          <div className="shopping-board-loading">
-            <i className="fa-solid fa-spinner animate-spin"></i>
-            <span>Chargement des paniers...</span>
+          <div className="skeleton-list">
+            <Skeleton className="skeleton-list-row" style={{ height: "3.75rem" }} />
+            <Skeleton className="skeleton-list-row" />
+            <Skeleton className="skeleton-list-row" />
+            <Skeleton className="skeleton-list-row" />
           </div>
         )}
 

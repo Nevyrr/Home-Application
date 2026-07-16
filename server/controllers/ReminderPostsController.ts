@@ -1,10 +1,63 @@
 import type { Response } from "express";
 import mongoose from "mongoose";
+import cron from "node-cron";
 import ReminderPost from "../models/ReminderPostModel.js";
 import User from "../models/UserModel.js";
 import { AuthRequest } from "../middlewares/auth.js";
 import { createError } from "../middlewares/errorHandler.js";
 import { sendSuccess, sendCreated, sendUpdated, sendDeleted } from "../utils/apiResponse.js";
+import { sendEmail } from "../config/nodeMailConfig.js";
+import { logger } from "../utils/logger.js";
+
+const sendReminderEmails = (subject: string, message: string): void => {
+  const { EMAIL_RECIPIENT_1, EMAIL_RECIPIENT_2 } = process.env;
+
+  if (EMAIL_RECIPIENT_1) {
+    void sendEmail(EMAIL_RECIPIENT_1, subject, message).catch(() => undefined);
+  }
+
+  if (EMAIL_RECIPIENT_2) {
+    void sendEmail(EMAIL_RECIPIENT_2, subject, message).catch(() => undefined);
+  }
+};
+
+/**
+ * Envoie un email pour chaque tache (avec montant) arrivee a echeance et non terminee,
+ * une seule fois par tache (dueDateNotifiedAt sert de garde-fou).
+ */
+cron.schedule("0 8 * * *", async () => {
+  try {
+    const endOfToday = new Date();
+    endOfToday.setHours(23, 59, 59, 999);
+
+    const duePosts = await ReminderPost.find({
+      amount: { $ne: null },
+      dueDate: { $ne: null, $lte: endOfToday },
+      dueDateNotifiedAt: null,
+      status: { $ne: "done" },
+    });
+
+    for (const post of duePosts) {
+      const amountLabel = typeof post.amount === "number" ? `${post.amount.toFixed(2)} €` : "";
+      const dueDateLabel = post.dueDate ? post.dueDate.toLocaleDateString("fr-FR") : "";
+
+      sendReminderEmails(
+        `Echeance : ${post.title}`,
+        [
+          `Le rappel "${post.title}"${amountLabel ? ` (${amountLabel})` : ""} arrive a echeance le ${dueDateLabel}.`,
+          post.body ? `Notes : ${post.body}` : "",
+        ]
+          .filter(Boolean)
+          .join("\n")
+      );
+
+      post.dueDateNotifiedAt = new Date();
+      await post.save();
+    }
+  } catch (error) {
+    logger.error("Echec du job cron des echeances de rappels", { error });
+  }
+});
 
 /************************************ Get All Posts ************************************/
 const getPosts = async (_req: AuthRequest, res: Response): Promise<void> => {
@@ -14,7 +67,7 @@ const getPosts = async (_req: AuthRequest, res: Response): Promise<void> => {
 
 /************************************ Create New ReminderPost ************************************/
 const addPost = async (req: AuthRequest, res: Response): Promise<void> => {
-  const { title, body, priorityColor = 0, status, dueDate } = req.body;
+  const { title, body, priorityColor = 0, status, dueDate, amount } = req.body;
 
   if (!req.user) {
     throw createError("Utilisateur non authentifie", 401);
@@ -37,6 +90,7 @@ const addPost = async (req: AuthRequest, res: Response): Promise<void> => {
     priorityColor,
     status,
     dueDate: dueDate ? new Date(dueDate) : null,
+    amount: amount ?? null,
     sortOrder,
   });
 
@@ -73,7 +127,7 @@ const deletePost = async (req: AuthRequest, res: Response): Promise<void> => {
 
 /************************************ Update ReminderPost ************************************/
 const updatePost = async (req: AuthRequest, res: Response): Promise<void> => {
-  const { title, body, priorityColor = 0, status, dueDate, sortOrder } = req.body;
+  const { title, body, priorityColor = 0, status, dueDate, amount, sortOrder } = req.body;
 
   if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
     throw createError("ID incorrect", 400);
@@ -97,13 +151,20 @@ const updatePost = async (req: AuthRequest, res: Response): Promise<void> => {
     throw createError("Vous n'etes pas autorise a modifier ce rappel", 403);
   }
 
+  const nextDueDate = dueDate ? new Date(dueDate) : null;
+  const dueDateChanged =
+    (post.dueDate ? post.dueDate.getTime() : null) !== (nextDueDate ? nextDueDate.getTime() : null);
+
   await post.updateOne({
     title,
     body,
     priorityColor,
     status,
-    dueDate: dueDate ? new Date(dueDate) : null,
+    dueDate: nextDueDate,
+    amount: amount ?? null,
     sortOrder: sortOrder ?? post.sortOrder,
+    // Une echeance modifiee doit pouvoir redeclencher un email, meme si l'ancienne date avait deja notifie
+    ...(dueDateChanged ? { dueDateNotifiedAt: null } : {}),
   });
 
   const updatedPost = await ReminderPost.findById(req.params.id);

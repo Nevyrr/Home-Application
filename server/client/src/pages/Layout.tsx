@@ -93,8 +93,26 @@ const Layout = () => {
       </header>
 
       <main className="app-main">
-        <Outlet />
+        <div key={pathname} className="page-transition">
+          <Outlet />
+        </div>
       </main>
+
+      {user.email && (
+        <nav className="bottom-tab-bar" aria-label="Navigation principale">
+          {NAV_ITEMS.map((item) => (
+            <Link
+              key={item.path}
+              to={item.path}
+              className={`bottom-tab-item ${isSelected(item.path) ? "is-active" : ""}`}
+              aria-current={isSelected(item.path) ? "page" : undefined}
+            >
+              <i className={`fa-solid ${item.icon} bottom-tab-icon`}></i>
+              <span className="bottom-tab-label">{item.label}</span>
+            </Link>
+          ))}
+        </nav>
+      )}
     </>
   );
 };

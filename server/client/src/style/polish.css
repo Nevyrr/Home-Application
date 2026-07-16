@@ -1,0 +1,288 @@
+/* =========================
+   Assistant IA (liste de courses depuis une description libre)
+   ========================= */
+.shopping-ai-assistant {
+  display: grid;
+  gap: 0.85rem;
+  border-radius: 1.5rem;
+  padding: 1.1rem 1.25rem;
+  margin-top: 0.9rem;
+  background: linear-gradient(135deg, rgba(20, 108, 148, 0.08), rgba(31, 138, 112, 0.06));
+  border: 1px solid var(--border);
+}
+
+.shopping-ai-assistant-head h2 {
+  margin: 0;
+}
+
+.shopping-ai-assistant-form {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.shopping-ai-textarea {
+  flex: 1 1 20rem;
+  margin-bottom: 0;
+  min-height: 3rem;
+  resize: vertical;
+}
+
+.shopping-ai-generate-button {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.shopping-ai-proposed {
+  display: grid;
+  gap: 0.85rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--border);
+}
+
+.shopping-ai-proposed-list {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.shopping-ai-proposed-item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 2fr) minmax(0, 0.85fr) minmax(0, 0.85fr);
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.shopping-ai-proposed-item .input {
+  margin-bottom: 0;
+}
+
+.shopping-ai-proposed-actions {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.shopping-ai-add-button {
+  width: auto;
+  padding-inline: 1.5rem;
+}
+
+@media (max-width: 700px) {
+  .shopping-ai-proposed-item {
+    grid-template-columns: auto 1fr;
+    grid-template-areas:
+      "checkbox title"
+      "count unit";
+  }
+
+  .shopping-ai-proposed-item input[type="checkbox"] {
+    grid-area: checkbox;
+  }
+
+  .shopping-ai-item-title {
+    grid-area: title;
+  }
+
+  .shopping-ai-item-count {
+    grid-area: count;
+  }
+
+  .shopping-ai-item-unit {
+    grid-area: unit;
+  }
+}
+
+/* =========================
+   Transitions entre pages
+   ========================= */
+.page-transition {
+  animation: page-fade-in 0.32s ease both;
+}
+
+@keyframes page-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    /* "none" plutot que translateY(0) : une transform non-none, meme identite,
+       cree un containing block pour les descendants position:fixed (popups, overlays)
+       et les pieger a l'interieur de ce conteneur au lieu du viewport. */
+    transform: none;
+  }
+}
+
+/* =========================
+   Animation d'ouverture des popups
+   ========================= */
+.xpopup-overlay {
+  animation: popup-overlay-in 0.18s ease both;
+}
+
+.xpopup {
+  animation: popup-scale-in 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes popup-overlay-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes popup-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.94) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    /* idem page-fade-in : finir sur "none" pour ne pas pieger les elements
+       position:fixed/absolute qui vivent a l'interieur d'une popup (ex: popper de datepicker) */
+    transform: none;
+  }
+}
+
+/* =========================
+   Skeletons de chargement
+   ========================= */
+.skeleton {
+  display: block;
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.85rem;
+  background: color-mix(in srgb, var(--bg-panel) 88%, var(--border) 12%);
+}
+
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--bg-panel) 20%, white 20%),
+    transparent
+  );
+  transform: translateX(-100%);
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+}
+
+[data-theme="dark"] .skeleton::after {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.08),
+    transparent
+  );
+}
+
+@keyframes skeleton-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.skeleton-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.skeleton-stat-card {
+  height: 4.75rem;
+  border-radius: 1.1rem;
+  border: 1px solid var(--border);
+}
+
+.skeleton-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.skeleton-list-row {
+  height: 3.25rem;
+  border-radius: 1rem;
+}
+
+/* =========================
+   Feature: montant / echeance sur les taches (factures)
+   ========================= */
+.reminder-amount-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--text-heading);
+  background: linear-gradient(135deg, rgba(31, 138, 112, 0.16), rgba(20, 108, 148, 0.14));
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.reminder-field span.reminder-field-hint {
+  margin-top: 0.4rem;
+  margin-bottom: 0;
+  font-size: 0.78rem;
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+/* =========================
+   Page 404
+   ========================= */
+.not-found-shell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 1rem;
+  padding-block: 4rem 3rem;
+}
+
+.not-found-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 4.5rem;
+  height: 4.5rem;
+  border-radius: 1.4rem;
+  font-size: 1.9rem;
+  color: var(--text-heading);
+  background: linear-gradient(135deg, rgba(20, 108, 148, 0.18), rgba(242, 140, 82, 0.16));
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+}
+
+.not-found-shell .title {
+  margin-bottom: 0;
+}
+
+.not-found-copy {
+  max-width: 28rem;
+  color: var(--text-subheading);
+  line-height: 1.7;
+}
+
+.not-found-button {
+  width: auto;
+  padding-inline: 2rem;
+  margin-top: 0.5rem;
+}
+
+/* =========================
+   Accessibilite : reduire les animations si demande
+   ========================= */
+@media (prefers-reduced-motion: reduce) {
+  .page-transition,
+  .xpopup-overlay,
+  .xpopup,
+  .skeleton::after {
+    animation: none !important;
+  }
+}

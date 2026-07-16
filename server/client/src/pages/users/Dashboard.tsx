@@ -1,5 +1,5 @@
 import { FormEvent, useEffect, useState } from "react";
-import { Alert, Success } from "../../components/index.ts";
+import { Alert, Skeleton, Success } from "../../components/index.ts";
 import { getEvents } from "../../controllers/CalendarEventsController.ts";
 import { getPosts as getReminderPosts } from "../../controllers/ReminderPostsController.ts";
 import { getPosts as getShoppingPosts } from "../../controllers/ShoppingPostsController.ts";
@@ -387,7 +387,11 @@ const Dashboard = () => {
               </p>
 
               {isLoadingUsers ? (
-                <p className="profile-loading-copy">Chargement des comptes...</p>
+                <div className="skeleton-list">
+                  <Skeleton className="skeleton-list-row" />
+                  <Skeleton className="skeleton-list-row" />
+                  <Skeleton className="skeleton-list-row" />
+                </div>
               ) : (
                 <div className="profile-user-list">
                   {managedUsers.map((managedUser) => {
@@ -451,7 +455,15 @@ const Dashboard = () => {
             </div>
 
             {isLoadingStats ? (
-              <p className="profile-loading-copy">Chargement des statistiques...</p>
+              <>
+                <div className="skeleton-stats-grid">
+                  <Skeleton className="skeleton-stat-card" />
+                  <Skeleton className="skeleton-stat-card" />
+                  <Skeleton className="skeleton-stat-card" />
+                  <Skeleton className="skeleton-stat-card" />
+                </div>
+                <Skeleton className="skeleton-stat-card" style={{ marginTop: "0.9rem", height: "5.5rem" }} />
+              </>
             ) : (
               <>
                 <div className="profile-stats-grid">

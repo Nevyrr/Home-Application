@@ -96,6 +96,10 @@ It helps you **organize your daily life** by managing tasks, shopping, events, a
    # Destinataires des emails de rappel pour Taco (optionnel)
    EMAIL_RECIPIENT_1=email1@example.com
    EMAIL_RECIPIENT_2=email2@example.com
+   
+   # Cle API Anthropic pour l'assistant IA de liste de courses (optionnel)
+   # Sans cette cle, cliquer sur "Generer avec l'IA" dans l'onglet Courses renvoie une erreur explicite
+   ANTHROPIC_API_KEY=sk-ant-...
    ```
    
    **Exemple complet minimal :**

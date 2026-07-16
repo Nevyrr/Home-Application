@@ -73,6 +73,7 @@ export const reminderPostSchema = z.object({
   priorityColor: z.number().int().min(0).max(3, "Couleur de priorite invalide").default(0),
   status: z.enum(["todo", "doing", "done"]).default("todo"),
   dueDate: z.union([z.string(), z.literal("")]).optional(),
+  amount: z.union([z.number().nonnegative("Le montant doit etre positif"), z.null()]).optional(),
   sortOrder: z.number().int().min(0).optional(),
 });
 
@@ -99,6 +100,16 @@ export const shoppingPostUpdateSchema = z.object({
   count: z.number().positive("La quantite doit etre positive"),
   unit: z.string().optional(),
   priorityColor: z.number().int().min(0).max(3, "Couleur de priorite invalide"),
+});
+
+/**
+ * Schema de validation pour l'assistant IA de liste de courses
+ */
+export const aiShoppingRequestSchema = z.object({
+  description: z
+    .string()
+    .min(3, "Decris un peu plus ce dont tu as besoin")
+    .max(1000, "Description trop longue (1000 caracteres maximum)"),
 });
 
 /**

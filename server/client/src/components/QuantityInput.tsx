@@ -1,4 +1,5 @@
 import React from "react";
+import { SHOPPING_UNITS } from "../constants/index.ts";
 
 interface QuantityInputProps {
   count: number;
@@ -8,7 +9,6 @@ interface QuantityInputProps {
 }
 
 const QuantityInput = ({ count, unit, onChange, disabled = false }: QuantityInputProps) => {
-    const units = ["", "g", "Kg", "mL", "L"];
     const normalizedUnit = unit === "u" ? "" : unit;
 
     const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -42,7 +42,7 @@ const QuantityInput = ({ count, unit, onChange, disabled = false }: QuantityInpu
                 onChange={handleUnitChange}
                 className="input quantity-input-unit"
             >
-                {units.map((unitOption) => (
+                {SHOPPING_UNITS.map((unitOption) => (
                     <option key={unitOption} value={unitOption}>
                         {unitOption}
                     </option>

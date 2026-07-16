@@ -1,10 +1,11 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "./pages/Layout.tsx";
 import Login from "./pages/users/Login.tsx";
 import Register from "./pages/users/Register.tsx";
 import ForgotPassword from "./pages/users/ForgotPassword.tsx";
 import ResetPassword from "./pages/users/ResetPassword.tsx";
 import Dashboard from "./pages/users/Dashboard.tsx";
+import NotFound from "./pages/NotFound.tsx";
 import AuthRoutes from "./routes/AuthRoutes.tsx";
 import GuestRoutes from "./routes/GuestRoutes.tsx";
 import ShoppingTab from "./pages/tabs/ShoppingTab.tsx";
@@ -36,7 +37,7 @@ const App = () => {
             <Route path="reset-password" element={<ResetPassword />} />
           </Route>
 
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
     </BrowserRouter>
