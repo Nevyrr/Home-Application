@@ -18,8 +18,11 @@ const UserSchema = new Schema<IUser>(
       required: true,
     },
     googleId: {
+      // Pas de "default: null" : un index sparse unique n'ignore que les documents ou le
+      // champ est absent, pas ceux ou il vaut explicitement null. Avec un default a null,
+      // le 2e compte cree sans Google (email/mdp) entrait en conflit avec le 1er sur cet
+      // index et l'inscription echouait avec "googleId est deja utilise".
       type: String,
-      default: null,
       unique: true,
       sparse: true,
     },

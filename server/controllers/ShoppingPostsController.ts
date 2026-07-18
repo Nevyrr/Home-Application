@@ -219,6 +219,86 @@ const updatePost = async (req: AuthRequest, res: Response): Promise<void> => {
   sendUpdated(res, { shoppingPost, shoppingDay: updatedShoppingDay }, `Article "${title}" mis à jour avec succès`);
 };
 
+/************************************ Toggle Checked Shopping Post ************************************/
+const toggleCheckedPost = async (req: AuthRequest, res: Response): Promise<void> => {
+  // Grab the data from request body (validation déjà faite par le middleware)
+  const { checked } = req.body as { checked: boolean };
+
+  // Check the ID is valid type
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    throw createError("ID incorrect", 400);
+  }
+
+  if (!req.user) {
+    throw createError("Utilisateur non authentifié", 401);
+  }
+
+  const shoppingDayList = await ShoppingDay.findOne({
+    shoppingList: {
+      $elemMatch: { _id: req.params.id }
+    }
+  });
+
+  if (!shoppingDayList) {
+    throw createError("Liste de courses non trouvée", 404);
+  }
+
+  const shoppingPostIndex = shoppingDayList.shoppingList.findIndex((shoppingItem) => shoppingItem._id && shoppingItem._id.equals(new mongoose.Types.ObjectId(req.params.id)));
+  if (shoppingPostIndex === -1) {
+    throw createError("Article de course non trouvé", 404);
+  }
+
+  // Une liste de courses est partagée entre tous les membres du foyer : n'importe quel compte
+  // en écriture peut cocher/décocher un article (contrairement à la modification/suppression,
+  // qui restent réservées à l'auteur ou à un admin).
+  const shoppingPost = shoppingDayList.shoppingList[shoppingPostIndex];
+  shoppingPost.checked = checked;
+
+  await shoppingDayList.save();
+  sendUpdated(
+    res,
+    { shoppingPost, shoppingDay: shoppingDayList },
+    checked ? `"${shoppingPost.title}" coché` : `"${shoppingPost.title}" décoché`
+  );
+};
+
+/************************************ Clear Checked Shopping Posts ************************************/
+const clearCheckedPosts = async (req: AuthRequest, res: Response): Promise<void> => {
+  // Check the ID is valid type
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    throw createError("ID incorrect", 400);
+  }
+
+  const shoppingDayList = await ShoppingDay.findById(req.params.id);
+
+  if (!shoppingDayList) {
+    throw createError("Liste de courses non trouvée", 404);
+  }
+
+  const checkedCount = shoppingDayList.shoppingList.filter((shoppingItem) => shoppingItem.checked).length;
+
+  if (checkedCount === 0) {
+    sendDeleted(res, "Aucun article coché à retirer");
+    return;
+  }
+
+  // Retrait en partant de la fin pour ne pas decaler les index des elements restants
+  for (let index = shoppingDayList.shoppingList.length - 1; index >= 0; index -= 1) {
+    if (shoppingDayList.shoppingList[index].checked) {
+      shoppingDayList.shoppingList.splice(index, 1);
+    }
+  }
+
+  // Meme convention que la suppression d'un article seul : un panier vide est supprimé
+  if (shoppingDayList.shoppingList.length > 0) {
+    await shoppingDayList.save();
+  } else {
+    await shoppingDayList.deleteOne();
+  }
+
+  sendDeleted(res, `${checkedCount} article(s) coché(s) retiré(s) du panier`);
+};
+
 /************************************ Generation IA de liste de courses ************************************/
 const generateAiShoppingList = async (req: AuthRequest, res: Response): Promise<void> => {
   const { description } = req.body as { description: string };
@@ -250,6 +330,8 @@ export {
   deletePost,
   deletePosts,
   updatePost,
+  toggleCheckedPost,
+  clearCheckedPosts,
   generateAiShoppingList,
 };
 

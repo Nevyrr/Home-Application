@@ -20,4 +20,3 @@ router.delete("/:id", auth, requireWritable, asyncHandler(deleteEvent));
 router.put("/:id", auth, requireWritable, validate(calendarEventSchema), asyncHandler(updateEvent));
 
 export { router as CalendarEventsRoutes };
-

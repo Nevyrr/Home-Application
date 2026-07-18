@@ -133,6 +133,30 @@ const updatePost = async (
   return { ...data, success: getApiMessage(data) };
 };
 
+/**************************** Toggle checked shopping-post  ******************************/
+const toggleCheckedPost = async (_id: string, checked: boolean): Promise<ApiResponse> => {
+  const res = await fetchWithAuth(`/api/shopping-posts/${_id}/check`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ checked }),
+  });
+
+  const data = await readApiResponse<ApiResponse>(res, "Impossible de mettre a jour l'article");
+  return { ...data, success: getApiMessage(data) };
+};
+
+/**************************** Clear checked shopping-posts  ******************************/
+const clearCheckedPosts = async (shoppingListId: string): Promise<ApiResponse> => {
+  const res = await fetchWithAuth(`/api/shopping-posts/list/${shoppingListId}/checked`, {
+    method: "DELETE",
+  });
+
+  const data = await readApiResponse<ApiResponse>(res, "Impossible de vider les articles coches");
+  return { ...data, success: getApiMessage(data) };
+};
+
 /**************************** Generation IA de liste de courses  ******************************/
 const generateAiShoppingList = async (description: string): Promise<{ items: AiShoppingItem[]; success?: string }> => {
   if (!description.trim()) {
@@ -163,5 +187,7 @@ export {
   deletePost,
   deletePosts,
   updatePost,
+  toggleCheckedPost,
+  clearCheckedPosts,
   generateAiShoppingList,
 };

@@ -95,9 +95,10 @@ const registerUser = async (
   name: string,
   email: string,
   password: string,
-  passwordConfirm: string
+  passwordConfirm: string,
+  registrationCode: string
 ): Promise<LoginResponse> => {
-  if (!name || !email || !password || !passwordConfirm) {
+  if (!name || !email || !password || !passwordConfirm || !registrationCode) {
     throw Error("Tous les champs sont obligatoires");
   }
 
@@ -110,7 +111,7 @@ const registerUser = async (
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ name, email, password }),
+    body: JSON.stringify({ name, email, password, registrationCode }),
   });
 
   const data = await readApiResponse<LoginResponse>(res, "Inscription impossible");

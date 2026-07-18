@@ -448,6 +448,80 @@
   gap: 0.35rem;
 }
 
+.shopping-basket-progress {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  padding-top: 0.15rem;
+}
+
+.shopping-basket-progress-track {
+  flex: 1 1 8rem;
+  min-width: 5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--shopping-accent-soft) 60%, var(--border) 20%);
+  overflow: hidden;
+}
+
+.shopping-basket-progress-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--shopping-accent), color-mix(in srgb, var(--shopping-accent) 60%, white 15%));
+  transition: width 0.35s cubic-bezier(0.34, 1.2, 0.64, 1);
+}
+
+.shopping-basket-progress-label {
+  flex-shrink: 0;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.shopping-basket-clear-checked {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--bg-panel) 92%, transparent);
+  color: var(--text-subheading);
+  font-size: 0.74rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background 0.18s ease, color 0.18s ease;
+}
+
+.shopping-basket-clear-checked:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--shopping-accent-soft) 60%, transparent);
+  color: var(--shopping-accent);
+}
+
+.shopping-basket-clear-checked:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.shopping-basket-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0.15rem 0 -0.15rem;
+  padding-left: 0.2rem;
+  color: var(--text-muted);
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.shopping-basket-divider i {
+  color: var(--shopping-accent);
+}
+
 .shopping-basket-name-input {
   margin-right: 0;
   min-height: 0;
@@ -591,10 +665,72 @@
 
 .shopping-item-top {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   gap: 0.75rem;
   align-items: start;
   width: 100%;
+}
+
+.shopping-item-check {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  margin-top: 0.1rem;
+  border-radius: 999px;
+  border: 2px solid color-mix(in srgb, var(--shopping-accent) 45%, var(--border));
+  background: color-mix(in srgb, var(--bg-panel) 92%, transparent);
+  color: transparent;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+}
+
+.shopping-item-check:hover:not(:disabled) {
+  transform: scale(1.08);
+  border-color: var(--shopping-accent);
+}
+
+.shopping-item-check:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.shopping-item.is-checked .shopping-item-check {
+  border-color: var(--shopping-accent);
+  background: var(--shopping-accent);
+  color: #ffffff;
+  animation: shopping-check-pop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes shopping-check-pop {
+  0% {
+    transform: scale(0.7);
+  }
+  60% {
+    transform: scale(1.15);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shopping-item.is-checked .shopping-item-check {
+    animation: none;
+  }
+}
+
+.shopping-item.is-checked {
+  opacity: 0.62;
+}
+
+.shopping-item.is-checked .shopping-item-title-text {
+  text-decoration: line-through;
+  text-decoration-thickness: 2px;
+  text-decoration-color: color-mix(in srgb, var(--shopping-accent) 70%, transparent);
 }
 
 .shopping-item-main {
@@ -1007,6 +1143,24 @@
     display: none;
   }
 
+  .shopping-basket-progress {
+    gap: 0.5rem;
+  }
+
+  .shopping-basket-progress-track {
+    flex-basis: 100%;
+    order: 1;
+  }
+
+  .shopping-basket-progress-label {
+    order: 2;
+  }
+
+  .shopping-basket-clear-checked {
+    order: 3;
+    margin-left: auto;
+  }
+
   .shopping-item {
     gap: 0.5rem;
     padding: 0.72rem 0.72rem 0.72rem 0.82rem;
@@ -1021,9 +1175,15 @@
   }
 
   .shopping-item-top {
-    grid-template-columns: minmax(0, 1fr) auto auto;
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
     gap: 0.45rem;
     align-items: start;
+  }
+
+  .shopping-item-check {
+    width: 1.85rem;
+    height: 1.85rem;
+    margin-top: 0.05rem;
   }
 
   .shopping-item-main {
@@ -1054,7 +1214,7 @@
   }
 
   .shopping-item-actions {
-    grid-column: 3;
+    grid-column: 4;
     grid-row: 1;
     align-self: start;
     justify-content: flex-end;

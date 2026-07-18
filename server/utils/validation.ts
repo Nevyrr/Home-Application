@@ -21,6 +21,7 @@ export const registerSchema = z.object({
   name: z.string().min(2, "Le nom doit contenir au moins 2 caracteres").max(50),
   email: emailSchema,
   password: passwordSchema,
+  registrationCode: z.string().min(1, "Le code d'inscription est requis"),
 });
 
 /**
@@ -103,13 +104,20 @@ export const shoppingPostUpdateSchema = z.object({
 });
 
 /**
- * Schema de validation pour l'assistant IA de liste de courses
+ * Schema de validation pour l'assistant IA de liste de courses (description libre)
  */
-export const aiShoppingRequestSchema = z.object({
+export const aiDescriptionRequestSchema = z.object({
   description: z
     .string()
     .min(3, "Decris un peu plus ce dont tu as besoin")
     .max(1000, "Description trop longue (1000 caracteres maximum)"),
+});
+
+/**
+ * Schema de validation pour cocher/decocher un article de course
+ */
+export const shoppingPostCheckSchema = z.object({
+  checked: z.boolean(),
 });
 
 /**

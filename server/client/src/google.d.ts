@@ -2,17 +2,6 @@ interface GoogleCredentialResponse {
   credential?: string;
 }
 
-interface GoogleTokenResponse {
-  access_token: string;
-  expires_in: number;
-  error?: string;
-  error_description?: string;
-}
-
-interface GoogleTokenClient {
-  requestAccessToken: (overrideConfig?: { prompt?: string }) => void;
-}
-
 interface GoogleAccountsId {
   initialize: (config: {
     client_id: string;
@@ -35,20 +24,10 @@ interface GoogleAccountsId {
   cancel: () => void;
 }
 
-interface GoogleAccountsOauth2 {
-  initTokenClient: (config: {
-    client_id: string;
-    scope: string;
-    callback: (response: GoogleTokenResponse) => void;
-  }) => GoogleTokenClient;
-  revoke: (token: string, callback?: () => void) => void;
-}
-
 interface Window {
   google?: {
     accounts: {
       id: GoogleAccountsId;
-      oauth2: GoogleAccountsOauth2;
     };
   };
 }

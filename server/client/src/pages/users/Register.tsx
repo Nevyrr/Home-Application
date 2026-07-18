@@ -1,7 +1,6 @@
 import { useState, FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
-import { GoogleSignInButton } from "../../components/index.ts";
-import { registerUser, loginWithGoogle } from "../../controllers/UsersController.ts";
+import { registerUser } from "../../controllers/UsersController.ts";
 import { useAuth, useErrorHandler } from "../../hooks/index.ts";
 import { loadStoredUser } from "../../utils/session.ts";
 
@@ -15,6 +14,7 @@ const Register = () => {
     email: "",
     password: "",
     passwordConfirm: "",
+    registrationCode: "",
   });
 
   const syncUserFromStorage = () => {
@@ -34,15 +34,7 @@ const Register = () => {
     event.preventDefault();
 
     await handleAsyncOperation(async () => {
-      await registerUser(formData.name, formData.email, formData.password, formData.passwordConfirm);
-      syncUserFromStorage();
-      navigate("/dashboard");
-    }, null).catch(() => undefined);
-  };
-
-  const handleGoogleRegister = async (credential: string) => {
-    await handleAsyncOperation(async () => {
-      await loginWithGoogle(credential);
+      await registerUser(formData.name, formData.email, formData.password, formData.passwordConfirm, formData.registrationCode);
       syncUserFromStorage();
       navigate("/dashboard");
     }, null).catch(() => undefined);
@@ -54,18 +46,14 @@ const Register = () => {
         <p className="eyebrow">Inscription</p>
         <h1>Centralise les routines du foyer.</h1>
         <p>
-          Cree ton espace, partage les taches utiles et garde une vision plus propre de ce qui doit etre fait. Si tu
-          veux aller vite, l'inscription Google est disponible juste en dessous.
+          Cree ton espace, partage les taches utiles et garde une vision plus propre de ce qui doit etre fait.
+          L'inscription necessite le code d'invitation transmis par un administrateur du foyer.
         </p>
       </div>
 
       <div className="auth-card">
         <p className="eyebrow">Nouveau compte</p>
         <h2>Creer un acces</h2>
-
-        <GoogleSignInButton onCredential={handleGoogleRegister} text="signup_with" />
-
-        <div className="divider-label">ou avec le formulaire</div>
 
         <form onSubmit={handleRegister}>
           <input
@@ -100,6 +88,14 @@ const Register = () => {
             value={formData.passwordConfirm}
             onChange={(event) => setFormData({ ...formData, passwordConfirm: event.target.value })}
             autoComplete="new-password"
+          />
+          <input
+            type="text"
+            placeholder="Code d'invitation"
+            className="input"
+            value={formData.registrationCode}
+            onChange={(event) => setFormData({ ...formData, registrationCode: event.target.value })}
+            autoComplete="off"
           />
           <button className="btn">Creer mon compte</button>
         </form>

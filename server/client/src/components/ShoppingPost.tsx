@@ -7,13 +7,15 @@ interface ShoppingPostProps {
   post: ShoppingPostType;
   onUpdate: (post: ShoppingPostType) => void;
   onDelete: (id: string) => void;
+  onToggleChecked: (post: ShoppingPostType) => void;
 }
 
-const ShoppingPost = ({ post, onUpdate, onDelete }: ShoppingPostProps) => {
+const ShoppingPost = ({ post, onUpdate, onDelete, onToggleChecked }: ShoppingPostProps) => {
   const { user } = useAuth();
   const normalizedUnit = post.unit === "u" ? "" : post.unit ?? "";
   const quantityLabel = `${post.count} ${normalizedUnit}`.trim();
-  const canManagePost = canUserWrite(user) && (user.id === post.user || isUserAdmin(user));
+  const canToggle = canUserWrite(user);
+  const canManagePost = canToggle && (user.id === post.user || isUserAdmin(user));
   const priorityLabel = getPriorityLabel(post.priorityColor);
   const createdLabel = post.createdAt
     ? new Date(post.createdAt).toLocaleDateString("fr-FR", {
@@ -23,8 +25,20 @@ const ShoppingPost = ({ post, onUpdate, onDelete }: ShoppingPostProps) => {
     : null;
 
   return (
-    <article className={`shopping-item shopping-priority-${post.priorityColor}`}>
+    <article className={`shopping-item shopping-priority-${post.priorityColor} ${post.checked ? "is-checked" : ""}`}>
       <div className="shopping-item-top">
+        <button
+          type="button"
+          className="shopping-item-check"
+          disabled={!canToggle}
+          aria-pressed={!!post.checked}
+          aria-label={post.checked ? `Decocher ${post.title}` : `Marquer ${post.title} comme achete`}
+          title={post.checked ? "Marquer comme non achete" : "Marquer comme achete"}
+          onClick={() => onToggleChecked(post)}
+        >
+          <i className="fa-solid fa-check"></i>
+        </button>
+
         <div className="shopping-item-main">
           <h3 className="shopping-item-title">
             <span className="shopping-item-title-text">{post.title}</span>
@@ -72,4 +86,3 @@ const ShoppingPost = ({ post, onUpdate, onDelete }: ShoppingPostProps) => {
 };
 
 export default ShoppingPost;
-

@@ -1,7 +1,7 @@
 /* =========================
-   Assistant IA (liste de courses depuis une description libre)
+   Assistant IA courses (description libre -> liste structuree)
    ========================= */
-.shopping-ai-assistant {
+.ai-assistant {
   display: grid;
   gap: 0.85rem;
   border-radius: 1.5rem;
@@ -9,87 +9,114 @@
   margin-top: 0.9rem;
   background: linear-gradient(135deg, rgba(20, 108, 148, 0.08), rgba(31, 138, 112, 0.06));
   border: 1px solid var(--border);
+  box-shadow: var(--shadow-xs);
 }
 
-.shopping-ai-assistant-head h2 {
+[data-theme="dark"] .ai-assistant {
+  background: linear-gradient(135deg, rgba(76, 183, 216, 0.1), rgba(87, 197, 160, 0.08));
+}
+
+.ai-assistant-head {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.ai-assistant-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  flex-shrink: 0;
+  border-radius: 0.9rem;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: #ffffff;
+  font-size: 0.9rem;
+}
+
+.ai-assistant-title {
   margin: 0;
+  color: var(--text-heading);
+  font-size: 1.02rem;
+  font-weight: 800;
 }
 
-.shopping-ai-assistant-form {
+.ai-assistant-form {
   display: flex;
   gap: 0.75rem;
   align-items: flex-start;
   flex-wrap: wrap;
 }
 
-.shopping-ai-textarea {
+.ai-textarea {
   flex: 1 1 20rem;
   margin-bottom: 0;
   min-height: 3rem;
   resize: vertical;
 }
 
-.shopping-ai-generate-button {
+.ai-generate-button {
   flex-shrink: 0;
   white-space: nowrap;
 }
 
-.shopping-ai-proposed {
+.ai-proposed {
   display: grid;
   gap: 0.85rem;
   padding-top: 0.85rem;
   border-top: 1px solid var(--border);
 }
 
-.shopping-ai-proposed-list {
+.ai-proposed-list {
   display: grid;
   gap: 0.5rem;
 }
 
-.shopping-ai-proposed-item {
+.ai-proposed-item {
   display: grid;
   grid-template-columns: auto minmax(0, 2fr) minmax(0, 0.85fr) minmax(0, 0.85fr);
   gap: 0.5rem;
   align-items: center;
 }
 
-.shopping-ai-proposed-item .input {
+.ai-proposed-item .input {
   margin-bottom: 0;
 }
 
-.shopping-ai-proposed-actions {
+.ai-proposed-actions {
   display: flex;
   gap: 0.6rem;
   flex-wrap: wrap;
 }
 
-.shopping-ai-add-button {
+.ai-add-button {
   width: auto;
   padding-inline: 1.5rem;
 }
 
 @media (max-width: 700px) {
-  .shopping-ai-proposed-item {
+  .ai-proposed-item {
     grid-template-columns: auto 1fr;
     grid-template-areas:
       "checkbox title"
-      "count unit";
+      "field-a field-b";
   }
 
-  .shopping-ai-proposed-item input[type="checkbox"] {
+  .ai-proposed-item input[type="checkbox"] {
     grid-area: checkbox;
   }
 
-  .shopping-ai-item-title {
+  .ai-item-title {
     grid-area: title;
   }
 
-  .shopping-ai-item-count {
-    grid-area: count;
+  .ai-item-field-a {
+    grid-area: field-a;
   }
 
-  .shopping-ai-item-unit {
-    grid-area: unit;
+  .ai-item-field-b {
+    grid-area: field-b;
   }
 }
 

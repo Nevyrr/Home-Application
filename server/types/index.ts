@@ -27,6 +27,7 @@ export interface IShoppingPost {
   count: number;
   unit?: string;
   priorityColor: number;
+  checked?: boolean;
   createdAt?: Date;
   updatedAt?: Date;
 }

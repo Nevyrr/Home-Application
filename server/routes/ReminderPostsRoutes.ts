@@ -22,4 +22,3 @@ router.delete("/:id", auth, requireWritable, asyncHandler(deletePost));
 router.put("/:id", auth, requireWritable, validate(reminderPostSchema), asyncHandler(updatePost));
 
 export { router as ReminderPostsRoutes };
-

@@ -8,6 +8,8 @@ import {
   deletePosts,
   createPost,
   updatePost,
+  toggleCheckedPost,
+  clearCheckedPosts,
   generateAiShoppingList,
   AiShoppingItem,
 } from "../../controllers/ShoppingPostsController.ts";
@@ -372,6 +374,8 @@ const ShoppingTab = () => {
   const [isGeneratingAi, setIsGeneratingAi] = useState<boolean>(false);
   const [isAddingAiItems, setIsAddingAiItems] = useState<boolean>(false);
   const [aiProposedItems, setAiProposedItems] = useState<Array<AiShoppingItem & { selected: boolean }>>([]);
+  const [pendingSuggestionKey, setPendingSuggestionKey] = useState<string | null>(null);
+  const [isClearingChecked, setIsClearingChecked] = useState<boolean>(false);
 
   const sortShoppingPosts = useCallback(async (showLoader = false) => {
     if (showLoader) {
@@ -586,19 +590,75 @@ const ShoppingTab = () => {
       return;
     }
 
-    if (confirm("Confirmer la suppression ?")) {
-      await handleAsyncOperation(
-        async () => {
-          const msg = await deletePost(_id);
-          await sortShoppingPosts();
-          return msg;
-        },
-        null
-      ).then((msg) => {
+    // Retirer un article isole est facilement reversible (il suffit de le rajouter, souvent
+    // en un clic depuis l'historique) : pas besoin d'un confirm() bloquant pour ce geste frequent.
+    await handleAsyncOperation(
+      async () => {
+        const msg = await deletePost(_id);
+        await sortShoppingPosts();
+        return msg;
+      },
+      null
+    ).then((msg) => {
+      if (msg?.success) {
+        setSuccess(msg.success);
+      }
+    }).catch(() => undefined);
+  };
+
+  const handleToggleChecked = async (post: ShoppingPostType) => {
+    if (!canWrite) {
+      return;
+    }
+
+    const nextChecked = !post.checked;
+
+    // Mise a jour optimiste : au supermarche, l'utilisateur doit voir la coche reagir
+    // instantanement, sans attendre l'aller-retour reseau.
+    setShoppingItems((oldShoppingItems) =>
+      oldShoppingItems.map((shoppingItem) => ({
+        ...shoppingItem,
+        shoppingList: shoppingItem.shoppingList.map((item) =>
+          item._id === post._id ? { ...item, checked: nextChecked } : item
+        ),
+      }))
+    );
+
+    try {
+      await toggleCheckedPost(post._id, nextChecked);
+    } catch (toggleError) {
+      // Echec : on annule la mise a jour optimiste
+      setShoppingItems((oldShoppingItems) =>
+        oldShoppingItems.map((shoppingItem) => ({
+          ...shoppingItem,
+          shoppingList: shoppingItem.shoppingList.map((item) =>
+            item._id === post._id ? { ...item, checked: post.checked } : item
+          ),
+        }))
+      );
+      setError(toggleError instanceof Error ? toggleError.message : "Impossible de mettre a jour l'article");
+    }
+  };
+
+  const handleClearChecked = async (shoppingListId: string) => {
+    if (!canWrite || isClearingChecked) {
+      return;
+    }
+
+    setIsClearingChecked(true);
+
+    try {
+      await handleAsyncOperation(async () => {
+        const msg = await clearCheckedPosts(shoppingListId);
+        await sortShoppingPosts();
+        return msg;
+      }, null).then((msg) => {
         if (msg?.success) {
           setSuccess(msg.success);
         }
       }).catch(() => undefined);
+    } finally {
+      setIsClearingChecked(false);
     }
   };
 
@@ -774,18 +834,39 @@ const ShoppingTab = () => {
     );
   };
 
-  const handleSuggestionClick = (suggestion: { title: string; count: number; unit: string; priorityColor: number }) => {
-    if (!canWrite) {
+  const handleSuggestionClick = async (suggestion: ShoppingHistoryEntry) => {
+    if (!canWrite || !activeList || pendingSuggestionKey) {
       return;
     }
 
-    setQuickAddItem({
-      title: suggestion.title,
-      count: suggestion.count || 1,
-      unit: normalizeShoppingUnit(suggestion.unit),
-      priorityColor: suggestion.priorityColor ?? 0,
-    });
-    setIsQuickAddCountValid(true);
+    const normalizedUnit = normalizeShoppingUnit(suggestion.unit);
+    const count = suggestion.count || 1;
+
+    setPendingSuggestionKey(suggestion.key);
+
+    try {
+      // Un article "souvent ajoute" part directement dans le panier actif en un clic :
+      // pas besoin de repasser par le formulaire pour un article deja connu.
+      await handleAsyncOperation(async () => {
+        const msg = await createPost(activeList._id, suggestion.title, count, normalizedUnit, suggestion.priorityColor ?? 0);
+        await sortShoppingPosts();
+        return msg;
+      }, null).then((msg) => {
+        if (msg?.success) {
+          setSuccess(msg.success);
+          setShoppingHistory((currentHistory) =>
+            upsertShoppingHistory(currentHistory, {
+              title: suggestion.title,
+              count,
+              unit: normalizedUnit,
+              priorityColor: suggestion.priorityColor ?? 0,
+            })
+          );
+        }
+      }).catch(() => undefined);
+    } finally {
+      setPendingSuggestionKey(null);
+    }
   };
 
   const handleDeleteHistoryEntry = (historyKey: string) => {
@@ -839,7 +920,17 @@ const ShoppingTab = () => {
     };
   };
 
-  const renderBasketPanel = (shoppingItem: ShoppingDay, index: number): ReactNode => (
+  const renderBasketPanel = (shoppingItem: ShoppingDay, index: number): ReactNode => {
+    const totalCount = shoppingItem.shoppingList.length;
+    const checkedCount = shoppingItem.shoppingList.filter((post) => post.checked).length;
+    const progressPercent = totalCount > 0 ? Math.round((checkedCount / totalCount) * 100) : 0;
+    // Les articles coches glissent en bas de liste (a priorite egale) au lieu de disparaitre :
+    // on garde une vue d'ensemble du panier pendant les courses, sans reorganisation brutale.
+    const sortedShoppingList = [...shoppingItem.shoppingList].sort(
+      (a, b) => Number(!!a.checked) - Number(!!b.checked) || b.priorityColor - a.priorityColor
+    );
+
+    return (
     <div className="shopping-basket-panel" key={shoppingItem._id} data-basket-index={index} style={getListAccentStyle(index)}>
       <div className="shopping-basket-header">
         <div className="shopping-basket-topline">
@@ -878,6 +969,31 @@ const ShoppingTab = () => {
           </div>
         </div>
 
+        {totalCount > 0 && (
+          <div className="shopping-basket-progress">
+            <div className="shopping-basket-progress-track">
+              <div className="shopping-basket-progress-fill" style={{ width: `${progressPercent}%` }}></div>
+            </div>
+
+            <span className="shopping-basket-progress-label">
+              {checkedCount === totalCount
+                ? "Panier termine, tout est dans le chariot !"
+                : `${checkedCount}/${totalCount} achete${checkedCount > 1 ? "s" : ""}`}
+            </span>
+
+            {canWrite && checkedCount > 0 && (
+              <button
+                type="button"
+                className="shopping-basket-clear-checked"
+                disabled={isClearingChecked}
+                onClick={() => void handleClearChecked(shoppingItem._id)}
+              >
+                <i className="fa-solid fa-broom"></i>
+                {isClearingChecked ? "Nettoyage..." : "Vider les articles coches"}
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
       <PostValidationPopup
@@ -905,15 +1021,21 @@ const ShoppingTab = () => {
           </div>
         )}
 
-        {shoppingItem.shoppingList.length > 0 &&
-          shoppingItem.shoppingList.map((post) => (
-            <div key={post._id}>
-              <ShoppingPost post={post} onUpdate={openUpdatePopup} onDelete={handleDelete} />
-            </div>
-          ))}
+        {sortedShoppingList.map((post, postIndex) => (
+          <div key={post._id}>
+            {post.checked && postIndex > 0 && !sortedShoppingList[postIndex - 1].checked && (
+              <p className="shopping-basket-divider">
+                <i className="fa-solid fa-check-double"></i>
+                Deja dans le chariot
+              </p>
+            )}
+            <ShoppingPost post={post} onUpdate={openUpdatePopup} onDelete={handleDelete} onToggleChecked={handleToggleChecked} />
+          </div>
+        ))}
       </div>
     </div>
-  );
+    );
+  };
 
   const isQuickAddReady = !!activeList && quickAddItem.title.trim() !== "" && quickAddItem.count > 0 && isQuickAddCountValid;
 
@@ -1057,10 +1179,11 @@ const ShoppingTab = () => {
                           <button
                             type="button"
                             className="shopping-quick-pick-main"
-                            disabled={!canWrite}
-                            onClick={() => handleSuggestionClick(suggestion)}
+                            disabled={!canWrite || pendingSuggestionKey === suggestion.key}
+                            title={`Ajouter ${suggestion.title} directement au panier`}
+                            onClick={() => void handleSuggestionClick(suggestion)}
                           >
-                            <i className="fa-solid fa-rotate-left"></i>
+                            <i className={`fa-solid ${pendingSuggestionKey === suggestion.key ? "fa-spinner fa-spin" : "fa-cart-plus"}`}></i>
                             <span className="shopping-quick-pick-copy">{suggestion.title}</span>
                             <span className="shopping-quick-pick-count">{suggestion.frequency}x</span>
                           </button>
@@ -1083,15 +1206,20 @@ const ShoppingTab = () => {
               </form>
             </div>
 
-            <div className="shopping-ai-assistant">
-              <div className="shopping-ai-assistant-head">
-                <p className="eyebrow">Assistant IA</p>
-                <h2 className="shopping-quick-add-title">Decris ton repas, l'IA propose la liste</h2>
+            <div className="ai-assistant">
+              <div className="ai-assistant-head">
+                <span className="ai-assistant-badge">
+                  <i className="fa-solid fa-wand-magic-sparkles"></i>
+                </span>
+                <div>
+                  <p className="eyebrow">Assistant IA</p>
+                  <h2 className="ai-assistant-title">Decris ton repas, l'IA propose la liste</h2>
+                </div>
               </div>
 
-              <div className="shopping-ai-assistant-form">
+              <div className="ai-assistant-form">
                 <textarea
-                  className="input shopping-ai-textarea"
+                  className="input ai-textarea"
                   disabled={!canWrite}
                   value={aiDescription}
                   onChange={(event) => setAiDescription(event.target.value)}
@@ -1100,7 +1228,7 @@ const ShoppingTab = () => {
                 />
                 <button
                   type="button"
-                  className="ghost-button shopping-ai-generate-button"
+                  className="ghost-button ai-generate-button"
                   disabled={!canWrite || !aiDescription.trim() || isGeneratingAi}
                   onClick={() => void handleGenerateAiList()}
                 >
@@ -1110,10 +1238,10 @@ const ShoppingTab = () => {
               </div>
 
               {aiProposedItems.length > 0 && (
-                <div className="shopping-ai-proposed">
-                  <div className="shopping-ai-proposed-list">
+                <div className="ai-proposed">
+                  <div className="ai-proposed-list">
                     {aiProposedItems.map((item, index) => (
-                      <label key={index} className="shopping-ai-proposed-item">
+                      <label key={index} className="ai-proposed-item">
                         <input
                           type="checkbox"
                           className="checkbox-theme"
@@ -1122,20 +1250,20 @@ const ShoppingTab = () => {
                         />
                         <input
                           type="text"
-                          className="input shopping-ai-item-title"
+                          className="input ai-item-title"
                           value={item.title}
                           onChange={(event) => updateAiItemField(index, "title", event.target.value)}
                         />
                         <input
                           type="number"
-                          className="input shopping-ai-item-count"
+                          className="input ai-item-field-a"
                           min="0"
                           step="0.1"
                           value={item.count}
                           onChange={(event) => updateAiItemField(index, "count", Number(event.target.value))}
                         />
                         <select
-                          className="input shopping-ai-item-unit"
+                          className="input ai-item-field-b"
                           value={item.unit}
                           onChange={(event) => updateAiItemField(index, "unit", event.target.value)}
                         >
@@ -1149,10 +1277,10 @@ const ShoppingTab = () => {
                     ))}
                   </div>
 
-                  <div className="shopping-ai-proposed-actions">
+                  <div className="ai-proposed-actions">
                     <button
                       type="button"
-                      className="btn shopping-ai-add-button"
+                      className="btn ai-add-button"
                       disabled={
                         !canWrite || isAddingAiItems || aiProposedItems.every((item) => !item.selected)
                       }

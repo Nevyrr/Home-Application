@@ -33,6 +33,7 @@ export interface ShoppingPost {
   count: number;
   unit?: string;
   priorityColor: number;
+  checked?: boolean;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -71,16 +72,6 @@ export interface ReminderPost {
   sortOrder: number;
   createdAt?: string;
   updatedAt?: string;
-}
-
-export interface ExternalCalendarEvent {
-  id: string;
-  title: string;
-  start: string;
-  end?: string;
-  isAllDay: boolean;
-  location?: string;
-  htmlLink?: string;
 }
 
 export interface Taco {

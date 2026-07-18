@@ -25,6 +25,23 @@ const hashPassword = async (password: string): Promise<string> => {
 
 const hashResetToken = (token: string): string => crypto.createHash("sha256").update(token).digest("hex");
 
+// Comparaison a temps constant pour eviter qu'une difference de timing ne laisse deviner
+// le code d'inscription caractere par caractere.
+const isRegistrationCodeValid = (submittedCode: string): boolean => {
+  if (!env.REGISTRATION_CODE) {
+    return false;
+  }
+
+  const submittedBuffer = Buffer.from(submittedCode);
+  const expectedBuffer = Buffer.from(env.REGISTRATION_CODE);
+
+  if (submittedBuffer.length !== expectedBuffer.length) {
+    return false;
+  }
+
+  return crypto.timingSafeEqual(submittedBuffer, expectedBuffer);
+};
+
 const createPasswordResetToken = (): { rawToken: string; hashedToken: string; expiresAt: Date } => {
   const rawToken = crypto.randomBytes(32).toString("hex");
 
@@ -92,7 +109,15 @@ const getManagedUserOrFail = async (userId: string) => {
 
 /************************************ Register User ************************************/
 const registerUser = async (req: AuthRequest, res: Response): Promise<void> => {
-  const { name, email, password } = req.body;
+  const { name, email, password, registrationCode } = req.body;
+
+  if (!env.REGISTRATION_CODE) {
+    throw createError("L'inscription n'est pas configuree sur ce serveur", 503);
+  }
+
+  if (!isRegistrationCodeValid(registrationCode)) {
+    throw createError("Code d'inscription invalide", 403);
+  }
 
   const nameExist = await User.findOne({ name });
   if (nameExist) {
@@ -157,22 +182,19 @@ const loginWithGoogle = async (req: AuthRequest, res: Response): Promise<void> =
     throw createError("Compte Google invalide", 401);
   }
 
-  let user = await User.findOne({ email: payload.email });
+  const user = await User.findOne({ email: payload.email });
 
+  // La connexion Google ne cree jamais de nouveau compte : seule l'inscription par
+  // email/mot de passe (protegee par le code d'inscription) peut en creer un. Google ne sert
+  // qu'a se connecter a un compte deja existant (et a y attacher le googleId au passage).
   if (!user) {
-    const generatedPassword = await hashPassword(`google:${payload.sub}:${env.SECRET}`);
+    throw createError(
+      "Aucun compte n'existe pour cet email. Cree d'abord un compte avec le code d'inscription.",
+      403
+    );
+  }
 
-    user = await User.create({
-      name: payload.name || payload.email,
-      email: payload.email,
-      password: generatedPassword,
-      googleId: payload.sub,
-      receiveEmail: false,
-      isAdmin: false,
-      accessLevel: "readonly",
-      refreshToken: null,
-    });
-  } else if (!user.googleId) {
+  if (!user.googleId) {
     user.googleId = payload.sub;
     await user.save();
   }

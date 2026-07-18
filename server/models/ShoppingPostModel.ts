@@ -27,6 +27,11 @@ const ShoppingPostSchema = new Schema<IShoppingPost>({
     priorityColor: {
         type: Number,
         required: true,
+    },
+    checked: {
+        type: Boolean,
+        required: false,
+        default: false,
     }
 }, { timestamps: true });
 

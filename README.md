@@ -75,6 +75,13 @@ It helps you **organize your daily life** by managing tasks, shopping, events, a
    # Utilisez une clé longue et aléatoire en production (minimum 32 caractères recommandé)
    # Vous pouvez générer une clé avec : openssl rand -base64 32
    SECRET=votre_cle_secrete_jwt_tres_longue_et_aleatoire_ici
+   
+   # Code d'invitation requis pour créer un compte par email/mot de passe (obligatoire pour
+   # autoriser l'inscription : sans cette variable, la création de compte est désactivée).
+   # Note : la connexion Google ne crée jamais de nouveau compte, elle ne fait que connecter
+   # un compte déjà existant. Seule l'inscription email/mot de passe passe par ce code.
+   # Partagez ce code uniquement avec les personnes que vous invitez dans le foyer.
+   REGISTRATION_CODE=un_code_secret_a_partager_avec_ta_famille
    ```
    
    **Variables optionnelles :**
