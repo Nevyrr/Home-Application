@@ -1,6 +1,5 @@
 import { FormEvent, useEffect, useState } from "react";
 import { Alert, Skeleton, Success } from "../../components/index.ts";
-import { getEvents } from "../../controllers/CalendarEventsController.ts";
 import { getPosts as getReminderPosts } from "../../controllers/ReminderPostsController.ts";
 import { getPosts as getShoppingPosts } from "../../controllers/ShoppingPostsController.ts";
 import { deleteUserAccount, listUsers, updateUser, updateUserAccess } from "../../controllers/UsersController.ts";
@@ -15,8 +14,6 @@ interface ProfileStats {
   shoppingItems: number;
   openTasks: number;
   overdueTasks: number;
-  upcomingEvents: number;
-  nextEventLabel: string;
 }
 
 const EMPTY_STATS: ProfileStats = {
@@ -24,19 +21,9 @@ const EMPTY_STATS: ProfileStats = {
   shoppingItems: 0,
   openTasks: 0,
   overdueTasks: 0,
-  upcomingEvents: 0,
-  nextEventLabel: "Aucun evenement a venir",
 };
 
 const getBooleanFromString = (bool: string | null): boolean => bool === "true";
-
-const formatEventLabel = (value: Date): string =>
-  value.toLocaleDateString("fr-FR", {
-    day: "2-digit",
-    month: "short",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
 
 const Dashboard = () => {
   const { user, setUser } = useApp();
@@ -69,10 +56,9 @@ const Dashboard = () => {
       setIsLoadingStats(true);
 
       try {
-        const [shoppingData, reminderData, calendarData] = await Promise.all([
+        const [shoppingData, reminderData] = await Promise.all([
           getShoppingPosts(),
           getReminderPosts(),
-          getEvents(),
         ]);
 
         if (!isMounted) {
@@ -95,18 +81,11 @@ const Dashboard = () => {
           return !Number.isNaN(dueDate.getTime()) && dueDate < today;
         }).length;
 
-        const upcomingEvents = calendarData.events
-          .map((event) => new Date(event.date))
-          .filter((eventDate) => !Number.isNaN(eventDate.getTime()) && eventDate >= new Date())
-          .sort((a, b) => a.getTime() - b.getTime());
-
         setStats({
           shoppingLists,
           shoppingItems,
           openTasks,
           overdueTasks,
-          upcomingEvents: upcomingEvents.length,
-          nextEventLabel: upcomingEvents[0] ? formatEventLabel(upcomingEvents[0]) : "Aucun evenement a venir",
         });
       } catch (loadError) {
         if (isMounted) {
@@ -232,7 +211,7 @@ const Dashboard = () => {
     try {
       await handleAsyncOperation(async () => {
         await updateUser({ receiveEmail: nextValue });
-      }, nextValue ? "Notifications email activees" : "Notifications email desactivees");
+      }, nextValue ? "Notifications activees" : "Notifications desactivees");
     } catch {
       setUser(previousUser);
     } finally {
@@ -455,18 +434,14 @@ const Dashboard = () => {
             </div>
 
             {isLoadingStats ? (
-              <>
-                <div className="skeleton-stats-grid">
+              <div className="skeleton-stats-grid">
                   <Skeleton className="skeleton-stat-card" />
                   <Skeleton className="skeleton-stat-card" />
                   <Skeleton className="skeleton-stat-card" />
                   <Skeleton className="skeleton-stat-card" />
-                </div>
-                <Skeleton className="skeleton-stat-card" style={{ marginTop: "0.9rem", height: "5.5rem" }} />
-              </>
+              </div>
             ) : (
-              <>
-                <div className="profile-stats-grid">
+              <div className="profile-stats-grid">
                   <article className="profile-stat-card">
                     <span className="profile-stat-value">{stats.shoppingLists}</span>
                     <span className="profile-stat-label">Listes de courses</span>
@@ -483,14 +458,7 @@ const Dashboard = () => {
                     <span className="profile-stat-value">{stats.overdueTasks}</span>
                     <span className="profile-stat-label">Taches en retard</span>
                   </article>
-                </div>
-
-                <div className="profile-highlight-card">
-                  <span className="profile-summary-label">Prochain evenement</span>
-                  <strong>{stats.nextEventLabel}</strong>
-                  <p>{stats.upcomingEvents} evenement(s) a venir dans le calendrier</p>
-                </div>
-              </>
+              </div>
             )}
           </section>
         </aside>

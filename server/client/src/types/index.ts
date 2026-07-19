@@ -46,18 +46,6 @@ export interface ShoppingDay {
   updatedAt?: string;
 }
 
-export interface CalendarEvent {
-  _id: string;
-  user: string;
-  username: string;
-  title: string;
-  date: Date | string;
-  duration?: string;
-  priorityColor: number;
-  createdAt?: string;
-  updatedAt?: string;
-}
-
 export interface ReminderPost {
   _id: string;
   user: string;
@@ -67,6 +55,7 @@ export interface ReminderPost {
   priorityColor: number;
   status: "todo" | "doing" | "done";
   dueDate?: string | Date | null;
+  dueTime?: string | null;
   amount?: number | null;
   sortOrder: number;
   createdAt?: string;
@@ -77,10 +66,13 @@ export interface Taco {
   _id?: string;
   vermifugeDate: string;
   vermifugeReminder: string;
+  vermifugeIntervalMonths?: number | null;
   antiPuceDate: string;
   antiPuceReminder: string;
+  antiPuceIntervalMonths?: number | null;
   annualVaccineDate: string;
   annualVaccineReminder: string;
+  annualVaccineIntervalMonths?: number | null;
   birthDate: string;
   weightKg: number;
   createdAt?: string;
@@ -94,7 +86,10 @@ export interface Nono {
   checkupReminder: string;
   vaccineDate: string;
   vaccineReminder: string;
+  vaccineIntervalMonths?: number | null;
+  vitaminDate?: string;
   vitaminReminder: string;
+  vitaminIntervalMonths?: number | null;
   administrativeReminder: string;
   notes: string;
   bottleEntries: NonoBottleEntry[];
@@ -123,8 +118,6 @@ export interface AppState {
   setShoppingItems: Dispatch<SetStateAction<ShoppingDay[]>>;
   reminderPosts: ReminderPost[];
   setReminderPosts: Dispatch<SetStateAction<ReminderPost[]>>;
-  events: CalendarEvent[];
-  setEvents: Dispatch<SetStateAction<CalendarEvent[]>>;
   taco: Taco;
   setTaco: Dispatch<SetStateAction<Taco>>;
   nono: Nono;

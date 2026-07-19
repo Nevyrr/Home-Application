@@ -1,7 +1,7 @@
 # 🏡 Home Application
 
 A **personal home management web application** built with the **MERN stack** (MongoDB, Express.js, React, Node.js).  
-It helps you **organize your daily life** by managing tasks, shopping, events, and even your pet's vaccines.  
+It helps you **organize your daily life** by managing tasks, shopping, and health tracking for Coco and Nono.
 
 ---
 
@@ -10,11 +10,14 @@ It helps you **organize your daily life** by managing tasks, shopping, events, a
 - **🛒 Shopping List**  
   Add, edit, and check items for your daily and weekly shopping.
 
-- **🗓️ Agenda & Events**  
-  Manage appointments and personal reminders with an intuitive calendar.
+- **✅ Tasks & Reminders**
+  Organize household tasks and track their due dates.
 
 - **💉 Pet Vaccine Tracking**  
-  Track your dog’s vaccinations and health milestones.
+  Track care dates and automatically calculate the next reminder from the configured interval.
+
+- **👶 Nono Tracking**
+  Record weight measurements and follow health appointments, care and notes.
 
 - **📱 Responsive UI**  
   Works on desktop, tablet, and mobile.
@@ -25,8 +28,8 @@ It helps you **organize your daily life** by managing tasks, shopping, events, a
 
 **Frontend:**  
 - React  
-- Vite / Create React App (depending on your setup)  
-- Tailwind CSS or CSS Modules  
+- Vite + TypeScript
+- Tailwind CSS
 
 **Backend:**  
 - Node.js  
@@ -36,8 +39,8 @@ It helps you **organize your daily life** by managing tasks, shopping, events, a
 - MongoDB + Mongoose  
 
 **Others:**  
-- Axios for API calls  
-- JSON Web Token (JWT) for authentication (if implemented)  
+- Authenticated Fetch API calls
+- JSON Web Token (JWT) and Google sign-in
 
 ---
 
@@ -58,7 +61,7 @@ It helps you **organize your daily life** by managing tasks, shopping, events, a
    ```bash
    npm install
    cd server && npm install
-   cd server/client && npm install
+   cd client && npm install
    ```
 
 3. **Configure environment variables**  
@@ -116,11 +119,6 @@ It helps you **organize your daily life** by managing tasks, shopping, events, a
    PORT=4000
    ```
    
-   **Note sur la sécurité :**
-   - Le mot de passe doit contenir au moins 8 caractères avec une majuscule, une minuscule et un chiffre
-   - Les tokens JWT expirent après 7 jours (au lieu de 20 jours précédemment)
-   - Le rate limiting est activé (100 requêtes par IP toutes les 15 minutes)
-
 4. **Run the application**  
    
    **Option 1 : Lancer les deux serveurs en une seule commande** (recommandé)
@@ -142,6 +140,18 @@ It helps you **organize your daily life** by managing tasks, shopping, events, a
    - Backend API : **http://localhost:4000**
 
 ---
+
+## Vérifications du projet
+
+Après l'installation des dépendances, depuis la racine :
+
+```bash
+npm run check  # Vérification TypeScript du serveur et de l'interface
+npm test       # Tests des échéances, dates et notifications
+npm run build  # Compilation du serveur et de l'interface
+```
+
+Le build utilise les dépendances installées ; il ne lance pas de nouvelle installation.
 
 ## 📱 Application mobile (Android / iPhone)
 

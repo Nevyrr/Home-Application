@@ -6,20 +6,8 @@ import User from "../models/UserModel.js";
 import { AuthRequest } from "../middlewares/auth.js";
 import { createError } from "../middlewares/errorHandler.js";
 import { sendSuccess, sendCreated, sendUpdated, sendDeleted } from "../utils/apiResponse.js";
-import { sendEmail } from "../config/nodeMailConfig.js";
+import { sendReminderEmails } from "../utils/reminderEmails.js";
 import { logger } from "../utils/logger.js";
-
-const sendReminderEmails = (subject: string, message: string): void => {
-  const { EMAIL_RECIPIENT_1, EMAIL_RECIPIENT_2 } = process.env;
-
-  if (EMAIL_RECIPIENT_1) {
-    void sendEmail(EMAIL_RECIPIENT_1, subject, message).catch(() => undefined);
-  }
-
-  if (EMAIL_RECIPIENT_2) {
-    void sendEmail(EMAIL_RECIPIENT_2, subject, message).catch(() => undefined);
-  }
-};
 
 /**
  * Envoie un email pour chaque tache (avec montant) arrivee a echeance et non terminee,
@@ -67,7 +55,7 @@ const getPosts = async (_req: AuthRequest, res: Response): Promise<void> => {
 
 /************************************ Create New ReminderPost ************************************/
 const addPost = async (req: AuthRequest, res: Response): Promise<void> => {
-  const { title, body, priorityColor = 0, status, dueDate, amount } = req.body;
+  const { title, body, priorityColor = 0, status, dueDate, dueTime, amount } = req.body;
 
   if (!req.user) {
     throw createError("Utilisateur non authentifie", 401);
@@ -90,6 +78,7 @@ const addPost = async (req: AuthRequest, res: Response): Promise<void> => {
     priorityColor,
     status,
     dueDate: dueDate ? new Date(dueDate) : null,
+    dueTime: dueTime || null,
     amount: amount ?? null,
     sortOrder,
   });
@@ -127,7 +116,7 @@ const deletePost = async (req: AuthRequest, res: Response): Promise<void> => {
 
 /************************************ Update ReminderPost ************************************/
 const updatePost = async (req: AuthRequest, res: Response): Promise<void> => {
-  const { title, body, priorityColor = 0, status, dueDate, amount, sortOrder } = req.body;
+  const { title, body, priorityColor = 0, status, dueDate, dueTime, amount, sortOrder } = req.body;
 
   if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
     throw createError("ID incorrect", 400);
@@ -161,6 +150,7 @@ const updatePost = async (req: AuthRequest, res: Response): Promise<void> => {
     priorityColor,
     status,
     dueDate: nextDueDate,
+    dueTime: dueTime || null,
     amount: amount ?? null,
     sortOrder: sortOrder ?? post.sortOrder,
     // Une echeance modifiee doit pouvoir redeclencher un email, meme si l'ancienne date avait deja notifie

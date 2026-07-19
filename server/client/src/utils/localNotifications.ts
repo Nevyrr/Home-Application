@@ -1,5 +1,6 @@
+import { parseStoredDate, startOfDay } from "./dateUtils.ts";
 import { LocalNotifications } from "@capacitor/local-notifications";
-import { CalendarEvent, Nono, ReminderPost, Taco } from "../types/index.ts";
+import { Nono, ReminderPost, Taco } from "../types/index.ts";
 
 export interface ScheduledReminder {
   id: number;
@@ -20,15 +21,16 @@ const NONO_ADMIN_ID = 204;
 const REMINDER_POST_ID_BASE = 10_000;
 const REMINDER_POST_ID_RANGE = 500_000;
 
-const CALENDAR_EVENT_ID_BASE = 600_000;
-const CALENDAR_EVENT_ID_RANGE = 500_000;
+// Reserved for cancelling notifications from the removed calendar in older app versions.
+const RETIRED_ID_BASE = 600_000;
+const RETIRED_ID_RANGE = 500_000;
 
 export const isTacoManagedId = (id: number): boolean => id >= 100 && id < 200;
 export const isNonoManagedId = (id: number): boolean => id >= 200 && id < 300;
 export const isReminderPostManagedId = (id: number): boolean =>
   id >= REMINDER_POST_ID_BASE && id < REMINDER_POST_ID_BASE + REMINDER_POST_ID_RANGE;
-export const isCalendarEventManagedId = (id: number): boolean =>
-  id >= CALENDAR_EVENT_ID_BASE && id < CALENDAR_EVENT_ID_BASE + CALENDAR_EVENT_ID_RANGE;
+const isRetiredId = (id: number): boolean =>
+  id >= RETIRED_ID_BASE && id < RETIRED_ID_BASE + RETIRED_ID_RANGE;
 
 const hashNotificationId = (seed: string, base: number, range: number): number => {
   let hash = 0;
@@ -37,23 +39,6 @@ const hashNotificationId = (seed: string, base: number, range: number): number =
   }
   return base + (Math.abs(hash) % range);
 };
-
-const parseFrenchDate = (dateString?: string | null): Date | null => {
-  if (!dateString) {
-    return null;
-  }
-
-  const [day, month, year] = dateString.split("/");
-
-  if (!day || !month || !year) {
-    return null;
-  }
-
-  const parsedDate = new Date(Number(year), Number(month) - 1, Number(day));
-  return Number.isNaN(parsedDate.getTime()) ? null : parsedDate;
-};
-
-const startOfDay = (date: Date): Date => new Date(date.getFullYear(), date.getMonth(), date.getDate());
 
 const atTime = (date: Date, hour: number, minute: number): Date => {
   const result = new Date(date);
@@ -74,7 +59,7 @@ const buildUpcomingReminder = (
   hour: number,
   minute: number
 ): ScheduledReminder | null => {
-  const parsedDate = parseFrenchDate(dateString);
+  const parsedDate = parseStoredDate(dateString);
 
   if (!parsedDate || startOfDay(parsedDate).getTime() < startOfDay(new Date()).getTime()) {
     return null;
@@ -157,7 +142,29 @@ export const buildNonoReminders = (
   return reminders.filter((reminder): reminder is ScheduledReminder => reminder !== null);
 };
 
+const parseDueTime = (dueTime?: string | null): { hour: number; minute: number } | null => {
+  if (!dueTime) {
+    return null;
+  }
+
+  const [hourStr, minuteStr] = dueTime.split(":");
+  const hour = Number(hourStr);
+  const minute = Number(minuteStr);
+
+  if (Number.isNaN(hour) || Number.isNaN(minute)) {
+    return null;
+  }
+
+  return { hour, minute };
+};
+
+/**
+ * Les taches n'ont qu'une date par defaut (notif le matin de l'echeance, comme l'email).
+ * Si une heure precise est renseignee, on bascule sur une notif 30 min avant.
+ */
 export const buildReminderPostReminders = (posts: ReminderPost[]): ScheduledReminder[] => {
+  const now = new Date();
+
   const reminders = posts.map((post) => {
     if (post.status === "done" || post.amount == null || !post.dueDate) {
       return null;
@@ -165,14 +172,40 @@ export const buildReminderPostReminders = (posts: ReminderPost[]): ScheduledRemi
 
     const dueDate = new Date(post.dueDate);
 
-    if (Number.isNaN(dueDate.getTime()) || startOfDay(dueDate).getTime() < startOfDay(new Date()).getTime()) {
+    if (Number.isNaN(dueDate.getTime())) {
       return null;
     }
 
+    const id = hashNotificationId(post._id, REMINDER_POST_ID_BASE, REMINDER_POST_ID_RANGE);
     const amountLabel = typeof post.amount === "number" ? `${post.amount.toFixed(2)} €` : "";
+    const dueTime = parseDueTime(post.dueTime);
+
+    if (dueTime) {
+      const notifyAt = new Date(atTime(dueDate, dueTime.hour, dueTime.minute).getTime() - 30 * 60 * 1000);
+
+      if (notifyAt.getTime() < now.getTime()) {
+        return null;
+      }
+
+      return {
+        id,
+        title: `Dans 30 min : ${post.title}`,
+        body: [
+          `"${post.title}"${amountLabel ? ` (${amountLabel})` : ""} a ${post.dueTime}.`,
+          post.body ? `Notes : ${post.body}` : "",
+        ]
+          .filter(Boolean)
+          .join("\n"),
+        at: notifyAt,
+      };
+    }
+
+    if (startOfDay(dueDate).getTime() < startOfDay(now).getTime()) {
+      return null;
+    }
 
     return {
-      id: hashNotificationId(post._id, REMINDER_POST_ID_BASE, REMINDER_POST_ID_RANGE),
+      id,
       title: `Echeance : ${post.title}`,
       body: [
         `Le rappel "${post.title}"${amountLabel ? ` (${amountLabel})` : ""} arrive a echeance aujourd'hui.`,
@@ -187,39 +220,24 @@ export const buildReminderPostReminders = (posts: ReminderPost[]): ScheduledRemi
   return reminders.filter((reminder): reminder is ScheduledReminder => reminder !== null);
 };
 
+const isAnyManagedId = (id: number): boolean =>
+  isTacoManagedId(id) || isNonoManagedId(id) || isReminderPostManagedId(id) || isRetiredId(id);
+
 /**
- * Notifie 30 minutes avant le debut d'un evenement du planning (rendez-vous, activite...).
- * Contrairement aux rappels journaliers (Coco/Nono/taches), la comparaison se fait a la minute
- * pres puisque l'evenement a une heure precise.
+ * Annule tous les rappels geres par l'appli (Coco, Nono, taches et anciennes versions), sans en
+ * reprogrammer. Utilise quand l'utilisateur desactive les notifications sur son profil.
  */
-export const buildCalendarEventReminders = (events: CalendarEvent[]): ScheduledReminder[] => {
-  const now = new Date();
+const cancelManagedReminders = async (matchesId: (id: number) => boolean): Promise<void> => {
+  const pending = await LocalNotifications.getPending();
+  const toCancel = pending.notifications.filter((n) => matchesId(n.id)).map((n) => ({ id: n.id }));
 
-  const reminders = events.map((event) => {
-    const eventDate = new Date(event.date);
-
-    if (Number.isNaN(eventDate.getTime())) {
-      return null;
-    }
-
-    const notifyAt = new Date(eventDate.getTime() - 30 * 60 * 1000);
-
-    if (notifyAt.getTime() < now.getTime()) {
-      return null;
-    }
-
-    const timeLabel = eventDate.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
-
-    return {
-      id: hashNotificationId(event._id, CALENDAR_EVENT_ID_BASE, CALENDAR_EVENT_ID_RANGE),
-      title: `Dans 30 min : ${event.title}`,
-      body: `"${event.title}" commence a ${timeLabel}.`,
-      at: notifyAt,
-    };
-  });
-
-  return reminders.filter((reminder): reminder is ScheduledReminder => reminder !== null);
+  if (toCancel.length > 0) {
+    await LocalNotifications.cancel({ notifications: toCancel });
+  }
 };
+
+export const cancelAllManagedReminders = (): Promise<void> => cancelManagedReminders(isAnyManagedId);
+export const cancelRetiredReminders = (): Promise<void> => cancelManagedReminders(isRetiredId);
 
 export const requestNotificationPermission = async (): Promise<boolean> => {
   const status = await LocalNotifications.checkPermissions();
@@ -247,12 +265,7 @@ export const rescheduleReminders = async (
     return;
   }
 
-  const pending = await LocalNotifications.getPending();
-  const toCancel = pending.notifications.filter((n) => isManagedId(n.id)).map((n) => ({ id: n.id }));
-
-  if (toCancel.length > 0) {
-    await LocalNotifications.cancel({ notifications: toCancel });
-  }
+  await cancelManagedReminders(isManagedId);
 
   if (reminders.length === 0) {
     return;

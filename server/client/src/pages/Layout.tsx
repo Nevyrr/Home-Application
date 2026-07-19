@@ -6,7 +6,6 @@ import "../style/topbar.css";
 
 const NAV_ITEMS = [
   { path: "/shopping", icon: "fa-cart-shopping", label: "Courses" },
-  { path: "/calendar", icon: "fa-calendar-days", label: "Calendrier" },
   { path: "/reminders", icon: "fa-list-check", label: "Taches" },
   { path: "/taco", icon: "fa-dog", label: "Taco" },
   { path: "/nono", icon: "fa-baby", label: "Nono" },
@@ -16,7 +15,7 @@ const Layout = () => {
   const { pathname } = useLocation();
   const { user, logout } = useAuth();
 
-  useReminderNotifications(!!user.email);
+  useReminderNotifications(!!user.email && user.receiveEmail === "true");
 
   const isSelected = (path: string): boolean => {
     if (path === "/shopping" && pathname === "/") {

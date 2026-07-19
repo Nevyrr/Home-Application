@@ -5,19 +5,19 @@ import { ITaco } from "../types/index.js";
 const TacoSchema = new Schema<ITaco>({
     vermifugeDate: {
         type: String,
-        required: true
+        default: ""
     },
     vermifugeReminder: {
         type: String,
-        required: true
+        default: ""
     },
     antiPuceDate: {
         type: String,
-        required: true
+        default: ""
     },
     antiPuceReminder: {
         type: String,
-        required: true
+        default: ""
     },
     annualVaccineDate: {
         type: String,
@@ -27,6 +27,9 @@ const TacoSchema = new Schema<ITaco>({
         type: String,
         default: ""
     },
+    vermifugeIntervalMonths: { type: Number, default: null, min: 1, max: 1200, validate: (value: number | null) => value === null || Number.isInteger(value) },
+    antiPuceIntervalMonths: { type: Number, default: null, min: 1, max: 1200, validate: (value: number | null) => value === null || Number.isInteger(value) },
+    annualVaccineIntervalMonths: { type: Number, default: null, min: 1, max: 1200, validate: (value: number | null) => value === null || Number.isInteger(value) },
     birthDate: {
         type: String,
         default: "07/08/2022"

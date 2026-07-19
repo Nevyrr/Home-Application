@@ -9,7 +9,6 @@ import NotFound from "./pages/NotFound.tsx";
 import AuthRoutes from "./routes/AuthRoutes.tsx";
 import GuestRoutes from "./routes/GuestRoutes.tsx";
 import ShoppingTab from "./pages/tabs/ShoppingTab.tsx";
-import CalendarTab from "./pages/tabs/CalendarTab.tsx";
 import ReminderTab from "./pages/tabs/ReminderTab.tsx";
 import TacoTab from "./pages/tabs/TacoTab.tsx";
 import NonoTab from "./pages/tabs/NonoTab.tsx";
@@ -24,7 +23,6 @@ const App = () => {
             <Route index element={<ShoppingTab />} />
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="shopping" element={<ShoppingTab />} />
-            <Route path="calendar" element={<CalendarTab />} />
             <Route path="reminders" element={<ReminderTab />} />
             <Route path="taco" element={<TacoTab />} />
             <Route path="nono" element={<NonoTab />} />

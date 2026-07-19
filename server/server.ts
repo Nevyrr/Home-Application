@@ -8,7 +8,6 @@ import rateLimit from "express-rate-limit";
 import path from "path";
 import { fileURLToPath } from "url";
 import { ShoppingPostsRoutes } from "./routes/ShoppingPostsRoutes.js";
-import { CalendarEventsRoutes } from "./routes/CalendarEventsRoutes.js";
 import { UsersRoutes } from "./routes/UsersRoutes.js";
 import { ReminderPostsRoutes } from "./routes/ReminderPostsRoutes.js";
 import { TacoRoutes } from "./routes/TacoRoutes.js";
@@ -93,7 +92,6 @@ app.use((req, res, next) => {
 });
 
 app.use("/api/shopping-posts", ShoppingPostsRoutes);
-app.use("/api/calendar-events", CalendarEventsRoutes);
 app.use("/api/reminder-posts", ReminderPostsRoutes);
 app.use("/api/taco", TacoRoutes);
 app.use("/api/nono", NonoRoutes);

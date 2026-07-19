@@ -4,7 +4,7 @@
  */
 
 import { createContext, useState, useContext, ReactNode } from "react";
-import { AppState, User, ShoppingDay, ReminderPost, CalendarEvent, Taco, Nono } from "../types/index.ts";
+import { AppState, User, ShoppingDay, ReminderPost, Taco, Nono } from "../types/index.ts";
 import { loadStoredUser } from "../utils/session.ts";
 
 const AppContext = createContext<AppState | undefined>(undefined);
@@ -34,9 +34,6 @@ export const AppProvider = ({ children }: AppProviderProps) => {
 
   // Reminder state
   const [reminderPosts, setReminderPosts] = useState<ReminderPost[]>([]);
-
-  // Calendar events state
-  const [events, setEvents] = useState<CalendarEvent[]>([]);
 
   // Taco state
   const [taco, setTaco] = useState<Taco>({
@@ -76,10 +73,6 @@ export const AppProvider = ({ children }: AppProviderProps) => {
     // Reminder
     reminderPosts,
     setReminderPosts,
-    
-    // Calendar
-    events,
-    setEvents,
     
     // Taco
     taco,

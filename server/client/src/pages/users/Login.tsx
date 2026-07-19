@@ -50,8 +50,8 @@ const Login = () => {
         <p className="eyebrow">Connexion</p>
         <h1>Organise la maison sans friction.</h1>
         <p>
-          Courses, calendrier, rappels et suivi du quotidien restent au meme endroit. Tu peux maintenant utiliser
-          ton compte Google pour entrer plus vite et connecter ton agenda.
+          Courses, rappels et suivi du quotidien restent au même endroit. Tu peux utiliser
+          ton compte Google pour te connecter plus vite.
         </p>
       </div>
 

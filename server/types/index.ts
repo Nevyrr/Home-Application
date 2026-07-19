@@ -40,18 +40,6 @@ export interface IShoppingDay extends Document {
   updatedAt?: Date;
 }
 
-export interface ICalendarEvent extends Document {
-  _id: Types.ObjectId;
-  user: Types.ObjectId;
-  username: string;
-  title: string;
-  date: Date;
-  duration?: string;
-  priorityColor: number;
-  createdAt?: Date;
-  updatedAt?: Date;
-}
-
 export interface IReminderPost extends Document {
   _id: Types.ObjectId;
   user: Types.ObjectId;
@@ -61,6 +49,7 @@ export interface IReminderPost extends Document {
   priorityColor: number;
   status: "todo" | "doing" | "done";
   dueDate?: Date | null;
+  dueTime?: string | null;
   amount?: number | null;
   dueDateNotifiedAt?: Date | null;
   sortOrder: number;
@@ -72,10 +61,13 @@ export interface ITaco extends Document {
   _id: Types.ObjectId;
   vermifugeDate: string;
   vermifugeReminder: string;
+  vermifugeIntervalMonths?: number | null;
   antiPuceDate: string;
   antiPuceReminder: string;
+  antiPuceIntervalMonths?: number | null;
   annualVaccineDate: string;
   annualVaccineReminder: string;
+  annualVaccineIntervalMonths?: number | null;
   birthDate: string;
   weightKg: number;
   createdAt?: Date;
@@ -89,7 +81,10 @@ export interface INono extends Document {
   checkupReminder: string;
   vaccineDate: string;
   vaccineReminder: string;
+  vaccineIntervalMonths?: number | null;
+  vitaminDate?: string;
   vitaminReminder: string;
+  vitaminIntervalMonths?: number | null;
   administrativeReminder: string;
   notes: string;
   bottleEntries: INonoBottleEntry[];

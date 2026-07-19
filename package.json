@@ -8,7 +8,9 @@
     "server": "cd server && npm run server",
     "client": "cd server/client && npm run dev",
     "install:all": "npm install && cd server && npm install && cd client && npm install",
-    "build": "cd server && npm run build"
+    "build": "cd server && npm run build",
+    "check": "npm run check --prefix server && npm run check --prefix server/client",
+    "test": "npm run test --prefix server && npm run test --prefix server/client"
   },
   "keywords": [
     "home",
@@ -23,4 +25,3 @@
     "concurrently": "^8.2.2"
   }
 }
-

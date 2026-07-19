@@ -1,10 +1,11 @@
+import { buildCareUpdate, buildCareDateUpdate, getCareReminderUpdates } from "../utils/careSchedule.js";
 import type { Request, Response } from "express";
 import { Types } from "mongoose";
 import cron from "node-cron";
 import NonoModel from "../models/NonoModel.js";
-import { sendEmail } from "../config/nodeMailConfig.js";
 import { createError } from "../middlewares/errorHandler.js";
 import { sendSuccess } from "../utils/apiResponse.js";
+import { sendReminderEmails } from "../utils/reminderEmails.js";
 import { logger } from "../utils/logger.js";
 
 type NonoField =
@@ -13,6 +14,7 @@ type NonoField =
   | "checkupReminder"
   | "vaccineDate"
   | "vaccineReminder"
+  | "vitaminDate"
   | "vitaminReminder"
   | "administrativeReminder"
   | "notes";
@@ -48,18 +50,6 @@ const parseStoredDate = (dateString: string): Date | null => {
 };
 
 const startOfDay = (date: Date): Date => new Date(date.getFullYear(), date.getMonth(), date.getDate());
-
-const sendReminderEmails = (subject: string, message: string): void => {
-  const { EMAIL_RECIPIENT_1, EMAIL_RECIPIENT_2 } = process.env;
-
-  if (EMAIL_RECIPIENT_1) {
-    void sendEmail(EMAIL_RECIPIENT_1, subject, message).catch(() => undefined);
-  }
-
-  if (EMAIL_RECIPIENT_2) {
-    void sendEmail(EMAIL_RECIPIENT_2, subject, message).catch(() => undefined);
-  }
-};
 
 cron.schedule("15 8 * * *", async () => {
   try {
@@ -214,9 +204,11 @@ const readObjectIdValue = (value: unknown, label: string): Types.ObjectId => {
 };
 
 const updateNonoField = async (field: NonoField, value: string) => {
+  const current = field.endsWith("Date") ? await NonoModel.findOne().lean() : null;
+  const update = buildCareDateUpdate("nono", field, value, current || {});
   const updatedNono = await NonoModel.findOneAndUpdate(
     {},
-    { [field]: value },
+    { $set: update },
     { new: true, upsert: true, setDefaultsOnInsert: true }
   );
 
@@ -314,7 +306,13 @@ const sendNonoUpdate = (res: Response, nono: Awaited<ReturnType<typeof updateNon
 };
 
 const getNonoData = async (_req: Request, res: Response): Promise<void> => {
-  const nono = await getOrCreateNono();
+  let nono = await getOrCreateNono();
+  const reminders = getCareReminderUpdates("nono", { ...nono.toObject() });
+  if (Object.keys(reminders).length > 0) {
+    nono = await NonoModel.findOneAndUpdate(
+      { _id: nono._id }, { $set: reminders }, { new: true }
+    ) || nono;
+  }
   sendSuccess(res, { nono: [nono] }, "Donnees Nono recuperees avec succes");
 };
 
@@ -401,4 +399,23 @@ export {
   updateVaccineDate,
   updateVaccineReminder,
   updateVitaminReminder,
+};
+
+export const updateCare = async (req: Request, res: Response): Promise<void> => {
+  const current = req.body.date === undefined ? await NonoModel.findOne().lean() : null;
+  const update = buildCareUpdate("nono", String(req.params.care), req.body.intervalMonths, req.body.date, current || {});
+  const record = await NonoModel.findOneAndUpdate(
+    {},
+    { $set: update },
+    { new: true, upsert: true, setDefaultsOnInsert: true, runValidators: true }
+  );
+  if (!record) throw createError("Données introuvables", 404);
+  sendSuccess(res, { nono: [record] }, req.body.date === undefined
+    ? "Intervalle enregistré"
+    : "Soin enregistré et prochaine échéance mise à jour");
+};
+
+export const updateVitaminDate = async (req: Request, res: Response): Promise<void> => {
+  const nono = await updateNonoField("vitaminDate", readStringValue(req.body.date, "Date de la vitamine"));
+  sendNonoUpdate(res, nono, "Date de la vitamine mise à jour");
 };

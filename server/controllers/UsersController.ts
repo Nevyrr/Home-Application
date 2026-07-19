@@ -3,7 +3,6 @@ import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import { OAuth2Client } from "google-auth-library";
 import User from "../models/UserModel.js";
-import CalendarEvent from "../models/CalendarEventModel.js";
 import ReminderPost from "../models/ReminderPostModel.js";
 import ShoppingDay from "../models/ShoppingPostModel.js";
 import { AuthRequest } from "../middlewares/auth.js";
@@ -389,7 +388,6 @@ const deleteUserAccount = async (req: AuthRequest, res: Response): Promise<void>
   }
 
   await Promise.all([
-    CalendarEvent.deleteMany({ user: user._id }),
     ReminderPost.deleteMany({ user: user._id }),
     ShoppingDay.updateMany({}, { $pull: { shoppingList: { user: user._id } } }),
     User.findByIdAndDelete(user._id),

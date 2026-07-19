@@ -2,6 +2,7 @@ import express from "express";
 import auth from "../middlewares/auth.js";
 import { requireWritable } from "../middlewares/access.js";
 import {
+  updateCare,
   deleteImage,
   getFile,
   getTacoData,
@@ -18,6 +19,8 @@ import {
 import { asyncHandler } from "../middlewares/errorHandler.js";
 
 const router = express.Router();
+
+router.post("/care/:care", auth, requireWritable, asyncHandler(updateCare));
 
 router.get("/", auth, asyncHandler(getTacoData));
 router.post("/vermifuge/date", auth, requireWritable, asyncHandler(updateVermifugeDate));

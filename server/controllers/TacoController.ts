@@ -1,11 +1,12 @@
+import { buildCareUpdate, buildCareDateUpdate, getCareReminderUpdates } from "../utils/careSchedule.js";
 import type { Request, Response } from "express";
 import multer from "multer";
 import cron from "node-cron";
 import TacoModel from "../models/TacoModel.js";
 import ImageModel from "../models/ImageModel.js";
-import { sendEmail } from "../config/nodeMailConfig.js";
 import { createError } from "../middlewares/errorHandler.js";
 import { sendNotFound, sendSuccess } from "../utils/apiResponse.js";
+import { sendReminderEmails } from "../utils/reminderEmails.js";
 import { logger } from "../utils/logger.js";
 
 type TacoField =
@@ -45,18 +46,6 @@ const parseReminderDate = (dateString: string): Date | null => {
 
   const parsedDate = new Date(`${year}-${month}-${day}`);
   return Number.isNaN(parsedDate.getTime()) ? null : parsedDate;
-};
-
-const sendReminderEmails = (subject: string, message: string): void => {
-  const { EMAIL_RECIPIENT_1, EMAIL_RECIPIENT_2 } = process.env;
-
-  if (EMAIL_RECIPIENT_1) {
-    void sendEmail(EMAIL_RECIPIENT_1, subject, message).catch(() => undefined);
-  }
-
-  if (EMAIL_RECIPIENT_2) {
-    void sendEmail(EMAIL_RECIPIENT_2, subject, message).catch(() => undefined);
-  }
 };
 
 cron.schedule("0 8 * * *", async () => {
@@ -139,9 +128,11 @@ const getOrCreateTaco = async () => {
 };
 
 const updateTacoField = async (field: TacoField, date: string) => {
+  const current = field.endsWith("Date") ? await TacoModel.findOne().lean() : null;
+  const update = buildCareDateUpdate("taco", field, date, current || {});
   const updatedTaco = await TacoModel.findOneAndUpdate(
     {},
-    { [field]: date },
+    { $set: update },
     { new: true, upsert: true, setDefaultsOnInsert: true }
   );
 
@@ -153,7 +144,7 @@ const updateTacoField = async (field: TacoField, date: string) => {
 };
 
 const requireDateValue = (date: unknown): string => {
-  if (typeof date !== "string" || !date.trim()) {
+  if (typeof date !== "string") {
     throw createError("Date manquante", 400);
   }
 
@@ -165,7 +156,13 @@ const sendTacoUpdate = (res: Response, taco: Awaited<ReturnType<typeof updateTac
 };
 
 const getTacoData = async (_req: Request, res: Response): Promise<void> => {
-  const taco = await getOrCreateTaco();
+  let taco = await getOrCreateTaco();
+  const reminders = getCareReminderUpdates("taco", { ...taco.toObject() });
+  if (Object.keys(reminders).length > 0) {
+    taco = await TacoModel.findOneAndUpdate(
+      { _id: taco._id }, { $set: reminders }, { new: true }
+    ) || taco;
+  }
   sendSuccess(res, { taco: [taco] }, "Donnees Taco recuperees avec succes");
 };
 
@@ -293,4 +290,18 @@ export {
   updateVermifugeDate,
   updateVermifugeReminder,
   uploadImageMiddleware,
+};
+
+export const updateCare = async (req: Request, res: Response): Promise<void> => {
+  const current = req.body.date === undefined ? await TacoModel.findOne().lean() : null;
+  const update = buildCareUpdate("taco", String(req.params.care), req.body.intervalMonths, req.body.date, current || {});
+  const record = await TacoModel.findOneAndUpdate(
+    {},
+    { $set: update },
+    { new: true, upsert: true, setDefaultsOnInsert: true, runValidators: true }
+  );
+  if (!record) throw createError("Données introuvables", 404);
+  sendSuccess(res, { taco: [record] }, req.body.date === undefined
+    ? "Intervalle enregistré"
+    : "Soin enregistré et prochaine échéance mise à jour");
 };

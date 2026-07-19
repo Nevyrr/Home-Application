@@ -120,3 +120,6 @@ export {
   updateVaccineReminder,
   updateVitaminReminder,
 };
+
+export const updateVitaminDate = async (date: string): Promise<ApiResponse> =>
+  postNonoUpdate("/api/nono/vitamin/date", { date }, "Impossible de mettre à jour la date de la vitamine");

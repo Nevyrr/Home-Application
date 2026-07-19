@@ -34,17 +34,10 @@ const PostValidationPopup = ({
   priorityOptions = [],
 }: PostValidationPopupProps) => {
   const [isTitle, setIsTitleValid] = useState<boolean>(popupPost.title !== undefined && popupPost.title !== "");
-  const isEventPopup = postName === "evenement";
   const actionLabel = actionType === "Update" || actionType === "Modifier" ? "Modifier" : "Ajouter";
-  const popupTitle =
-    isEventPopup
-      ? `${actionLabel} evenement`
-      : `${actionLabel} ${postName}`;
-  const titleLabel = postName === "evenement" ? "Titre" : "Article";
-  const titlePlaceholder =
-    postName === "evenement"
-      ? "Nom de l'evenement"
-      : "Nom de l'article";
+  const popupTitle = `${actionLabel} ${postName}`;
+  const titleLabel = "Article";
+  const titlePlaceholder = "Nom de l'article";
   const priorityLabel = "Priorite";
   const priorityHelp = "Un clic pour changer le niveau de priorite.";
   const priorityValue = typeof popupPost.priorityColor === "number" ? popupPost.priorityColor : 0;

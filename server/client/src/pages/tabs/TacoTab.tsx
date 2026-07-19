@@ -1,68 +1,20 @@
+import { compareDueDates, parseStoredDate, startOfDay } from "../../utils/dateUtils.ts";
+import ScheduleCard from "../../components/ScheduleCard.tsx";
+import { updateCare } from "../../controllers/CareController.ts";
 import { useEffect } from "react";
-import DatePicker, { registerLocale } from "react-datepicker";
-import { fr } from "date-fns/locale/fr";
-import "react-datepicker/dist/react-datepicker.css";
 import { Alert, ImageUpload, OverviewHero, Success } from "../../components/index.ts";
 import {
   getTacoData,
   updateAntiPuceDate,
-  updateAntiPuceReminder,
   updateAnnualVaccineDate,
-  updateAnnualVaccineReminder,
   updateVermifugeDate,
-  updateVermifugeReminder,
 } from "../../controllers/TacoController.ts";
 import { useApp } from "../../contexts/AppContext.tsx";
 import { useAuth, useErrorHandler } from "../../hooks/index.ts";
 import { Taco } from "../../types/index.ts";
 import { canUserWrite } from "../../utils/permissions.ts";
 
-registerLocale("fr", fr);
-
 const DEFAULT_TACO_BIRTH_DATE = "07/08/2022";
-
-interface TacoScheduleCardProps {
-  title: string;
-  icon: string;
-  accentClass: string;
-  description?: string;
-  primaryLabel: string;
-  primaryValue: string;
-  onPrimaryChange: (date: string) => Promise<void>;
-  secondaryLabel?: string;
-  secondaryValue?: string;
-  onSecondaryChange?: (date: string) => Promise<void>;
-  disabled?: boolean;
-}
-
-const parseStoredDate = (dateString?: string | null): Date | null => {
-  if (!dateString) {
-    return null;
-  }
-
-  const [day, month, year] = dateString.split("/");
-
-  if (!day || !month || !year) {
-    return null;
-  }
-
-  const parsedDate = new Date(Number(year), Number(month) - 1, Number(day));
-  return Number.isNaN(parsedDate.getTime()) ? null : parsedDate;
-};
-
-const toStoredDate = (date: Date | null): string => {
-  if (!date || Number.isNaN(date.getTime())) {
-    return "";
-  }
-
-  const day = date.getDate().toString().padStart(2, "0");
-  const month = (date.getMonth() + 1).toString().padStart(2, "0");
-  const year = date.getFullYear();
-
-  return `${day}/${month}/${year}`;
-};
-
-const startOfDay = (date: Date): Date => new Date(date.getFullYear(), date.getMonth(), date.getDate());
 
 const formatDisplayDate = (dateString?: string | null): string => dateString || "A definir";
 
@@ -121,9 +73,9 @@ const formatWeight = (weightKg?: number | null): string => {
 
 const getNextMilestone = (taco: Taco): { label: string; date: string; overdue: boolean } | null => {
   const entries = [
-    { label: "Vermifuge", date: taco.vermifugeReminder || taco.vermifugeDate },
-    { label: "Anti-puce", date: taco.antiPuceReminder || taco.antiPuceDate },
-    { label: "Vaccin annuel", date: taco.annualVaccineReminder || taco.annualVaccineDate },
+    { label: "Vermifuge", date: taco.vermifugeReminder },
+    { label: "Anti-puce", date: taco.antiPuceReminder },
+    { label: "Vaccin annuel", date: taco.annualVaccineReminder },
   ]
     .map((entry) => ({
       ...entry,
@@ -135,118 +87,25 @@ const getNextMilestone = (taco: Taco): { label: string; date: string; overdue: b
     return null;
   }
 
-  const today = startOfDay(new Date());
-  const upcoming = entries
-    .filter((entry) => startOfDay(entry.parsedDate).getTime() >= today.getTime())
-    .sort((a, b) => a.parsedDate.getTime() - b.parsedDate.getTime())[0];
-
-  if (upcoming) {
-    return {
-      label: upcoming.label,
-      date: upcoming.date,
-      overdue: false,
-    };
-  }
-
-  const latestOverdue = entries.sort((a, b) => b.parsedDate.getTime() - a.parsedDate.getTime())[0];
-
+  const next = entries.sort((left, right) => compareDueDates(left.date, right.date))[0];
   return {
-    label: latestOverdue.label,
-    date: latestOverdue.date,
-    overdue: true,
+    label: next.label,
+    date: next.date,
+    overdue: startOfDay(next.parsedDate).getTime() < startOfDay(new Date()).getTime(),
   };
 };
-
-const getScheduleSortMeta = (dateValues: Array<string | undefined>): { bucket: number; sortValue: number } => {
-  const parsedDates = dateValues
-    .map((dateValue) => parseStoredDate(dateValue))
-    .filter((date): date is Date => Boolean(date))
-    .map((date) => startOfDay(date).getTime());
-
-  if (parsedDates.length === 0) {
-    return { bucket: 2, sortValue: Number.POSITIVE_INFINITY };
-  }
-
-  const todayTimestamp = startOfDay(new Date()).getTime();
-  const upcomingDates = parsedDates.filter((timestamp) => timestamp >= todayTimestamp).sort((a, b) => a - b);
-
-  if (upcomingDates.length > 0) {
-    return { bucket: 0, sortValue: upcomingDates[0] };
-  }
-
-  const closestPastDate = [...parsedDates].sort((a, b) => b - a)[0];
-  return { bucket: 1, sortValue: -closestPastDate };
-};
-
-const TacoScheduleCard = ({
-  title,
-  icon,
-  accentClass,
-  description,
-  primaryLabel,
-  primaryValue,
-  onPrimaryChange,
-  secondaryLabel,
-  secondaryValue,
-  onSecondaryChange,
-  disabled = false,
-}: TacoScheduleCardProps) => (
-  <article className={`nono-schedule-card ${accentClass}`}>
-    <div className="nono-schedule-head">
-      <span className="nono-schedule-icon">
-        <i className={`fa-solid ${icon}`}></i>
-      </span>
-      <div>
-        <h3>{title}</h3>
-        {description ? <p>{description}</p> : null}
-      </div>
-    </div>
-
-    <div className="nono-date-stack">
-      <label className="nono-field">
-        <span>{primaryLabel}</span>
-        <DatePicker
-          selected={parseStoredDate(primaryValue)}
-          onChange={(date: Date | null) => onPrimaryChange(toStoredDate(date))}
-          locale="fr"
-          dateFormat="P"
-          disabled={disabled}
-          isClearable
-          placeholderText="Choisir une date"
-          className="input compact-date-input"
-          wrapperClassName="compact-date-picker"
-          calendarClassName="theme-datepicker"
-          popperClassName="theme-datepicker-popper"
-        />
-      </label>
-
-      {secondaryLabel && onSecondaryChange && (
-        <label className="nono-field">
-          <span>{secondaryLabel}</span>
-          <DatePicker
-            selected={parseStoredDate(secondaryValue)}
-            onChange={(date: Date | null) => onSecondaryChange(toStoredDate(date))}
-            locale="fr"
-            dateFormat="P"
-            disabled={disabled}
-            isClearable
-            placeholderText="Choisir une date"
-            className="input compact-date-input"
-            wrapperClassName="compact-date-picker"
-            calendarClassName="theme-datepicker"
-            popperClassName="theme-datepicker-popper"
-          />
-        </label>
-      )}
-    </div>
-  </article>
-);
 
 const TacoTab = () => {
   const { taco, setTaco } = useApp();
   const { user } = useAuth();
   const { error, success, setError, setSuccess, handleAsyncOperation } = useErrorHandler();
   const canWrite = canUserWrite(user);
+
+  const saveCare = async (care: string, intervalMonths: number, date?: string) => {
+    if (!canWrite) return;
+    const response = await updateCare("taco", care, intervalMonths, date);
+    setTaco((current) => ({ ...current, ...response.record }));
+  };
 
   const loadTaco = async () => {
     const data = await getTacoData();
@@ -288,8 +147,11 @@ const TacoTab = () => {
       onPrimaryChange: (date: string) => saveDate(updateVermifugeDate, date),
       secondaryLabel: "Rappel",
       secondaryValue: taco.vermifugeReminder,
-      onSecondaryChange: (date: string) => saveDate(updateVermifugeReminder, date),
-      sortDates: [taco.vermifugeReminder, taco.vermifugeDate],
+      recurrence: {
+        intervalMonths: taco.vermifugeIntervalMonths,
+        onSave: (months: number, date?: string) => saveCare("vermifuge", months, date),
+      },
+      dueDate: taco.vermifugeReminder,
     },
     {
       key: "anti-puce",
@@ -301,8 +163,11 @@ const TacoTab = () => {
       onPrimaryChange: (date: string) => saveDate(updateAntiPuceDate, date),
       secondaryLabel: "Rappel",
       secondaryValue: taco.antiPuceReminder,
-      onSecondaryChange: (date: string) => saveDate(updateAntiPuceReminder, date),
-      sortDates: [taco.antiPuceReminder, taco.antiPuceDate],
+      recurrence: {
+        intervalMonths: taco.antiPuceIntervalMonths,
+        onSave: (months: number, date?: string) => saveCare("antipuce", months, date),
+      },
+      dueDate: taco.antiPuceReminder,
     },
     {
       key: "vaccine",
@@ -314,26 +179,14 @@ const TacoTab = () => {
       onPrimaryChange: (date: string) => saveDate(updateAnnualVaccineDate, date),
       secondaryLabel: "Rappel",
       secondaryValue: taco.annualVaccineReminder,
-      onSecondaryChange: (date: string) => saveDate(updateAnnualVaccineReminder, date),
-      sortDates: [taco.annualVaccineReminder, taco.annualVaccineDate],
+      recurrence: {
+        intervalMonths: taco.annualVaccineIntervalMonths,
+        onSave: (months: number, date?: string) => saveCare("vaccine", months, date),
+      },
+      dueDate: taco.annualVaccineReminder,
     },
   ]
-    .map((card, index) => ({
-      ...card,
-      index,
-      sortMeta: getScheduleSortMeta(card.sortDates),
-    }))
-    .sort((leftCard, rightCard) => {
-      if (leftCard.sortMeta.bucket !== rightCard.sortMeta.bucket) {
-        return leftCard.sortMeta.bucket - rightCard.sortMeta.bucket;
-      }
-
-      if (leftCard.sortMeta.sortValue !== rightCard.sortMeta.sortValue) {
-        return leftCard.sortMeta.sortValue - rightCard.sortMeta.sortValue;
-      }
-
-      return leftCard.index - rightCard.index;
-    });
+    .sort((leftCard, rightCard) => compareDueDates(leftCard.dueDate, rightCard.dueDate));
   const heroStats = [
     {
       label: "Age",
@@ -380,8 +233,8 @@ const TacoTab = () => {
             </div>
 
             <div className="nono-card-grid">
-              {scheduleCards.map(({ key, sortDates: _sortDates, sortMeta: _sortMeta, index: _index, ...card }) => (
-                <TacoScheduleCard key={key} {...card} disabled={!canWrite} />
+              {scheduleCards.map(({ key, dueDate: _dueDate, ...card }) => (
+                <ScheduleCard key={key} {...card} disabled={!canWrite} />
               ))}
             </div>
           </section>

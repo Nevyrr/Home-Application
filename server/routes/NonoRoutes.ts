@@ -2,6 +2,8 @@ import express from "express";
 import auth from "../middlewares/auth.js";
 import { requireWritable } from "../middlewares/access.js";
 import {
+  updateCare,
+  updateVitaminDate,
   addBottleEntry,
   addWeightEntry,
   deleteBottleEntry,
@@ -19,6 +21,9 @@ import {
 import { asyncHandler } from "../middlewares/errorHandler.js";
 
 const router = express.Router();
+
+router.post("/care/:care", auth, requireWritable, asyncHandler(updateCare));
+router.post("/vitamin/date", auth, requireWritable, asyncHandler(updateVitaminDate));
 
 router.get("/", auth, asyncHandler(getNonoData));
 router.post("/birth/date", auth, requireWritable, asyncHandler(updateBirthDate));
