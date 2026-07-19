@@ -1,7 +1,7 @@
 import { Link, Outlet, useLocation } from "react-router-dom";
 import Icon from "../components/Icon.tsx";
 import ThemeToggle from "../components/ThemeToggle.tsx";
-import { useAuth } from "../hooks/index.ts";
+import { useAuth, useReminderNotifications } from "../hooks/index.ts";
 import "../style/topbar.css";
 
 const NAV_ITEMS = [
@@ -15,6 +15,8 @@ const NAV_ITEMS = [
 const Layout = () => {
   const { pathname } = useLocation();
   const { user, logout } = useAuth();
+
+  useReminderNotifications(!!user.email);
 
   const isSelected = (path: string): boolean => {
     if (path === "/shopping" && pathname === "/") {

@@ -544,26 +544,6 @@
   box-shadow: none;
 }
 
-.shopping-basket-date-wrap {
-  width: clamp(7.6rem, 16vw, 8.5rem);
-  min-width: 7.6rem;
-}
-
-.shopping-basket-date-wrap .react-datepicker-wrapper,
-.shopping-basket-date-wrap .react-datepicker__input-container,
-.shopping-basket-date-wrap .shopping-basket-date-input {
-  width: 100%;
-}
-
-.shopping-basket-date-input {
-  min-width: 0;
-  min-height: 2.35rem;
-  border-width: 1px;
-  border-radius: 0.82rem;
-  background: color-mix(in srgb, var(--bg-panel) 92%, transparent);
-  box-shadow: var(--shadow-xs);
-}
-
 .shopping-basket-delete {
   display: inline-flex;
   align-items: center;
@@ -1127,11 +1107,6 @@
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
     gap: 0.34rem;
-  }
-
-  .shopping-basket-date-wrap {
-    width: 100%;
-    min-width: 0;
   }
 
   .shopping-basket-delete {

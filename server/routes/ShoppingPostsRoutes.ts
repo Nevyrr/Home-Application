@@ -1,8 +1,8 @@
 import express from "express";
 import {
   getPosts,
-  addDate,
-  updateDateItem,
+  addShoppingList,
+  renameShoppingList,
   addPost,
   deletePost,
   deletePosts,
@@ -23,8 +23,8 @@ const router = express.Router();
 
 router.get("/", auth, asyncHandler(getPosts));
 router.post("/", auth, requireWritable, validate(shoppingPostSchema), asyncHandler(addPost));
-router.post("/date", auth, requireWritable, asyncHandler(addDate));
-router.put("/date", auth, requireWritable, asyncHandler(updateDateItem));
+router.post("/list", auth, requireWritable, asyncHandler(addShoppingList));
+router.put("/list/:id", auth, requireWritable, asyncHandler(renameShoppingList));
 router.delete("/:id", auth, requireWritable, asyncHandler(deletePost));
 router.delete("/list/:id", auth, requireWritable, asyncHandler(deletePosts));
 router.delete("/list/:id/checked", auth, requireWritable, asyncHandler(clearCheckedPosts));

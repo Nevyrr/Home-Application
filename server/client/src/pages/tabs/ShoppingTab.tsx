@@ -2,8 +2,8 @@ import { CSSProperties, FormEvent, useCallback, useEffect, useRef, useState, Rea
 import { Alert, PostValidationPopup, Skeleton, ShoppingPost, Success } from "../../components/index.ts";
 import {
   getPosts,
-  createDate,
-  updateDateItem,
+  createShoppingList,
+  renameShoppingList,
   deletePost,
   deletePosts,
   createPost,
@@ -15,10 +15,6 @@ import {
 } from "../../controllers/ShoppingPostsController.ts";
 import { useApp } from "../../contexts/AppContext.tsx";
 import { useAuth, useErrorHandler } from "../../hooks/index.ts";
-import { convertStringToDate } from "../../utils/index.ts";
-import DatePicker, { registerLocale } from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
-import { fr } from "date-fns/locale/fr";
 import QuantityInput from "../../components/QuantityInput.tsx";
 import { DEFAULT_COMMON_GROCERY_PRESETS } from "../../constants/defaultShoppingHistory.ts";
 import { SHOPPING_UNITS } from "../../constants/index.ts";
@@ -26,9 +22,6 @@ import { ShoppingDay, ShoppingPost as ShoppingPostType } from "../../types/index
 import { canUserWrite } from "../../utils/permissions.ts";
 import "../../style/shopping-board.css";
 
-registerLocale("fr", fr);
-
-const formatShoppingDate = (date: Date): string => date.toLocaleDateString("fr-FR");
 const SHOPPING_HISTORY_KEY = "shopping-history-v1";
 const SHOPPING_HISTORY_VERSION_KEY = "shopping-history-defaults-version";
 const SHOPPING_HISTORY_VERSION = "3";
@@ -384,17 +377,15 @@ const ShoppingTab = () => {
 
     try {
       const data = await getPosts();
-      const sortedShoppingDays = data.posts
-        .map((shoppingDay) => ({
-          ...shoppingDay,
-          shoppingList: shoppingDay.shoppingList
-            .map((post) => ({
-              ...post,
-              unit: normalizeShoppingUnit(post.unit),
-            }))
-            .sort((a, b) => b.priorityColor - a.priorityColor),
-        }))
-        .sort((a, b) => convertStringToDate(b.date).getTime() - convertStringToDate(a.date).getTime());
+      const sortedShoppingDays = data.posts.map((shoppingDay) => ({
+        ...shoppingDay,
+        shoppingList: shoppingDay.shoppingList
+          .map((post) => ({
+            ...post,
+            unit: normalizeShoppingUnit(post.unit),
+          }))
+          .sort((a, b) => b.priorityColor - a.priorityColor),
+      }));
 
       setShoppingItems(sortedShoppingDays);
       setSelectedListId((currentListId) =>
@@ -508,7 +499,7 @@ const ShoppingTab = () => {
     setShowUpdatePopup(false);
   };
 
-  const handleCreateDate = async () => {
+  const handleCreateList = async () => {
     if (!canWrite) {
       return;
     }
@@ -523,7 +514,7 @@ const ShoppingTab = () => {
       setSelectedListId(null);
       const msg = await handleAsyncOperation(
         async () => {
-          const created = await createDate(formatShoppingDate(new Date()), "Panier du moment");
+          const created = await createShoppingList("Panier du moment");
           await sortShoppingPosts();
           return created;
         },
@@ -538,7 +529,7 @@ const ShoppingTab = () => {
     }
   };
 
-  const handleUpdateDateItem = async (shoppingListId: string, name: string, date: string) => {
+  const handleRenameList = async (shoppingListId: string, name: string) => {
     if (!canWrite) {
       return;
     }
@@ -547,7 +538,7 @@ const ShoppingTab = () => {
 
     await handleAsyncOperation(
       async () => {
-        const msg = await updateDateItem(shoppingListId, trimmedName, date);
+        const msg = await renameShoppingList(shoppingListId, trimmedName);
         await sortShoppingPosts();
         return msg;
       },
@@ -885,7 +876,7 @@ const ShoppingTab = () => {
         disabled={!canWrite}
         value={shoppingItem.name}
         onChange={(e) => handleNameChange(shoppingItem._id, e.target.value)}
-        onBlur={() => handleUpdateDateItem(shoppingItem._id, shoppingItem.name, shoppingItem.date)}
+        onBlur={() => handleRenameList(shoppingItem._id, shoppingItem.name)}
         placeholder="Nom du panier"
       />
     );
@@ -900,11 +891,11 @@ const ShoppingTab = () => {
     );
   };
 
-  const getDisplayListName = (shoppingItem: ShoppingDay): string => {
+  const getDisplayListName = (shoppingItem: ShoppingDay, index: number): string => {
     const trimmedName = shoppingItem.name.trim();
 
     if (!trimmedName || trimmedName.toLowerCase() === "shopping title" || trimmedName.toLowerCase() === "panier du moment") {
-      return `Panier ${shoppingItem.date}`;
+      return `Panier ${index + 1}`;
     }
 
     return trimmedName;
@@ -937,30 +928,13 @@ const ShoppingTab = () => {
           {nameInput(shoppingItem)}
 
           <div className="shopping-basket-tools">
-            <div className="shopping-basket-date-wrap">
-              <DatePicker
-                selected={convertStringToDate(shoppingItem.date)}
-                disabled={!canWrite}
-                onChange={(date: Date | null) => {
-                  if (date && !isNaN(date.getTime())) {
-                    void handleUpdateDateItem(shoppingItem._id, shoppingItem.name, formatShoppingDate(date));
-                  }
-                }}
-                locale="fr"
-                dateFormat="P"
-                className="datepicker-input shopping-basket-date-input"
-                calendarClassName="theme-datepicker"
-                popperClassName="theme-datepicker-popper"
-              />
-            </div>
-
             <button
               type="button"
               className="shopping-basket-delete"
               title="Supprimer le panier"
               disabled={!canWrite}
               onClick={() => {
-                void handleDeleteList(shoppingItem._id, getDisplayListName(shoppingItem));
+                void handleDeleteList(shoppingItem._id, getDisplayListName(shoppingItem, index));
               }}
             >
               <i className="fa-solid fa-trash-can"></i>
@@ -1055,7 +1029,7 @@ const ShoppingTab = () => {
             </div>
 
           <button
-            onClick={handleCreateDate}
+            onClick={handleCreateList}
             disabled={!canWrite || isCreatingList}
             className="shopping-board-create inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 font-semibold text-white shadow-sm transition-all duration-200 hover:scale-105 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100"
           >
@@ -1092,7 +1066,7 @@ const ShoppingTab = () => {
                           .join(" ")}
                         onClick={() => setSelectedListId(shoppingItem._id)}
                       >
-                        <span className="shopping-basket-tab-name">{getDisplayListName(shoppingItem)}</span>
+                        <span className="shopping-basket-tab-name">{getDisplayListName(shoppingItem, index)}</span>
                         <span className="shopping-basket-tab-meta">
                           {shoppingItem.shoppingList.length} {shoppingItem.shoppingList.length > 1 ? "articles" : "article"}
                         </span>
@@ -1102,11 +1076,11 @@ const ShoppingTab = () => {
                         <button
                           type="button"
                           className="shopping-basket-tab-remove"
-                          title={`Supprimer ${getDisplayListName(shoppingItem)}`}
-                          aria-label={`Supprimer ${getDisplayListName(shoppingItem)}`}
+                          title={`Supprimer ${getDisplayListName(shoppingItem, index)}`}
+                          aria-label={`Supprimer ${getDisplayListName(shoppingItem, index)}`}
                           onClick={(event) => {
                             event.stopPropagation();
-                            void handleDeleteList(shoppingItem._id, getDisplayListName(shoppingItem));
+                            void handleDeleteList(shoppingItem._id, getDisplayListName(shoppingItem, index));
                           }}
                         >
                           <i className="fa-solid fa-trash-can"></i>
@@ -1121,7 +1095,7 @@ const ShoppingTab = () => {
                 <div className="shopping-quick-add-head">
                   <div>
                     <p className="eyebrow">Ajout rapide</p>
-                    <h2 className="shopping-quick-add-title">Ajouter dans {getDisplayListName(activeList)}</h2>
+                    <h2 className="shopping-quick-add-title">Ajouter dans {getDisplayListName(activeList, activeListIndex)}</h2>
                   </div>
                 </div>
 

@@ -4476,7 +4476,6 @@
     [data-theme="dark"] .input-field,
     [data-theme="dark"] .datepicker-input,
     [data-theme="dark"] .calendar-datepicker-input,
-    [data-theme="dark"] .shopping-basket-date-input,
     [data-theme="dark"] .shopping-quick-add-input,
     [data-theme="dark"] .shopping-quick-add-select,
     [data-theme="dark"] select.input,
@@ -4494,7 +4493,6 @@
     [data-theme="dark"] .datepicker-input::placeholder,
     [data-theme="dark"] .calendar-datepicker-input::placeholder,
     [data-theme="dark"] .shopping-basket-name-input::placeholder,
-    [data-theme="dark"] .shopping-basket-date-input::placeholder,
     [data-theme="dark"] .shopping-quick-add-input::placeholder,
     [data-theme="dark"] textarea.input::placeholder {
         color: var(--text-muted);
@@ -4505,7 +4503,6 @@
     [data-theme="dark"] .input-field:focus,
     [data-theme="dark"] .datepicker-input:focus,
     [data-theme="dark"] .calendar-datepicker-input:focus,
-    [data-theme="dark"] .shopping-basket-date-input:focus,
     [data-theme="dark"] .shopping-quick-add-select:focus,
     [data-theme="dark"] .shopping-quick-add-input:focus,
     [data-theme="dark"] select:focus,

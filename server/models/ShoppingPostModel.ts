@@ -36,10 +36,6 @@ const ShoppingPostSchema = new Schema<IShoppingPost>({
 }, { timestamps: true });
 
 const ShoppingListDaySchema = new Schema<IShoppingDay>({
-    date: {
-        type: String,
-        required: true
-    },
     name: {
         type: String,
         required: true

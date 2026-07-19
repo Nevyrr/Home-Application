@@ -29,36 +29,36 @@ const getPosts = async (): Promise<{ posts: ShoppingDay[] }> => {
   };
 };
 
-/**************************** Create shopping-date  ******************************/
-const createDate = async (date: string, name: string): Promise<ApiResponse> => {
-  if (!date || !name) {
-    throw Error("Tous les champs sont obligatoires");
+/**************************** Create shopping-list  ******************************/
+const createShoppingList = async (name: string): Promise<ApiResponse> => {
+  if (!name) {
+    throw Error("Le nom du panier est obligatoire");
   }
 
-  const res = await fetchWithAuth("/api/shopping-posts/date", {
+  const res = await fetchWithAuth("/api/shopping-posts/list", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ date, name }),
+    body: JSON.stringify({ name }),
   });
 
   const data = await readApiResponse<ApiResponse>(res, "Impossible de creer le panier");
   return { ...data, success: getApiMessage(data) };
 };
 
-/**************************** Update shopping-date  ******************************/
-const updateDateItem = async (shoppingListId: string, name: string, date: string): Promise<ApiResponse> => {
-  if (!date || !shoppingListId) {
+/**************************** Rename shopping-list  ******************************/
+const renameShoppingList = async (shoppingListId: string, name: string): Promise<ApiResponse> => {
+  if (!name || !shoppingListId) {
     throw Error("Tous les champs sont obligatoires");
   }
 
-  const res = await fetchWithAuth("/api/shopping-posts/date", {
+  const res = await fetchWithAuth(`/api/shopping-posts/list/${shoppingListId}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ shoppingListId, name, date }),
+    body: JSON.stringify({ name }),
   });
 
   const data = await readApiResponse<ApiResponse>(res, "Impossible de mettre a jour le panier");
@@ -181,8 +181,8 @@ const generateAiShoppingList = async (description: string): Promise<{ items: AiS
 
 export {
   getPosts,
-  createDate,
-  updateDateItem,
+  createShoppingList,
+  renameShoppingList,
   createPost,
   deletePost,
   deletePosts,

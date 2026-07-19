@@ -10,27 +10,9 @@ import { isAiConfigured } from "../config/aiClient.js";
 import { logger } from "../utils/logger.js";
 
 /************************************ Get All Posts ************************************/
-
-// Extract string to "DD/MM/YYYY"
-const parseDateComponents = (dateStr: string): { day: number; month: number; year: number } => {
-  const [day, month, year] = dateStr.split('/').map(Number);
-  return { day, month, year };
-};
-
-// Compare 2 dates and return the oldest one
-const compareDates = (post1: { date: string }, post2: { date: string }): number => {
-  const { day: d1, month: m1, year: y1 } = parseDateComponents(post1.date);
-  const { day: d2, month: m2, year: y2 } = parseDateComponents(post2.date);
-
-  if (y1 !== y2) return y1 - y2; // Compare years
-  if (m1 !== m2) return m1 - m2; // Compare months
-  return d1 - d2; // Compare days
-};
-
 const getPosts = async (_req: Request, res: Response): Promise<void> => {
   // Grab all the posts from DB
-  const posts = await ShoppingDay.find();
-  posts.sort(compareDates);
+  const posts = await ShoppingDay.find().sort({ createdAt: "desc" });
   for (const post of posts) {
     post.shoppingList.sort((a, b) => b.priorityColor - a.priorityColor);
   }
@@ -38,39 +20,44 @@ const getPosts = async (_req: Request, res: Response): Promise<void> => {
 };
 
 
-/************************************ Create New Shopping Day ************************************/
-const addDate = async (req: Request, res: Response): Promise<void> => {
+/************************************ Create New Shopping List ************************************/
+const addShoppingList = async (req: Request, res: Response): Promise<void> => {
   // Grab the data from request body
-  const { date, name } = req.body;
+  const { name } = req.body;
 
-  // Check the fields are not empty
-  if (!date || !name) {
-    throw createError("Date et nom sont requis", 400);
+  // Check the field is not empty
+  if (!name) {
+    throw createError("Nom du panier requis", 400);
   }
 
-  const shoppingDay = await ShoppingDay.create({ date, name, shoppingList: [] });
-  sendCreated(res, { shoppingDay }, `Date de course "${date}" créée avec succès`);
+  const shoppingDay = await ShoppingDay.create({ name, shoppingList: [] });
+  sendCreated(res, { shoppingDay }, `Panier "${name}" créé avec succès`);
 };
 
-/************************************ Update Shopping Day ************************************/
-const updateDateItem = async (req: Request, res: Response): Promise<void> => {
+/************************************ Rename Shopping List ************************************/
+const renameShoppingList = async (req: Request, res: Response): Promise<void> => {
   // Grab the data from request body
-  const { shoppingListId, name, date } = req.body;
+  const { name } = req.body;
 
-  // Check the fields are not empty
-  if (!name || !date || !shoppingListId) {
-    throw createError("Nom, date et ID de la liste sont requis", 400);
+  // Check the ID is valid type
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    throw createError("ID incorrect", 400);
+  }
+
+  // Check the field is not empty
+  if (!name) {
+    throw createError("Nom du panier requis", 400);
   }
 
   const updatedShoppingDay = await ShoppingDay.findByIdAndUpdate(
-    shoppingListId,
-    { name, date },
+    req.params.id,
+    { name },
     { new: true }
   );
   if (!updatedShoppingDay) {
     throw createError("Liste de courses non trouvée", 404);
   }
-  sendUpdated(res, { shoppingDay: updatedShoppingDay }, `Liste "${name}" mise à jour avec succès`);
+  sendUpdated(res, { shoppingDay: updatedShoppingDay }, `Panier "${name}" mis à jour avec succès`);
 };
 
 
@@ -324,8 +311,8 @@ const generateAiShoppingList = async (req: AuthRequest, res: Response): Promise<
 
 export {
   getPosts,
-  addDate,
-  updateDateItem,
+  addShoppingList,
+  renameShoppingList,
   addPost,
   deletePost,
   deletePosts,

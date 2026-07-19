@@ -40,7 +40,6 @@ export interface ShoppingPost {
 
 export interface ShoppingDay {
   _id: string;
-  date: string;
   name: string;
   shoppingList: ShoppingPost[];
   createdAt?: string;

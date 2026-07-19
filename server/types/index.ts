@@ -34,7 +34,6 @@ export interface IShoppingPost {
 
 export interface IShoppingDay extends Document {
   _id: Types.ObjectId;
-  date: string;
   name: string;
   shoppingList: IShoppingPost[];
   createdAt?: Date;
