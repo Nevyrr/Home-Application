@@ -9,6 +9,7 @@ import {
   buildNonoReminders,
   buildReminderPostReminders,
   buildTacoReminders,
+  cancelAllManagedReminders,
   isCalendarEventManagedId,
   isNonoManagedId,
   isReminderPostManagedId,
@@ -18,11 +19,18 @@ import {
 
 /**
  * Reprogramme les notifications locales (vermifuge/anti-puce/vaccins/rappels/evenements
- * du planning) a chaque ouverture de l'appli native.
+ * du planning) a chaque ouverture de l'appli native, tant que l'utilisateur n'a pas
+ * desactive les notifications sur son profil (`enabled` = connecte ET case cochee).
  */
 export const useReminderNotifications = (enabled: boolean): void => {
   useEffect(() => {
-    if (!enabled || !Capacitor.isNativePlatform()) {
+    if (!Capacitor.isNativePlatform()) {
+      return;
+    }
+
+    if (!enabled) {
+      // Desactive (deconnecte ou case decochee) : on annule ce qui etait deja programme.
+      void cancelAllManagedReminders().catch(() => undefined);
       return;
     }
 

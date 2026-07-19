@@ -2,9 +2,9 @@ import type { Request, Response } from "express";
 import { Types } from "mongoose";
 import cron from "node-cron";
 import NonoModel from "../models/NonoModel.js";
-import { sendEmail } from "../config/nodeMailConfig.js";
 import { createError } from "../middlewares/errorHandler.js";
 import { sendSuccess } from "../utils/apiResponse.js";
+import { sendReminderEmails } from "../utils/reminderEmails.js";
 import { logger } from "../utils/logger.js";
 
 type NonoField =
@@ -48,18 +48,6 @@ const parseStoredDate = (dateString: string): Date | null => {
 };
 
 const startOfDay = (date: Date): Date => new Date(date.getFullYear(), date.getMonth(), date.getDate());
-
-const sendReminderEmails = (subject: string, message: string): void => {
-  const { EMAIL_RECIPIENT_1, EMAIL_RECIPIENT_2 } = process.env;
-
-  if (EMAIL_RECIPIENT_1) {
-    void sendEmail(EMAIL_RECIPIENT_1, subject, message).catch(() => undefined);
-  }
-
-  if (EMAIL_RECIPIENT_2) {
-    void sendEmail(EMAIL_RECIPIENT_2, subject, message).catch(() => undefined);
-  }
-};
 
 cron.schedule("15 8 * * *", async () => {
   try {

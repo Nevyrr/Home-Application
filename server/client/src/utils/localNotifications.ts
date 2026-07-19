@@ -157,7 +157,29 @@ export const buildNonoReminders = (
   return reminders.filter((reminder): reminder is ScheduledReminder => reminder !== null);
 };
 
+const parseDueTime = (dueTime?: string | null): { hour: number; minute: number } | null => {
+  if (!dueTime) {
+    return null;
+  }
+
+  const [hourStr, minuteStr] = dueTime.split(":");
+  const hour = Number(hourStr);
+  const minute = Number(minuteStr);
+
+  if (Number.isNaN(hour) || Number.isNaN(minute)) {
+    return null;
+  }
+
+  return { hour, minute };
+};
+
+/**
+ * Les taches n'ont qu'une date par defaut (notif le matin de l'echeance, comme l'email).
+ * Si une heure precise est renseignee, on bascule sur une notif 30 min avant, comme le planning.
+ */
 export const buildReminderPostReminders = (posts: ReminderPost[]): ScheduledReminder[] => {
+  const now = new Date();
+
   const reminders = posts.map((post) => {
     if (post.status === "done" || post.amount == null || !post.dueDate) {
       return null;
@@ -165,14 +187,40 @@ export const buildReminderPostReminders = (posts: ReminderPost[]): ScheduledRemi
 
     const dueDate = new Date(post.dueDate);
 
-    if (Number.isNaN(dueDate.getTime()) || startOfDay(dueDate).getTime() < startOfDay(new Date()).getTime()) {
+    if (Number.isNaN(dueDate.getTime())) {
       return null;
     }
 
+    const id = hashNotificationId(post._id, REMINDER_POST_ID_BASE, REMINDER_POST_ID_RANGE);
     const amountLabel = typeof post.amount === "number" ? `${post.amount.toFixed(2)} €` : "";
+    const dueTime = parseDueTime(post.dueTime);
+
+    if (dueTime) {
+      const notifyAt = new Date(atTime(dueDate, dueTime.hour, dueTime.minute).getTime() - 30 * 60 * 1000);
+
+      if (notifyAt.getTime() < now.getTime()) {
+        return null;
+      }
+
+      return {
+        id,
+        title: `Dans 30 min : ${post.title}`,
+        body: [
+          `"${post.title}"${amountLabel ? ` (${amountLabel})` : ""} a ${post.dueTime}.`,
+          post.body ? `Notes : ${post.body}` : "",
+        ]
+          .filter(Boolean)
+          .join("\n"),
+        at: notifyAt,
+      };
+    }
+
+    if (startOfDay(dueDate).getTime() < startOfDay(now).getTime()) {
+      return null;
+    }
 
     return {
-      id: hashNotificationId(post._id, REMINDER_POST_ID_BASE, REMINDER_POST_ID_RANGE),
+      id,
       title: `Echeance : ${post.title}`,
       body: [
         `Le rappel "${post.title}"${amountLabel ? ` (${amountLabel})` : ""} arrive a echeance aujourd'hui.`,
@@ -219,6 +267,22 @@ export const buildCalendarEventReminders = (events: CalendarEvent[]): ScheduledR
   });
 
   return reminders.filter((reminder): reminder is ScheduledReminder => reminder !== null);
+};
+
+const isAnyManagedId = (id: number): boolean =>
+  isTacoManagedId(id) || isNonoManagedId(id) || isReminderPostManagedId(id) || isCalendarEventManagedId(id);
+
+/**
+ * Annule tous les rappels geres par l'appli (Coco, Nono, taches, planning), sans en
+ * reprogrammer. Utilise quand l'utilisateur desactive les notifications sur son profil.
+ */
+export const cancelAllManagedReminders = async (): Promise<void> => {
+  const pending = await LocalNotifications.getPending();
+  const toCancel = pending.notifications.filter((n) => isAnyManagedId(n.id)).map((n) => ({ id: n.id }));
+
+  if (toCancel.length > 0) {
+    await LocalNotifications.cancel({ notifications: toCancel });
+  }
 };
 
 export const requestNotificationPermission = async (): Promise<boolean> => {

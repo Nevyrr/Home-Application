@@ -67,6 +67,7 @@ export interface ReminderPost {
   priorityColor: number;
   status: "todo" | "doing" | "done";
   dueDate?: string | Date | null;
+  dueTime?: string | null;
   amount?: number | null;
   sortOrder: number;
   createdAt?: string;

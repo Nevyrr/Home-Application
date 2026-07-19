@@ -3,9 +3,9 @@ import multer from "multer";
 import cron from "node-cron";
 import TacoModel from "../models/TacoModel.js";
 import ImageModel from "../models/ImageModel.js";
-import { sendEmail } from "../config/nodeMailConfig.js";
 import { createError } from "../middlewares/errorHandler.js";
 import { sendNotFound, sendSuccess } from "../utils/apiResponse.js";
+import { sendReminderEmails } from "../utils/reminderEmails.js";
 import { logger } from "../utils/logger.js";
 
 type TacoField =
@@ -45,18 +45,6 @@ const parseReminderDate = (dateString: string): Date | null => {
 
   const parsedDate = new Date(`${year}-${month}-${day}`);
   return Number.isNaN(parsedDate.getTime()) ? null : parsedDate;
-};
-
-const sendReminderEmails = (subject: string, message: string): void => {
-  const { EMAIL_RECIPIENT_1, EMAIL_RECIPIENT_2 } = process.env;
-
-  if (EMAIL_RECIPIENT_1) {
-    void sendEmail(EMAIL_RECIPIENT_1, subject, message).catch(() => undefined);
-  }
-
-  if (EMAIL_RECIPIENT_2) {
-    void sendEmail(EMAIL_RECIPIENT_2, subject, message).catch(() => undefined);
-  }
 };
 
 cron.schedule("0 8 * * *", async () => {

@@ -74,6 +74,9 @@ export const reminderPostSchema = z.object({
   priorityColor: z.number().int().min(0).max(3, "Couleur de priorite invalide").default(0),
   status: z.enum(["todo", "doing", "done"]).default("todo"),
   dueDate: z.union([z.string(), z.literal("")]).optional(),
+  dueTime: z
+    .union([z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, "Heure invalide"), z.literal(""), z.null()])
+    .optional(),
   amount: z.union([z.number().nonnegative("Le montant doit etre positif"), z.null()]).optional(),
   sortOrder: z.number().int().min(0).optional(),
 });

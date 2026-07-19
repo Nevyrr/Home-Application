@@ -61,6 +61,7 @@ export interface IReminderPost extends Document {
   priorityColor: number;
   status: "todo" | "doing" | "done";
   dueDate?: Date | null;
+  dueTime?: string | null;
   amount?: number | null;
   dueDateNotifiedAt?: Date | null;
   sortOrder: number;

@@ -16,7 +16,7 @@ const Layout = () => {
   const { pathname } = useLocation();
   const { user, logout } = useAuth();
 
-  useReminderNotifications(!!user.email);
+  useReminderNotifications(!!user.email && user.receiveEmail === "true");
 
   const isSelected = (path: string): boolean => {
     if (path === "/shopping" && pathname === "/") {

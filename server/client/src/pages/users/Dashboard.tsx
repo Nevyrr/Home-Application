@@ -232,7 +232,7 @@ const Dashboard = () => {
     try {
       await handleAsyncOperation(async () => {
         await updateUser({ receiveEmail: nextValue });
-      }, nextValue ? "Notifications email activees" : "Notifications email desactivees");
+      }, nextValue ? "Notifications activees" : "Notifications desactivees");
     } catch {
       setUser(previousUser);
     } finally {

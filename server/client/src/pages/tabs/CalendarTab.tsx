@@ -155,7 +155,11 @@ const CalendarTab = () => {
 
     try {
       await handleAsyncOperation(async () => {
-        const response = await createEvent(quickAdd.title.trim(), quickAdd.date, "", quickAdd.priorityColor);
+        // Le champ datetime-local ne porte pas de fuseau horaire : on le convertit ici, cote
+        // navigateur (qui connait le fuseau reel de l'utilisateur), avant de l'envoyer au serveur.
+        // Sinon le serveur (en UTC sur Render) interpreterait "09:00" comme 09:00 UTC au lieu
+        // de 09:00 heure locale, d'ou un decalage de 1h ou 2h selon l'heure d'ete/hiver.
+        const response = await createEvent(quickAdd.title.trim(), new Date(quickAdd.date), "", quickAdd.priorityColor);
         await filterEventsWithSelectedDate(selectedDate);
         if (response.success) {
           setSuccess(response.success);

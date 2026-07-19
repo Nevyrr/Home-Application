@@ -7,6 +7,7 @@ export interface ReminderPostPayload {
   body: string;
   status: "todo" | "doing" | "done";
   dueDate?: string;
+  dueTime?: string;
   amount?: number | null;
   sortOrder?: number;
 }

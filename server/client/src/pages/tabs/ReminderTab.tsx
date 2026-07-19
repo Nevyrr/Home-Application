@@ -41,6 +41,7 @@ const EMPTY_EDITOR: ReminderPostPayload = {
   body: "",
   status: "todo",
   dueDate: "",
+  dueTime: "",
   amount: null,
 };
 
@@ -63,6 +64,7 @@ const toPayload = (post: ReminderPost): ReminderPostPayload => ({
   body: post.body || "",
   status: post.status || "todo",
   dueDate: normalizeDueDate(post.dueDate),
+  dueTime: post.dueTime || "",
   amount: post.amount ?? null,
   sortOrder: post.sortOrder,
 });
@@ -89,7 +91,7 @@ const getStatusFromColumnId = (columnId: string): ReminderPost["status"] =>
 const getStatusLabel = (status: ReminderPost["status"]): string =>
   STATUS_OPTIONS.find((option) => option.value === status)?.label || "A faire";
 
-const formatDueDate = (dueDate?: string | Date | null): string => {
+const formatDueDate = (dueDate?: string | Date | null, dueTime?: string | null): string => {
   if (!dueDate) {
     return "Sans echeance";
   }
@@ -100,11 +102,13 @@ const formatDueDate = (dueDate?: string | Date | null): string => {
     return "Sans echeance";
   }
 
-  return parsedDate.toLocaleDateString("fr-FR", {
+  const dateLabel = parsedDate.toLocaleDateString("fr-FR", {
     day: "2-digit",
     month: "short",
     year: "numeric",
   });
+
+  return dueTime ? `${dateLabel} a ${dueTime}` : dateLabel;
 };
 
 interface ReminderTaskCardProps {
@@ -126,7 +130,7 @@ const ReminderTaskCardContent = ({ post, canManage, onEdit, onDelete, dragHandle
           <div className="reminder-task-meta">
             <span>{post.username}</span>
             <span className="meta-separator">|</span>
-            <span>{formatDueDate(post.dueDate)}</span>
+            <span>{formatDueDate(post.dueDate, post.dueTime)}</span>
           </div>
         </div>
 
@@ -584,6 +588,17 @@ const ReminderTab = () => {
                   onChange={(event) => updateEditor("dueDate", event.target.value)}
                 />
               </label>
+
+              <label className="reminder-field">
+                <span>Heure (optionnel)</span>
+                <input
+                  type="time"
+                  className="input compact-native-date-input"
+                  disabled={!canWrite}
+                  value={editor.dueTime || ""}
+                  onChange={(event) => updateEditor("dueTime", event.target.value)}
+                />
+              </label>
             </div>
 
             <label className="reminder-field">
@@ -603,6 +618,7 @@ const ReminderTab = () => {
               />
               <span className="reminder-field-hint">
                 Renseigne un montant et une echeance pour recevoir un email de rappel le jour J (utile pour une facture).
+                Si tu precises aussi une heure, la notification sur le telephone arrive 30 min avant au lieu du matin meme.
               </span>
             </label>
 
