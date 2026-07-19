@@ -143,6 +143,74 @@ It helps you **organize your daily life** by managing tasks, shopping, events, a
 
 ---
 
+## 📱 Application mobile (Android / iPhone)
+
+Le même projet produit aussi une app native Android et iOS via **Capacitor** : le build web (`server/client/dist`) est embarqué dans une coquille native, sans dupliquer le code. Tout se passe dans `server/client/`.
+
+### Prérequis
+
+- **Android** : [Android Studio](https://developer.android.com/studio) (inclut le SDK + un JDK compatible). Fonctionne sur Windows/macOS/Linux.
+- **iOS** : un **Mac** avec [Xcode](https://apps.apple.com/app/xcode/id497799835) installé — impossible de compiler/tester la version iPhone depuis Windows. Le dossier `ios/` peut être généré depuis Windows, mais il faudra l'ouvrir sur un Mac pour la suite.
+- Un compte développeur [Google Play Console](https://play.google.com/console) (payant, une fois) et/ou [Apple Developer](https://developer.apple.com/programs/) (payant, annuel) pour publier sur les stores.
+
+### Construire et synchroniser
+
+Depuis `server/client/` :
+
+```bash
+npm run cap:sync      # build web (vite build) + copie dans android/ et ios/
+npm run cap:android   # build + ouvre le projet dans Android Studio
+npm run cap:ios       # build + ouvre le projet dans Xcode (Mac uniquement)
+```
+
+Relance `npm run cap:sync` après chaque changement de code avant de rebuild l'app native. `android/` et `ios/` sont versionnés dans git (ce sont des projets natifs à part entière, pas juste du cache) ; seuls leurs artefacts de build (`.gradle`, `build/`, `Pods/`, `local.properties`, les clés de signature `.jks`/`.keystore`/`keystore.properties`...) sont ignorés.
+
+### Distribution Android sans Play Store (sideload)
+
+Pour installer l'app directement sur vos téléphones sans passer par le Play Store :
+
+```bash
+npm run android:release
+```
+
+Ça produit un APK **signé** (pas debug) dans `android/app/build/outputs/apk/release/app-release.apk`, à envoyer directement (email, drive, clé USB...). Chaque personne doit activer *"Installer les applications inconnues"* pour l'app utilisée pour ouvrir le fichier (Fichiers, Gmail...), puis taper dessus pour installer.
+
+La signature est configurée via `android/keystore.properties` (jamais commité — voir `keystore.properties.example` pour le modèle). **Le mot de passe de cette clé ne se régénère pas** : perds-le et tu ne pourras plus republier de mise à jour sous la même identité (il faudrait redésinstaller l'app sur chaque téléphone). Garde-le dans un gestionnaire de mots de passe, pas juste dans ce fichier.
+
+### Pointer l'app mobile vers ton backend déployé
+
+Le site web utilise des chemins relatifs (`/api/...`) car il est servi par le même serveur que l'API. L'app mobile, elle, est chargée depuis le bundle embarqué (`https://localhost`) et doit connaître l'URL complète de ton backend en ligne. Avant de builder pour mobile, crée `server/client/.env.production` (ou passe la variable au moment du build) :
+
+```env
+VITE_API_BASE_URL=https://ton-domaine-de-production.com
+```
+
+Sans cette variable, l'app mobile tenterait d'appeler l'API sur son propre bundle local et échouerait. Le CORS backend autorise déjà les origines Capacitor (`https://localhost`, `capacitor://localhost`) en plus du site web.
+
+### Identité de l'app
+
+- **App ID** : `com.davinhub.app` (dans `capacitor.config.ts`) — **à figer avant la première publication** sur les stores : le changer après coup revient à publier une toute nouvelle app (perte des avis, des installs, etc.).
+- **Nom / icône / écran de démarrage** : définis dans `capacitor.config.ts` et générés depuis `server/client/resources/icon.png` (+ `splash.png` / `splash-dark.png`). Pour les régénérer après avoir changé le logo :
+  ```bash
+  npx capacitor-assets generate
+  ```
+
+### Limitation connue : connexion Google
+
+Le bouton "Connexion avec Google" utilise le SDK web de Google (Google Identity Services), que Google restreint dans les WebView embarquées (comme celle de Capacitor) — il peut refuser de s'ouvrir sur mobile. La connexion par email/mot de passe fonctionne normalement partout. Corriger ça proprement demanderait un plugin Capacitor dédié (ex. `@codetrix-studio/capacitor-google-auth`) avec sa propre configuration OAuth par plateforme dans Google Cloud Console — pas encore mis en place.
+
+### Live reload en dev (optionnel)
+
+Pour recharger l'app native en direct depuis le serveur Vite pendant le développement, au lieu de rebuild à chaque fois :
+
+```bash
+CAP_SERVER_URL=http://<ton-ip-locale>:5173 npx cap run android
+```
+
+(remplace par ton IP locale, pas `localhost`, pour que le téléphone/l'émulateur puisse l'atteindre)
+
+---
+
 ## 🛠️ Future Improvements  
 - ✅ Push notifications for reminders
 

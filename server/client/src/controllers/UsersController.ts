@@ -1,4 +1,5 @@
 import { fetchWithAuth } from "../utils/authClient.ts";
+import { buildApiUrl } from "../utils/apiConfig.ts";
 import { ApiEnvelope, readApiResponse } from "../utils/api.ts";
 import { getAccessToken, loadStoredUser, SessionResponse, storeSession, updateStoredUser } from "../utils/session.ts";
 import { ManagedUser, UserAccessLevel, UserRole } from "../types/index.ts";
@@ -47,7 +48,7 @@ const loginUser = async (email: string, password: string): Promise<LoginResponse
     throw Error("Tous les champs sont obligatoires");
   }
 
-  const res = await fetch("/api/users/login", {
+  const res = await fetch(buildApiUrl("/api/users/login"), {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -106,7 +107,7 @@ const registerUser = async (
     throw Error("Les mots de passe ne correspondent pas");
   }
 
-  const res = await fetch("/api/users", {
+  const res = await fetch(buildApiUrl("/api/users"), {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -133,7 +134,7 @@ const logoutUser = async (): Promise<void> => {
 };
 
 const loginWithGoogle = async (credential: string): Promise<LoginResponse> => {
-  const res = await fetch("/api/users/google", {
+  const res = await fetch(buildApiUrl("/api/users/google"), {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -148,7 +149,7 @@ const loginWithGoogle = async (credential: string): Promise<LoginResponse> => {
 };
 
 const requestPasswordReset = async (email: string): Promise<void> => {
-  const res = await fetch("/api/users/forgot-password", {
+  const res = await fetch(buildApiUrl("/api/users/forgot-password"), {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -160,7 +161,7 @@ const requestPasswordReset = async (email: string): Promise<void> => {
 };
 
 const resetPassword = async (token: string, password: string): Promise<void> => {
-  const res = await fetch("/api/users/reset-password", {
+  const res = await fetch(buildApiUrl("/api/users/reset-password"), {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

@@ -42,9 +42,17 @@ app.use(
   })
 );
 
+// Les apps Capacitor (Android/iOS) sont chargees depuis une origine locale au bundle
+// (pas le nom de domaine du backend) : on l'autorise en plus du site web, quelle que soit
+// la variante d'origine utilisee selon la plateforme/version de Capacitor.
+const CAPACITOR_ORIGINS = ["https://localhost", "capacitor://localhost", "http://localhost"];
+
 app.use(
   cors({
-    origin: env.NODE_ENV === "production" ? process.env.FRONTEND_URL || "http://localhost:5173" : "http://localhost:5173",
+    origin: [
+      env.NODE_ENV === "production" ? process.env.FRONTEND_URL || "http://localhost:5173" : "http://localhost:5173",
+      ...CAPACITOR_ORIGINS,
+    ],
     credentials: true,
   })
 );

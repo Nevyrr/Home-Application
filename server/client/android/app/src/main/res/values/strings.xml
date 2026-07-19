@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">DavinHub</string>
+    <string name="title_activity_main">DavinHub</string>
+    <string name="package_name">com.davinhub.app</string>
+    <string name="custom_url_scheme">com.davinhub.app</string>
+</resources>

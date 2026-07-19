@@ -1,4 +1,5 @@
 import { parseOptionalApiResponse } from "./api.ts";
+import { buildApiUrl } from "./apiConfig.ts";
 import {
   clearStoredSession,
   getAccessToken,
@@ -41,7 +42,7 @@ const refreshSession = async (): Promise<string> => {
 
   if (!refreshPromise) {
     refreshPromise = (async () => {
-      const response = await fetch("/api/users/refresh", {
+      const response = await fetch(buildApiUrl("/api/users/refresh"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -82,15 +83,16 @@ const getValidAccessToken = async (): Promise<string> => {
 };
 
 export const fetchWithAuth = async (input: RequestInfo | URL, init: RequestInit = {}): Promise<Response> => {
+  const requestUrl = typeof input === "string" ? buildApiUrl(input) : input;
   let accessToken = await getValidAccessToken();
-  let response = await fetch(input, createRequestInit(init, accessToken));
+  let response = await fetch(requestUrl, createRequestInit(init, accessToken));
 
   if (response.status !== 401) {
     return response;
   }
 
   accessToken = await refreshSession();
-  response = await fetch(input, createRequestInit(init, accessToken));
+  response = await fetch(requestUrl, createRequestInit(init, accessToken));
 
   if (response.status === 401) {
     return redirectToLogin();
