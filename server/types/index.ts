@@ -78,14 +78,9 @@ export interface INono extends Document {
   _id: Types.ObjectId;
   birthDate: string;
   checkupDate: string;
-  checkupReminder: string;
   vaccineDate: string;
   vaccineReminder: string;
   vaccineIntervalMonths?: number | null;
-  vitaminDate?: string;
-  vitaminReminder: string;
-  vitaminIntervalMonths?: number | null;
-  administrativeReminder: string;
   notes: string;
   bottleEntries: INonoBottleEntry[];
   weightEntries: INonoWeightEntry[];

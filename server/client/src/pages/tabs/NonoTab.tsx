@@ -7,12 +7,9 @@ import {
   addWeightEntry,
   deleteWeightEntry,
   getNonoData,
-  updateAdministrativeReminder,
   updateCheckupDate,
-  updateCheckupReminder,
   updateNonoNotes,
   updateVaccineDate,
-  updateVitaminDate,
 } from "../../controllers/NonoController.ts";
 import { useApp } from "../../contexts/AppContext.tsx";
 import { useAuth, useErrorHandler } from "../../hooks/index.ts";
@@ -179,10 +176,8 @@ const formatWeightKg = (weightKg?: number | null): string => {
 
 const getNextMilestone = (nono: Nono): { label: string; date: string; overdue: boolean } | null => {
   const entries = [
-    { label: "RDV pediatre", date: nono.checkupReminder || nono.checkupDate },
+    { label: "RDV pediatre", date: nono.checkupDate },
     { label: "Vaccin", date: nono.vaccineReminder },
-    { label: "Vitamine", date: nono.vitaminReminder },
-    { label: "Demarches", date: nono.administrativeReminder },
   ]
     .map((entry) => ({
       ...entry,
@@ -382,10 +377,7 @@ const NonoTab = () => {
       primaryLabel: "Date du rendez-vous",
       primaryValue: nono.checkupDate,
       onPrimaryChange: (date: string) => saveDate(updateCheckupDate, date),
-      secondaryLabel: "Rappel",
-      secondaryValue: nono.checkupReminder,
-      onSecondaryChange: (date: string) => saveDate(updateCheckupReminder, date),
-      dueDate: nono.checkupReminder || nono.checkupDate,
+      dueDate: nono.checkupDate,
     },
     {
       key: "vaccine",
@@ -395,39 +387,12 @@ const NonoTab = () => {
       primaryLabel: "Date du vaccin",
       primaryValue: nono.vaccineDate,
       onPrimaryChange: (date: string) => saveDate(updateVaccineDate, date),
-      secondaryLabel: "Rappel",
       secondaryValue: nono.vaccineReminder,
       recurrence: {
         intervalMonths: nono.vaccineIntervalMonths,
         onSave: (months: number, date?: string) => saveCare("vaccine", months, date),
       },
       dueDate: nono.vaccineReminder,
-    },
-    {
-      key: "vitamin",
-      title: "Vitamine",
-      icon: "fa-prescription-bottle-medical",
-      accentClass: "accent-mint",
-      primaryLabel: "Dernière prise",
-      primaryValue: nono.vitaminDate || "",
-      onPrimaryChange: (date: string) => saveDate(updateVitaminDate, date),
-      secondaryLabel: "Prochain rappel",
-      secondaryValue: nono.vitaminReminder,
-      recurrence: {
-        intervalMonths: nono.vitaminIntervalMonths,
-        onSave: (months: number, date?: string) => saveCare("vitamin", months, date),
-      },
-      dueDate: nono.vitaminReminder,
-    },
-    {
-      key: "administrative",
-      title: "Demarches",
-      icon: "fa-folder-open",
-      accentClass: "accent-lilac",
-      primaryLabel: "Prochaine relance",
-      primaryValue: nono.administrativeReminder,
-      onPrimaryChange: (date: string) => saveDate(updateAdministrativeReminder, date),
-      dueDate: nono.administrativeReminder,
     },
   ]
     .sort((leftCard, rightCard) => compareDueDates(leftCard.dueDate, rightCard.dueDate));

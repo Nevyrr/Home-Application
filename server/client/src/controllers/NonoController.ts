@@ -13,11 +13,8 @@ const DEFAULT_NONO_BIRTH_DATE = "18/03/2026";
 const emptyNonoData: Nono = {
   birthDate: DEFAULT_NONO_BIRTH_DATE,
   checkupDate: "",
-  checkupReminder: "",
   vaccineDate: "",
   vaccineReminder: "",
-  vitaminReminder: "",
-  administrativeReminder: "",
   notes: "",
   bottleEntries: [],
   weightEntries: [],
@@ -75,20 +72,11 @@ const updateBirthDate = async (date: string): Promise<ApiResponse> =>
 const updateCheckupDate = async (date: string): Promise<ApiResponse> =>
   postNonoUpdate("/api/nono/checkup/date", { date }, "Impossible de mettre a jour la date du rendez-vous");
 
-const updateCheckupReminder = async (date: string): Promise<ApiResponse> =>
-  postNonoUpdate("/api/nono/checkup/reminder", { date }, "Impossible de mettre a jour le rappel du rendez-vous");
-
 const updateVaccineDate = async (date: string): Promise<ApiResponse> =>
   postNonoUpdate("/api/nono/vaccine/date", { date }, "Impossible de mettre a jour la date du vaccin");
 
 const updateVaccineReminder = async (date: string): Promise<ApiResponse> =>
   postNonoUpdate("/api/nono/vaccine/reminder", { date }, "Impossible de mettre a jour le rappel du vaccin");
-
-const updateVitaminReminder = async (date: string): Promise<ApiResponse> =>
-  postNonoUpdate("/api/nono/vitamin/reminder", { date }, "Impossible de mettre a jour le rappel vitamine");
-
-const updateAdministrativeReminder = async (date: string): Promise<ApiResponse> =>
-  postNonoUpdate("/api/nono/administrative/reminder", { date }, "Impossible de mettre a jour le rappel administratif");
 
 const updateNonoNotes = async (notes: string): Promise<ApiResponse> =>
   postNonoUpdate("/api/nono/notes", { notes }, "Impossible de mettre a jour les notes de Nono");
@@ -111,15 +99,9 @@ export {
   deleteBottleEntry,
   deleteWeightEntry,
   getNonoData,
-  updateAdministrativeReminder,
   updateBirthDate,
   updateCheckupDate,
-  updateCheckupReminder,
   updateNonoNotes,
   updateVaccineDate,
   updateVaccineReminder,
-  updateVitaminReminder,
 };
-
-export const updateVitaminDate = async (date: string): Promise<ApiResponse> =>
-  postNonoUpdate("/api/nono/vitamin/date", { date }, "Impossible de mettre à jour la date de la vitamine");

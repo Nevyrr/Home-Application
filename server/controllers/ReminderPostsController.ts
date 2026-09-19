@@ -8,6 +8,7 @@ import { createError } from "../middlewares/errorHandler.js";
 import { sendSuccess, sendCreated, sendUpdated, sendDeleted } from "../utils/apiResponse.js";
 import { sendReminderEmails } from "../utils/reminderEmails.js";
 import { logger } from "../utils/logger.js";
+import { env } from "../config/env.js";
 
 /**
  * Envoie un email pour chaque tache (avec montant) arrivee a echeance et non terminee,
@@ -29,7 +30,7 @@ cron.schedule("0 8 * * *", async () => {
       const amountLabel = typeof post.amount === "number" ? `${post.amount.toFixed(2)} €` : "";
       const dueDateLabel = post.dueDate ? post.dueDate.toLocaleDateString("fr-FR") : "";
 
-      sendReminderEmails(
+      await sendReminderEmails(
         `Echeance : ${post.title}`,
         [
           `Le rappel "${post.title}"${amountLabel ? ` (${amountLabel})` : ""} arrive a echeance le ${dueDateLabel}.`,
@@ -45,7 +46,7 @@ cron.schedule("0 8 * * *", async () => {
   } catch (error) {
     logger.error("Echec du job cron des echeances de rappels", { error });
   }
-});
+}, { timezone: env.REMINDER_TIME_ZONE });
 
 /************************************ Get All Posts ************************************/
 const getPosts = async (_req: AuthRequest, res: Response): Promise<void> => {

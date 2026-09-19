@@ -14,9 +14,7 @@ interface ScheduleCardProps {
   primaryLabel: string;
   primaryValue: string;
   onPrimaryChange: (date: string) => Promise<void>;
-  secondaryLabel?: string;
   secondaryValue?: string;
-  onSecondaryChange?: (date: string) => Promise<void>;
   disabled?: boolean;
   recurrence?: {
     intervalMonths?: number | null;
@@ -32,9 +30,7 @@ const ScheduleCard = ({
   primaryLabel,
   primaryValue,
   onPrimaryChange,
-  secondaryLabel,
   secondaryValue,
-  onSecondaryChange,
   disabled = false,
   recurrence,
 }: ScheduleCardProps) => {
@@ -111,24 +107,6 @@ const ScheduleCard = ({
           />
         </label>
 
-        {!recurrence && secondaryLabel && onSecondaryChange && (
-          <label className="nono-field">
-            <span>{secondaryLabel}</span>
-            <DatePicker
-              selected={parseStoredDate(secondaryValue)}
-              onChange={(date: Date | null) => onSecondaryChange(toStoredDate(date))}
-              locale="fr"
-              dateFormat="P"
-              disabled={disabled || pending !== null}
-              isClearable
-              placeholderText="Choisir une date"
-              className="input compact-date-input"
-              wrapperClassName="compact-date-picker"
-              calendarClassName="theme-datepicker"
-              popperClassName="theme-datepicker-popper"
-            />
-          </label>
-        )}
         {recurrence && (
           <div className="care-recurrence">
             <label className="nono-field">

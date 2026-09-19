@@ -42,9 +42,9 @@ test("care and task reminders remain available after removing the calendar", asy
   const day = new Date(2090, 8, 17);
   const date = toStoredDate(day);
   const taco = buildTacoReminders({ vermifugeReminder: date, antiPuceReminder: date, annualVaccineReminder: date });
-  const nono = buildNonoReminders({ checkupReminder: date, vaccineReminder: date, vitaminReminder: date, administrativeReminder: date });
+  const nono = buildNonoReminders({ vaccineReminder: date });
   assert.deepEqual(taco.map(({ id }) => id), [101, 102, 103]);
-  assert.deepEqual(nono.map(({ id }) => id), [201, 202, 203, 204]);
+  assert.deepEqual(nono.map(({ id }) => id), [202]);
   const tasks = buildReminderPostReminders([{
     _id: "invoice", user: "user", username: "Test", title: "Facture", body: "",
     priorityColor: 0, status: "todo", amount: 20, dueDate: day,

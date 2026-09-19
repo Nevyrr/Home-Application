@@ -83,14 +83,9 @@ export interface Nono {
   _id?: string;
   birthDate: string;
   checkupDate: string;
-  checkupReminder: string;
   vaccineDate: string;
   vaccineReminder: string;
   vaccineIntervalMonths?: number | null;
-  vitaminDate?: string;
-  vitaminReminder: string;
-  vitaminIntervalMonths?: number | null;
-  administrativeReminder: string;
   notes: string;
   bottleEntries: NonoBottleEntry[];
   weightEntries: NonoWeightEntry[];

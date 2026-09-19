@@ -5,6 +5,7 @@ import { useAuth, useReminderNotifications } from "../hooks/index.ts";
 import "../style/topbar.css";
 
 const NAV_ITEMS = [
+  { path: "/", icon: "fa-house", label: "Accueil" },
   { path: "/shopping", icon: "fa-cart-shopping", label: "Courses" },
   { path: "/reminders", icon: "fa-list-check", label: "Taches" },
   { path: "/taco", icon: "fa-dog", label: "Taco" },
@@ -18,10 +19,6 @@ const Layout = () => {
   useReminderNotifications(!!user.email && user.receiveEmail === "true");
 
   const isSelected = (path: string): boolean => {
-    if (path === "/shopping" && pathname === "/") {
-      return true;
-    }
-
     return pathname === path;
   };
 

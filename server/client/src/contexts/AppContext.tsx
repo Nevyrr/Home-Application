@@ -51,11 +51,8 @@ export const AppProvider = ({ children }: AppProviderProps) => {
   const [nono, setNono] = useState<Nono>({
     birthDate: DEFAULT_NONO_BIRTH_DATE,
     checkupDate: "",
-    checkupReminder: "",
     vaccineDate: "",
     vaccineReminder: "",
-    vitaminReminder: "",
-    administrativeReminder: "",
     notes: "",
     bottleEntries: [],
     weightEntries: [],

@@ -7,16 +7,13 @@ import { createError } from "../middlewares/errorHandler.js";
 import { sendSuccess } from "../utils/apiResponse.js";
 import { sendReminderEmails } from "../utils/reminderEmails.js";
 import { logger } from "../utils/logger.js";
+import { env } from "../config/env.js";
 
 type NonoField =
   | "birthDate"
   | "checkupDate"
-  | "checkupReminder"
   | "vaccineDate"
   | "vaccineReminder"
-  | "vitaminDate"
-  | "vitaminReminder"
-  | "administrativeReminder"
   | "notes";
 
 const DEFAULT_NONO_BIRTH_DATE = "18/03/2026";
@@ -24,11 +21,8 @@ const DEFAULT_NONO_BIRTH_DATE = "18/03/2026";
 const EMPTY_NONO_DATA = {
   birthDate: DEFAULT_NONO_BIRTH_DATE,
   checkupDate: "",
-  checkupReminder: "",
   vaccineDate: "",
   vaccineReminder: "",
-  vitaminReminder: "",
-  administrativeReminder: "",
   notes: "",
   bottleEntries: [],
   weightEntries: [],
@@ -62,38 +56,23 @@ cron.schedule("15 8 * * *", async () => {
     const currentDate = startOfDay(new Date());
     const reminders = [
       {
-        date: nono.checkupReminder,
-        subject: "rappel rendez-vous nono",
-        message: "Le rappel du prochain rendez-vous pour Nono est dépassé. Pensez a verifier le suivi avec votre pediatre.",
-      },
-      {
         date: nono.vaccineReminder,
         subject: "rappel vaccin nono",
         message: "Le rappel du prochain vaccin de Nono est dépassé. Pensez a verifier la date avec votre professionnel de sante.",
       },
-      {
-        date: nono.vitaminReminder,
-        subject: "rappel vitamine nono",
-        message: "Le rappel vitamine de Nono est dépassé. Pensez a verifier le renouvellement.",
-      },
-      {
-        date: nono.administrativeReminder,
-        subject: "rappel demarche nono",
-        message: "Le rappel pour une demarche ou une relance de Nono est dépassé. Pensez a verifier les papiers en attente.",
-      },
     ];
 
-    reminders.forEach((reminder) => {
+    for (const reminder of reminders) {
       const reminderDate = parseStoredDate(reminder.date);
 
-      if (reminderDate && reminderDate.getTime() < currentDate.getTime()) {
-        sendReminderEmails(reminder.subject, reminder.message);
+      if (reminderDate && reminderDate.getTime() <= currentDate.getTime()) {
+        await sendReminderEmails(reminder.subject, reminder.message);
       }
-    });
+    }
   } catch (error) {
     logger.error("Echec du job cron des rappels Nono", { error });
   }
-});
+}, { timezone: env.REMINDER_TIME_ZONE });
 
 const getOrCreateNono = async () => {
   const existingNono = await NonoModel.findOne();
@@ -326,11 +305,6 @@ const updateCheckupDate = async (req: Request, res: Response): Promise<void> => 
   sendNonoUpdate(res, updatedNono, "Date du rendez-vous mise a jour avec succes");
 };
 
-const updateCheckupReminder = async (req: Request, res: Response): Promise<void> => {
-  const updatedNono = await updateNonoField("checkupReminder", readStringValue(req.body.date, "Rappel de rendez-vous"));
-  sendNonoUpdate(res, updatedNono, "Rappel du rendez-vous mis a jour avec succes");
-};
-
 const updateVaccineDate = async (req: Request, res: Response): Promise<void> => {
   const updatedNono = await updateNonoField("vaccineDate", readStringValue(req.body.date, "Date du vaccin"));
   sendNonoUpdate(res, updatedNono, "Date du vaccin mise a jour avec succes");
@@ -339,19 +313,6 @@ const updateVaccineDate = async (req: Request, res: Response): Promise<void> => 
 const updateVaccineReminder = async (req: Request, res: Response): Promise<void> => {
   const updatedNono = await updateNonoField("vaccineReminder", readStringValue(req.body.date, "Rappel du vaccin"));
   sendNonoUpdate(res, updatedNono, "Rappel du vaccin mis a jour avec succes");
-};
-
-const updateVitaminReminder = async (req: Request, res: Response): Promise<void> => {
-  const updatedNono = await updateNonoField("vitaminReminder", readStringValue(req.body.date, "Rappel vitamine"));
-  sendNonoUpdate(res, updatedNono, "Rappel vitamine mis a jour avec succes");
-};
-
-const updateAdministrativeReminder = async (req: Request, res: Response): Promise<void> => {
-  const updatedNono = await updateNonoField(
-    "administrativeReminder",
-    readStringValue(req.body.date, "Rappel administratif")
-  );
-  sendNonoUpdate(res, updatedNono, "Rappel administratif mis a jour avec succes");
 };
 
 const updateNotes = async (req: Request, res: Response): Promise<void> => {
@@ -391,14 +352,11 @@ export {
   deleteBottleEntry,
   deleteWeightEntry,
   getNonoData,
-  updateAdministrativeReminder,
   updateBirthDate,
   updateCheckupDate,
-  updateCheckupReminder,
   updateNotes,
   updateVaccineDate,
   updateVaccineReminder,
-  updateVitaminReminder,
 };
 
 export const updateCare = async (req: Request, res: Response): Promise<void> => {
@@ -413,9 +371,4 @@ export const updateCare = async (req: Request, res: Response): Promise<void> => 
   sendSuccess(res, { nono: [record] }, req.body.date === undefined
     ? "Intervalle enregistré"
     : "Soin enregistré et prochaine échéance mise à jour");
-};
-
-export const updateVitaminDate = async (req: Request, res: Response): Promise<void> => {
-  const nono = await updateNonoField("vitaminDate", readStringValue(req.body.date, "Date de la vitamine"));
-  sendNonoUpdate(res, nono, "Date de la vitamine mise à jour");
 };

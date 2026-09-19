@@ -13,10 +13,7 @@ const TACO_VERMIFUGE_ID = 101;
 const TACO_ANTIPUCE_ID = 102;
 const TACO_VACCINE_ID = 103;
 
-const NONO_CHECKUP_ID = 201;
 const NONO_VACCINE_ID = 202;
-const NONO_VITAMIN_ID = 203;
-const NONO_ADMIN_ID = 204;
 
 const REMINDER_POST_ID_BASE = 10_000;
 const REMINDER_POST_ID_RANGE = 500_000;
@@ -102,38 +99,14 @@ export const buildTacoReminders = (
 };
 
 export const buildNonoReminders = (
-  nono: Pick<Nono, "checkupReminder" | "vaccineReminder" | "vitaminReminder" | "administrativeReminder">
+  nono: Pick<Nono, "vaccineReminder">
 ): ScheduledReminder[] => {
   const reminders = [
-    buildUpcomingReminder(
-      NONO_CHECKUP_ID,
-      nono.checkupReminder,
-      "Rendez-vous Nono",
-      "Le rappel du prochain rendez-vous pour Nono arrive a echeance aujourd'hui.",
-      8,
-      15
-    ),
     buildUpcomingReminder(
       NONO_VACCINE_ID,
       nono.vaccineReminder,
       "Vaccin Nono",
       "Le rappel du prochain vaccin de Nono arrive a echeance aujourd'hui.",
-      8,
-      15
-    ),
-    buildUpcomingReminder(
-      NONO_VITAMIN_ID,
-      nono.vitaminReminder,
-      "Vitamine Nono",
-      "Le rappel vitamine de Nono arrive a echeance aujourd'hui.",
-      8,
-      15
-    ),
-    buildUpcomingReminder(
-      NONO_ADMIN_ID,
-      nono.administrativeReminder,
-      "Demarche Nono",
-      "Le rappel pour une demarche ou une relance de Nono arrive a echeance aujourd'hui.",
       8,
       15
     ),

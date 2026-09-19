@@ -47,8 +47,21 @@ export const useReminderNotifications = (enabled: boolean): void => {
         }
 
         await rescheduleReminders(buildTacoReminders(taco), isTacoManagedId);
+        if (cancelled) {
+          await cancelAllManagedReminders();
+          return;
+        }
+
         await rescheduleReminders(buildNonoReminders(nono), isNonoManagedId);
+        if (cancelled) {
+          await cancelAllManagedReminders();
+          return;
+        }
+
         await rescheduleReminders(buildReminderPostReminders(posts), isReminderPostManagedId);
+        if (cancelled) {
+          await cancelAllManagedReminders();
+        }
       } catch {
         // Silencieux : la synchro reessaiera a la prochaine ouverture de l'appli.
       }

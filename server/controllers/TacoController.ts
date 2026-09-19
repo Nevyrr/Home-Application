@@ -8,6 +8,7 @@ import { createError } from "../middlewares/errorHandler.js";
 import { sendNotFound, sendSuccess } from "../utils/apiResponse.js";
 import { sendReminderEmails } from "../utils/reminderEmails.js";
 import { logger } from "../utils/logger.js";
+import { env } from "../config/env.js";
 
 type TacoField =
   | "vermifugeDate"
@@ -62,21 +63,21 @@ cron.schedule("0 8 * * *", async () => {
     const annualVaccineReminderDate = parseReminderDate(taco.annualVaccineReminder);
 
     if (vermifugeReminderDate && vermifugeReminderDate.getTime() < currentDate.getTime()) {
-      sendReminderEmails(
+      await sendReminderEmails(
         "rappel vermifuge coco",
         "La date du rappel du vermifuge pour Taco DAVIN est desormais depassee. Pensez a le faire au plus vite !"
       );
     }
 
     if (antiPuceReminderDate && antiPuceReminderDate.getTime() < currentDate.getTime()) {
-      sendReminderEmails(
+      await sendReminderEmails(
         "rappel anti-puce coco",
         "La date du rappel de l'anti-puce pour Taco DAVIN est desormais depassee. Pensez a le faire au plus vite !"
       );
     }
 
     if (annualVaccineReminderDate && annualVaccineReminderDate.getTime() < currentDate.getTime()) {
-      sendReminderEmails(
+      await sendReminderEmails(
         "rappel vaccin annuel taco",
         "La date du rappel du vaccin annuel pour Taco DAVIN est desormais depassee. Pensez a prendre rendez-vous au plus vite !"
       );
@@ -84,7 +85,7 @@ cron.schedule("0 8 * * *", async () => {
   } catch (error) {
     logger.error("Echec du job cron des rappels Taco", { error });
   }
-});
+}, { timezone: env.REMINDER_TIME_ZONE });
 
 const uploadImageMiddleware = multer({
   storage: multer.memoryStorage(),

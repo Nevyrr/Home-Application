@@ -6,8 +6,6 @@ const DEFAULT_NONO_BIRTH_DATE = "18/03/2026";
 const NonoSchema = new Schema<INono>(
   {
     vaccineIntervalMonths: { type: Number, default: null, min: 1, max: 1200, validate: (value: number | null) => value === null || Number.isInteger(value) },
-    vitaminIntervalMonths: { type: Number, default: null, min: 1, max: 1200, validate: (value: number | null) => value === null || Number.isInteger(value) },
-    vitaminDate: { type: String, default: "" },
     birthDate: {
       type: String,
       default: DEFAULT_NONO_BIRTH_DATE,
@@ -16,23 +14,11 @@ const NonoSchema = new Schema<INono>(
       type: String,
       default: "",
     },
-    checkupReminder: {
-      type: String,
-      default: "",
-    },
     vaccineDate: {
       type: String,
       default: "",
     },
     vaccineReminder: {
-      type: String,
-      default: "",
-    },
-    vitaminReminder: {
-      type: String,
-      default: "",
-    },
-    administrativeReminder: {
       type: String,
       default: "",
     },

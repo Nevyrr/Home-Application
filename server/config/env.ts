@@ -10,11 +10,10 @@ interface EnvConfig {
   FRONTEND_URL: string;
   ACCESS_TOKEN_TTL: string;
   REFRESH_TOKEN_TTL: string;
+  REMINDER_TIME_ZONE: string;
   GOOGLE_CLIENT_ID?: string;
   EMAIL_USER?: string;
   EMAIL_PASS?: string;
-  EMAIL_RECIPIENT_1?: string;
-  EMAIL_RECIPIENT_2?: string;
   DEFAULT_ADMIN_EMAILS?: string;
   ANTHROPIC_API_KEY?: string;
   REGISTRATION_CODE?: string;
@@ -57,11 +56,10 @@ export const validateEnv = (): EnvConfig => {
     FRONTEND_URL: process.env.FRONTEND_URL || 'http://localhost:5173',
     ACCESS_TOKEN_TTL: process.env.ACCESS_TOKEN_TTL || '30d',
     REFRESH_TOKEN_TTL: process.env.REFRESH_TOKEN_TTL || '60d',
+    REMINDER_TIME_ZONE: process.env.REMINDER_TIME_ZONE || 'Europe/Budapest',
     GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
     EMAIL_USER: process.env.EMAIL_USER,
     EMAIL_PASS: process.env.EMAIL_PASS,
-    EMAIL_RECIPIENT_1: process.env.EMAIL_RECIPIENT_1,
-    EMAIL_RECIPIENT_2: process.env.EMAIL_RECIPIENT_2,
     DEFAULT_ADMIN_EMAILS: process.env.DEFAULT_ADMIN_EMAILS,
     ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY,
     REGISTRATION_CODE: process.env.REGISTRATION_CODE,

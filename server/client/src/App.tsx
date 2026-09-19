@@ -12,6 +12,7 @@ import ShoppingTab from "./pages/tabs/ShoppingTab.tsx";
 import ReminderTab from "./pages/tabs/ReminderTab.tsx";
 import TacoTab from "./pages/tabs/TacoTab.tsx";
 import NonoTab from "./pages/tabs/NonoTab.tsx";
+import Home from "./pages/Home.tsx";
 
 const App = () => {
 
@@ -20,7 +21,7 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route element={<AuthRoutes />}>
-            <Route index element={<ShoppingTab />} />
+            <Route index element={<Home />} />
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="shopping" element={<ShoppingTab />} />
             <Route path="reminders" element={<ReminderTab />} />

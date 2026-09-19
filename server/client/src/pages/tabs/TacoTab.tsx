@@ -145,7 +145,6 @@ const TacoTab = () => {
       primaryLabel: "Date du traitement",
       primaryValue: taco.vermifugeDate,
       onPrimaryChange: (date: string) => saveDate(updateVermifugeDate, date),
-      secondaryLabel: "Rappel",
       secondaryValue: taco.vermifugeReminder,
       recurrence: {
         intervalMonths: taco.vermifugeIntervalMonths,
@@ -161,7 +160,6 @@ const TacoTab = () => {
       primaryLabel: "Date d'application",
       primaryValue: taco.antiPuceDate,
       onPrimaryChange: (date: string) => saveDate(updateAntiPuceDate, date),
-      secondaryLabel: "Rappel",
       secondaryValue: taco.antiPuceReminder,
       recurrence: {
         intervalMonths: taco.antiPuceIntervalMonths,
@@ -177,7 +175,6 @@ const TacoTab = () => {
       primaryLabel: "Date du vaccin",
       primaryValue: taco.annualVaccineDate,
       onPrimaryChange: (date: string) => saveDate(updateAnnualVaccineDate, date),
-      secondaryLabel: "Rappel",
       secondaryValue: taco.annualVaccineReminder,
       recurrence: {
         intervalMonths: taco.annualVaccineIntervalMonths,

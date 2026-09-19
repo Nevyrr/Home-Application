@@ -2,7 +2,7 @@ import { createError } from "../middlewares/errorHandler.js";
 
 const careFields = {
   taco: { vermifuge: "vermifuge", antipuce: "antiPuce", vaccine: "annualVaccine" },
-  nono: { vaccine: "vaccine", vitamin: "vitamin" },
+  nono: { vaccine: "vaccine" },
 } as const;
 
 // Dates are calendar days in the user's timezone, not UTC timestamps.

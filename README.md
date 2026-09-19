@@ -94,6 +94,9 @@ It helps you **organize your daily life** by managing tasks, shopping, and healt
    
    # Environnement (défaut: development)
    NODE_ENV=development
+
+   # Fuseau des emails de rappel programmés (défaut : Europe/Budapest)
+   REMINDER_TIME_ZONE=Europe/Budapest
    
    # URL du frontend pour CORS en production
    FRONTEND_URL=http://localhost:5173
@@ -103,10 +106,8 @@ It helps you **organize your daily life** by managing tasks, shopping, and healt
    EMAIL_USER=votre_email@gmail.com
    EMAIL_PASS=votre_mot_de_passe_application
    
-   # Destinataires des emails de rappel pour Taco (optionnel)
-   EMAIL_RECIPIENT_1=email1@example.com
-   EMAIL_RECIPIENT_2=email2@example.com
-   
+   # Les destinataires des rappels sont les comptes ayant active les notifications
+
    # Cle API Anthropic pour l'assistant IA de liste de courses (optionnel)
    # Sans cette cle, cliquer sur "Generer avec l'IA" dans l'onglet Courses renvoie une erreur explicite
    ANTHROPIC_API_KEY=sk-ant-...

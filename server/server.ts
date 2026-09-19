@@ -15,6 +15,7 @@ import { NonoRoutes } from "./routes/NonoRoutes.js";
 import { env } from "./config/env.js";
 import { logger } from "./utils/logger.js";
 import { errorHandler } from "./middlewares/errorHandler.js";
+import { isEmailConfigured, verifyEmailTransport } from "./config/nodeMailConfig.js";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -108,6 +109,13 @@ mongoose
   .connect(env.DB_URI, { dbName: "home_app" })
   .then(() => {
     logger.info("Connected to DB successfully");
+    if (isEmailConfigured()) {
+      void verifyEmailTransport()
+        .then(() => logger.info("Connexion email vérifiée"))
+        .catch((error) => logger.error("La connexion email ne fonctionne pas", { error }));
+    } else {
+      logger.warn("Emails désactivés : EMAIL_USER ou EMAIL_PASS manquant");
+    }
     const port = parseInt(env.PORT, 10);
 
     app.listen(port, () => {

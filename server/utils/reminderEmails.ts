@@ -1,32 +1,46 @@
-import User from "../models/UserModel.js";
 import { sendEmail } from "../config/nodeMailConfig.js";
+import User from "../models/UserModel.js";
 import { logger } from "./logger.js";
 
+export interface ReminderEmailResult {
+  recipients: string[];
+  sent: number;
+  failed: number;
+}
+
 /**
- * Une adresse de rappel non liee a un compte de l'appli ne peut pas etre verifiee :
- * on l'envoie par defaut plutot que de la bloquer silencieusement.
+ * Les destinataires viennent uniquement des comptes ayant active les notifications.
+ * Aucune adresse de rappel n'est definie dans le code ou la configuration du serveur.
  */
-const isRecipientOptedIn = async (email: string): Promise<boolean> => {
-  const user = await User.findOne({ email });
-  return !user || user.receiveEmail;
+export const getReminderRecipients = async (): Promise<string[]> => {
+  const optedInUsers = await User.find({ receiveEmail: true }).select("email").lean();
+  return [...new Set(optedInUsers.map((user) => user.email.trim().toLowerCase()).filter(Boolean))];
 };
 
 /**
- * Envoie un rappel aux adresses configurees (EMAIL_RECIPIENT_1/2), en respectant la case
- * "Notifications" du profil de l'utilisateur associe a chaque adresse quand elle existe.
+ * Attend la reponse SMTP afin que l'appelant ne considere pas le rappel comme envoye
+ * avant que le fournisseur de messagerie ne l'ait accepte.
  */
-export const sendReminderEmails = (subject: string, message: string): void => {
-  const { EMAIL_RECIPIENT_1, EMAIL_RECIPIENT_2 } = process.env;
+export const sendReminderEmails = async (subject: string, message: string): Promise<ReminderEmailResult> => {
+  const recipients = await getReminderRecipients();
+  if (recipients.length === 0) {
+    return { recipients: [], sent: 0, failed: 0 };
+  }
 
-  [EMAIL_RECIPIENT_1, EMAIL_RECIPIENT_2].forEach((recipient) => {
-    if (!recipient) {
-      return;
-    }
+  const results = await Promise.allSettled(
+    recipients.map((recipient) => sendEmail(recipient, subject, message))
+  );
+  const failures = results.flatMap((result, index) =>
+    result.status === "rejected" ? [{ recipient: recipients[index], error: result.reason }] : []
+  );
 
-    void isRecipientOptedIn(recipient)
-      .then((optedIn) => (optedIn ? sendEmail(recipient, subject, message) : undefined))
-      .catch((error) => {
-        logger.error("Echec de l'envoi d'un email de rappel", { error, recipient });
-      });
+  failures.forEach(({ recipient, error }) => {
+    logger.error("Échec de l'envoi d'un email de rappel", { error, recipient });
   });
+
+  if (failures.length === recipients.length) {
+    throw new AggregateError(failures.map(({ error }) => error), "Tous les emails de rappel ont échoué");
+  }
+
+  return { recipients, sent: recipients.length - failures.length, failed: failures.length };
 };
