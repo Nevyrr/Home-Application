@@ -7,10 +7,15 @@
     "dev": "concurrently -n \"BACKEND,FRONTEND\" -c \"cyan,magenta\" \"npm run server\" \"npm run client\"",
     "server": "cd server && npm run server",
     "client": "cd server/client && npm run dev",
-    "install:all": "npm install && cd server && npm install && cd client && npm install",
+    "install:all": "npm install && npm install --prefix server && npm install --prefix server/client",
     "build": "cd server && npm run build",
     "check": "npm run check --prefix server && npm run check --prefix server/client",
-    "test": "npm run test --prefix server && npm run test --prefix server/client"
+    "test": "npm run test --prefix server && npm run test --prefix server/client",
+    "ci:install": "npm ci && npm ci --prefix server && npm ci --prefix server/client",
+    "audit:all": "npm audit && npm audit --prefix server && npm audit --prefix server/client",
+    "verify": "npm run check && npm test && npm run build && npm run audit:all",
+    "android:apk": "node scripts/build-android-apk.mjs",
+    "android:apk:release": "node scripts/build-android-apk.mjs --release"
   },
   "keywords": [
     "home",
@@ -22,6 +27,11 @@
   "author": "Clément Davin",
   "license": "ISC",
   "devDependencies": {
-    "concurrently": "^8.2.2"
-  }
+    "concurrently": "^10.0.5"
+  },
+  "engines": {
+    "node": ">=24.21.0",
+    "npm": ">=12 <13"
+  },
+  "packageManager": "npm@12.0.2"
 }

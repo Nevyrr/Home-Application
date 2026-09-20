@@ -8,11 +8,10 @@ const config: CapacitorConfig = {
   appId: "com.davinhub.app",
   appName: "DavinHub",
   webDir: "dist",
-  // https par defaut sur les deux plateformes : evite les soucis de contenu mixte
-  // (cookies/storage) puisque le backend est appele en https en production.
+  // WKWebView reserve http/https : iOS utilise le schema local de Capacitor.
   server: {
     androidScheme: "https",
-    iosScheme: "https",
+    iosScheme: "capacitor",
     ...(liveReloadUrl ? { url: liveReloadUrl, cleartext: true } : {}),
   },
 };

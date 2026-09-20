@@ -167,13 +167,6 @@ const Home = () => {
         className="home-hero"
       />
 
-      <nav className="home-shortcuts" aria-label="Raccourcis">
-        <Link to="/reminders"><i className="fa-solid fa-list-check"></i><span>Tâches</span></Link>
-        <Link to="/shopping"><i className="fa-solid fa-cart-shopping"></i><span>Courses</span></Link>
-        <Link to="/taco"><i className="fa-solid fa-dog"></i><span>Coco</span></Link>
-        <Link to="/nono"><i className="fa-solid fa-baby"></i><span>Nono</span></Link>
-      </nav>
-
       {loading ? (
         <div className="home-loading" role="status">
           <i className="fa-solid fa-spinner fa-spin"></i>

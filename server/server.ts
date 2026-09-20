@@ -1,6 +1,6 @@
 import "dotenv/config";
 import express from "express";
-import type { Request, Response } from "express";
+import type { Request } from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import helmet from "helmet";
@@ -15,11 +15,14 @@ import { NonoRoutes } from "./routes/NonoRoutes.js";
 import { env } from "./config/env.js";
 import { logger } from "./utils/logger.js";
 import { errorHandler } from "./middlewares/errorHandler.js";
+import { serveClient } from "./utils/serveClient.js";
+import { configureTrustProxy } from "./utils/proxy.js";
 import { isEmailConfigured, verifyEmailTransport } from "./config/nodeMailConfig.js";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
 const app = express();
+configureTrustProxy(app);
 const jsonParser = express.json({ limit: "10mb" });
 const urlEncodedParser = express.urlencoded({ extended: true, limit: "10mb" });
 
@@ -100,8 +103,7 @@ app.use("/api/users", UsersRoutes);
 
 const clientDistPath = path.join(path.dirname(dirname), "client/dist");
 
-app.use(express.static(clientDistPath));
-app.get("*", (_req: Request, res: Response) => res.sendFile(path.join(clientDistPath, "index.html")));
+serveClient(app, clientDistPath);
 
 app.use(errorHandler);
 

@@ -1,6 +1,12 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@config "../../tailwind.config.js";
+
+/* Preserve Tailwind 3's default border colour for existing components. */
+@layer base {
+    *, ::before, ::after, ::backdrop, ::file-selector-button {
+        border-color: var(--color-gray-200, currentColor);
+    }
+}
 
 @layer components {
     /* =========================
@@ -343,7 +349,7 @@
     /* ----- DASHBOARD ----- */
 
     .highlight {
-        @apply animation: highlight-animation 1s ease-in-out;
+        animation: highlight-animation 1s ease-in-out;
     }
 
     /* ------- POST -------- */

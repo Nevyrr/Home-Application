@@ -2,12 +2,15 @@
 
 # dependencies
 node_modules
+*.tsbuildinfo
 dist
 /.pnp
 .pnp.js
 
 # testing
 /coverage
+/playwright-report
+/test-results
 
 # production build
 /build
