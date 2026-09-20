@@ -46,7 +46,13 @@ It helps you **organize your daily life** by managing tasks, shopping, and healt
 
 ## 📦 Installation
 
-1. **Clone the repository**  
+Le projet recommande **Node.js 24 LTS** (version exacte dans `.node-version`) et
+**npm 12.0.2**. Node 26 et les versions plus récentes sont aussi acceptés. Avec
+Node 24, active cette version avec ton gestionnaire de versions, puis installe npm
+avec `npm install --global npm@12.0.2`. Les fichiers du projet ne changent pas
+automatiquement la version de Node installée sur le poste ou l'hébergement.
+
+1. **Clone the repository**
    ```bash
    git clone https://github.com/your-username/home-application.git
    cd home-application
@@ -150,9 +156,20 @@ Après l'installation des dépendances, depuis la racine :
 npm run check  # Vérification TypeScript du serveur et de l'interface
 npm test       # Tests des échéances, dates et notifications
 npm run build  # Compilation du serveur et de l'interface
+npm run audit:all # Audit des trois arbres de dépendances, outils inclus
+npm run verify # Tous les contrôles ci-dessus
 ```
 
 Le build utilise les dépendances installées ; il ne lance pas de nouvelle installation.
+
+Pour une installation reproductible depuis les trois lockfiles : `npm run ci:install`.
+La CI exécute ces contrôles sur Windows et Linux. Dependabot propose les mises à jour
+chaque semaine ; les versions majeures doivent être migrées et testées séparément.
+Avec npm 12, seul le script d'installation d'esbuild est autorisé, pour la version
+explicitement indiquée dans chaque manifeste. Réexaminer cette autorisation lors de sa mise à jour.
+
+Le [compte rendu de migration](docs/MISE_A_JOUR_2026-09-20.md) précise les versions,
+les changements de compatibilité et les limites de validation.
 
 ## 📱 Application mobile (Android / iPhone)
 
@@ -160,9 +177,13 @@ Le même projet produit aussi une app native Android et iOS via **Capacitor** : 
 
 ### Prérequis
 
-- **Android** : [Android Studio](https://developer.android.com/studio) (inclut le SDK + un JDK compatible). Fonctionne sur Windows/macOS/Linux.
+- **Android** : [Android Studio](https://developer.android.com/studio) **Otter 2025.2.1 ou plus récent**, **JDK 21**, **SDK Android 36** et une WebView à jour. Cette version d'Android Studio est nécessaire pour ouvrir un projet utilisant AGP 8.13.2 ; Gradle 8.14.5 reste dans la branche compatible avec Capacitor 8. Fonctionne sur Windows/macOS/Linux.
 - **iOS** : un **Mac** avec [Xcode](https://apps.apple.com/app/xcode/id497799835) installé — impossible de compiler/tester la version iPhone depuis Windows. Le dossier `ios/` peut être généré depuis Windows, mais il faudra l'ouvrir sur un Mac pour la suite.
 - Un compte développeur [Google Play Console](https://play.google.com/console) (payant, une fois) et/ou [Apple Developer](https://developer.apple.com/programs/) (payant, annuel) pour publier sur les stores.
+
+L'application iOS demande maintenant **iOS 16.4 minimum**, pour les fonctionnalités
+CSS utilisées par Tailwind 4. Sur le web : Safari 16.4+, Chrome/Edge 111+ et Firefox 128+.
+Le bundle local utilise `https://localhost` sur Android et `capacitor://localhost` sur iOS.
 
 ### Construire et synchroniser
 
@@ -178,13 +199,53 @@ Relance `npm run cap:sync` après chaque changement de code avant de rebuild l'a
 
 ### Distribution Android sans Play Store (sideload)
 
-Pour installer l'app directement sur vos téléphones sans passer par le Play Store :
+La première fois, mets Android Studio à jour vers **Otter 2025.2.1 ou plus récent**, puis ouvre son gestionnaire de SDK et installe
+**Android SDK Platform 36**. Utilise également
+du **JDK 21**, ou installe un JDK 21 séparément et renseigne `JAVA_HOME`. Vérifie
+ensuite dans un nouveau terminal :
 
 ```bash
-npm run android:release
+node --version  # doit afficher v24.x ou une version plus récente
+java -version   # doit afficher 21 ou plus
 ```
 
-Ça produit un APK **signé** (pas debug) dans `android/app/build/outputs/apk/release/app-release.apk`, à envoyer directement (email, drive, clé USB...). Chaque personne doit activer *"Installer les applications inconnues"* pour l'app utilisée pour ouvrir le fichier (Fichiers, Gmail...), puis taper dessus pour installer.
+Le fichier `server/client/.env.production` doit aussi contenir l'adresse HTTPS
+de l'API utilisée par le téléphone :
+
+```env
+VITE_API_BASE_URL=https://ton-domaine-de-production.com
+```
+
+Pour créer depuis la racine un APK de test signé automatiquement et directement
+installable sur ton téléphone :
+
+```bash
+npm run android:apk
+```
+
+Le script vérifie Node 24 ou plus récent, Java 21, le SDK Android 36 et la configuration de l'API.
+Il compile l'interface, synchronise uniquement Android, construit l'application puis
+copie le résultat dans :
+
+```text
+build/android/DavinHub-debug.apk
+```
+
+Envoie ce fichier sur ton téléphone par câble, Drive ou email, puis ouvre-le. Android
+peut demander d'autoriser temporairement l'installation d'applications inconnues pour
+l'application qui ouvre l'APK. Une ancienne installation signée avec une autre clé doit
+être désinstallée avant d'installer cet APK de test.
+
+Pour produire une version signée durablement, destinée à être distribuée ou mise à jour
+sans réinstallation :
+
+```bash
+npm run android:apk:release
+```
+
+Elle est copiée vers `build/android/DavinHub-release.apk`. Cette commande exige la
+configuration de signature ci-dessous. Les mêmes commandes sont aussi disponibles
+depuis `server/client/` sous les noms `npm run android:apk` et `npm run android:release`.
 
 La signature est configurée via `android/keystore.properties` (jamais commité — voir `keystore.properties.example` pour le modèle). **Le mot de passe de cette clé ne se régénère pas** : perds-le et tu ne pourras plus republier de mise à jour sous la même identité (il faudrait redésinstaller l'app sur chaque téléphone). Garde-le dans un gestionnaire de mots de passe, pas juste dans ce fichier.
 

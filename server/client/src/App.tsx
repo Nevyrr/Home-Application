@@ -1,18 +1,20 @@
+import { lazy } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "./pages/Layout.tsx";
-import Login from "./pages/users/Login.tsx";
-import Register from "./pages/users/Register.tsx";
-import ForgotPassword from "./pages/users/ForgotPassword.tsx";
-import ResetPassword from "./pages/users/ResetPassword.tsx";
-import Dashboard from "./pages/users/Dashboard.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import AuthRoutes from "./routes/AuthRoutes.tsx";
 import GuestRoutes from "./routes/GuestRoutes.tsx";
-import ShoppingTab from "./pages/tabs/ShoppingTab.tsx";
-import ReminderTab from "./pages/tabs/ReminderTab.tsx";
-import TacoTab from "./pages/tabs/TacoTab.tsx";
-import NonoTab from "./pages/tabs/NonoTab.tsx";
-import Home from "./pages/Home.tsx";
+
+const Login = lazy(() => import("./pages/users/Login.tsx"));
+const Register = lazy(() => import("./pages/users/Register.tsx"));
+const ForgotPassword = lazy(() => import("./pages/users/ForgotPassword.tsx"));
+const ResetPassword = lazy(() => import("./pages/users/ResetPassword.tsx"));
+const Dashboard = lazy(() => import("./pages/users/Dashboard.tsx"));
+const ShoppingTab = lazy(() => import("./pages/tabs/ShoppingTab.tsx"));
+const ReminderTab = lazy(() => import("./pages/tabs/ReminderTab.tsx"));
+const TacoTab = lazy(() => import("./pages/tabs/TacoTab.tsx"));
+const NonoTab = lazy(() => import("./pages/tabs/NonoTab.tsx"));
+const Home = lazy(() => import("./pages/Home.tsx"));
 
 const App = () => {
 

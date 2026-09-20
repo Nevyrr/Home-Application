@@ -184,7 +184,7 @@ const readObjectIdValue = (value: unknown, label: string): Types.ObjectId => {
 
 const updateNonoField = async (field: NonoField, value: string) => {
   const current = field.endsWith("Date") ? await NonoModel.findOne().lean() : null;
-  const update = buildCareDateUpdate("nono", field, value, current || {});
+  const update = buildCareDateUpdate("nono", field, value, { ...current });
   const updatedNono = await NonoModel.findOneAndUpdate(
     {},
     { $set: update },
@@ -361,7 +361,7 @@ export {
 
 export const updateCare = async (req: Request, res: Response): Promise<void> => {
   const current = req.body.date === undefined ? await NonoModel.findOne().lean() : null;
-  const update = buildCareUpdate("nono", String(req.params.care), req.body.intervalMonths, req.body.date, current || {});
+  const update = buildCareUpdate("nono", String(req.params.care), req.body.intervalMonths, req.body.date, { ...current });
   const record = await NonoModel.findOneAndUpdate(
     {},
     { $set: update },

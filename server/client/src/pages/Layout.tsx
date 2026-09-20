@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import Icon from "../components/Icon.tsx";
 import ThemeToggle from "../components/ThemeToggle.tsx";
@@ -92,7 +93,9 @@ const Layout = () => {
 
       <main className="app-main">
         <div key={pathname} className="page-transition">
-          <Outlet />
+          <Suspense fallback={<p role="status">Chargement…</p>}>
+            <Outlet />
+          </Suspense>
         </div>
       </main>
 

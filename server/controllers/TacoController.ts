@@ -130,7 +130,7 @@ const getOrCreateTaco = async () => {
 
 const updateTacoField = async (field: TacoField, date: string) => {
   const current = field.endsWith("Date") ? await TacoModel.findOne().lean() : null;
-  const update = buildCareDateUpdate("taco", field, date, current || {});
+  const update = buildCareDateUpdate("taco", field, date, { ...current });
   const updatedTaco = await TacoModel.findOneAndUpdate(
     {},
     { $set: update },
@@ -295,7 +295,7 @@ export {
 
 export const updateCare = async (req: Request, res: Response): Promise<void> => {
   const current = req.body.date === undefined ? await TacoModel.findOne().lean() : null;
-  const update = buildCareUpdate("taco", String(req.params.care), req.body.intervalMonths, req.body.date, current || {});
+  const update = buildCareUpdate("taco", String(req.params.care), req.body.intervalMonths, req.body.date, { ...current });
   const record = await TacoModel.findOneAndUpdate(
     {},
     { $set: update },
