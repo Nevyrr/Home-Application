@@ -4,16 +4,16 @@
   border: 1px solid var(--border);
   border-radius: 2rem;
   background:
-    radial-gradient(circle at top right, rgba(20, 108, 148, 0.12), transparent 24%),
-    radial-gradient(circle at bottom left, rgba(31, 138, 112, 0.12), transparent 28%),
+    radial-gradient(circle at top right, color-mix(in srgb, var(--primary) 12%, transparent), transparent 24%),
+    radial-gradient(circle at bottom left, color-mix(in srgb, var(--secondary) 12%, transparent), transparent 28%),
     var(--bg-surface-elevated);
   box-shadow: var(--shadow-md);
 }
 
 [data-theme="dark"] .shopping-board-shell {
   background:
-    radial-gradient(circle at top right, rgba(76, 183, 216, 0.16), transparent 24%),
-    radial-gradient(circle at bottom left, rgba(87, 197, 160, 0.12), transparent 28%),
+    radial-gradient(circle at top right, color-mix(in srgb, var(--primary) 16%, transparent), transparent 24%),
+    radial-gradient(circle at bottom left, color-mix(in srgb, var(--secondary) 12%, transparent), transparent 28%),
     var(--bg-surface-elevated);
 }
 
@@ -57,8 +57,8 @@
   padding-inline: 1.2rem;
   border-radius: 1.2rem;
   border: 1px solid var(--border);
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
-  box-shadow: 0 18px 34px -26px rgba(20, 108, 148, 0.7);
+  background: var(--btn-bg);
+  box-shadow: 0 18px 34px -26px color-mix(in srgb, var(--primary) 70%, transparent);
 }
 
 .shopping-board-switcher,
@@ -114,8 +114,8 @@
 }
 
 .shopping-basket-tab {
-  --shopping-accent: rgba(20, 108, 148, 0.9);
-  --shopping-accent-soft: rgba(20, 108, 148, 0.14);
+  --shopping-accent: color-mix(in srgb, var(--primary) 90%, transparent);
+  --shopping-accent-soft: color-mix(in srgb, var(--primary) 14%, transparent);
   flex: 0 0 auto;
   display: grid;
   gap: 0.2rem;
@@ -262,10 +262,10 @@
   padding: 0.9rem 1.15rem;
   border-radius: 1.2rem;
   border: 1px solid var(--border);
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  background: var(--btn-bg);
   color: #ffffff;
   font-weight: 800;
-  box-shadow: 0 18px 28px -24px rgba(20, 108, 148, 0.45);
+  box-shadow: 0 18px 28px -24px color-mix(in srgb, var(--primary) 45%, transparent);
   cursor: pointer;
 }
 
@@ -364,7 +364,7 @@
   padding: 0.2rem 0.45rem;
   border-radius: 999px;
   background: color-mix(in srgb, var(--primary) 12%, var(--bg-panel));
-  color: var(--primary);
+  color: var(--text-link);
   font-size: 0.68rem;
   font-weight: 800;
 }
@@ -381,7 +381,7 @@
   border-radius: 1.7rem;
   border: 1px dashed var(--border);
   background:
-    radial-gradient(circle at top right, rgba(20, 108, 148, 0.08), transparent 24%),
+    radial-gradient(circle at top right, color-mix(in srgb, var(--primary) 8%, transparent), transparent 24%),
     color-mix(in srgb, var(--bg-panel) 90%, transparent);
   color: var(--text-muted);
   text-align: center;
@@ -398,9 +398,9 @@
 }
 
 .shopping-basket-panel {
-  --shopping-accent: rgba(20, 108, 148, 0.9);
-  --shopping-accent-soft: rgba(20, 108, 148, 0.14);
-  --shopping-accent-glow: rgba(20, 108, 148, 0.24);
+  --shopping-accent: color-mix(in srgb, var(--primary) 90%, transparent);
+  --shopping-accent-soft: color-mix(in srgb, var(--primary) 14%, transparent);
+  --shopping-accent-glow: color-mix(in srgb, var(--primary) 24%, transparent);
   position: relative;
   display: flex;
   flex-direction: column;
@@ -497,7 +497,7 @@
 
 .shopping-basket-clear-checked:hover:not(:disabled) {
   background: color-mix(in srgb, var(--shopping-accent-soft) 60%, transparent);
-  color: var(--shopping-accent);
+  color: var(--text-link);
 }
 
 .shopping-basket-clear-checked:disabled {
@@ -680,7 +680,7 @@
 
 .shopping-item.is-checked .shopping-item-check {
   border-color: var(--shopping-accent);
-  background: var(--shopping-accent);
+  background: var(--btn-bg);
   color: #ffffff;
   animation: shopping-check-pop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
@@ -731,8 +731,8 @@
   gap: 0.42rem;
   width: fit-content;
   border: 1px solid var(--border);
-  background: rgba(20, 108, 148, 0.12);
-  color: #146c94;
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
+  color: var(--text-link);
   font-size: 0.66rem;
   font-weight: 800;
   letter-spacing: 0.05em;
@@ -740,13 +740,13 @@
 }
 
 [data-theme="dark"] .shopping-item-meta-pill.shopping-item-priority-pill {
-  color: #9cdcf0;
+  color: var(--text-link);
 }
 
 .shopping-priority-1 .shopping-item-meta-pill.shopping-item-priority-pill {
   border-color: var(--border);
-  background: rgba(31, 138, 112, 0.12);
-  color: #1f8a70;
+  background: color-mix(in srgb, var(--secondary) 12%, transparent);
+  color: var(--success);
 }
 
 .shopping-priority-2 .shopping-item-meta-pill.shopping-item-priority-pill {
@@ -762,7 +762,7 @@
 }
 
 [data-theme="dark"] .shopping-priority-1 .shopping-item-meta-pill.shopping-item-priority-pill {
-  color: #82d8ba;
+  color: var(--success);
 }
 
 [data-theme="dark"] .shopping-priority-2 .shopping-item-meta-pill.shopping-item-priority-pill {
@@ -877,8 +877,8 @@
 
 .shopping-item-action.edit:hover {
   border-color: var(--border);
-  background: rgba(31, 138, 112, 0.12);
-  color: #1f8a70;
+  background: color-mix(in srgb, var(--secondary) 12%, transparent);
+  color: var(--success);
 }
 
 .shopping-item-action.delete:hover {
@@ -888,7 +888,7 @@
 }
 
 [data-theme="dark"] .shopping-item-action.edit:hover {
-  color: #82d8ba;
+  color: var(--success);
 }
 
 [data-theme="dark"] .shopping-item-action.delete:hover {

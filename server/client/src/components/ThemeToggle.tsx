@@ -12,7 +12,7 @@ const ThemeToggle = ({ className = "theme-toggle" }: ThemeToggleProps) => {
       onClick={toggleTheme}
       className={className}
       title={theme === 'light' ? 'Passer en mode sombre' : 'Passer en mode clair'}
-      aria-label="Toggle theme"
+      aria-label={theme === 'light' ? 'Passer en mode sombre' : 'Passer en mode clair'}
     >
       {theme === 'light' ? (
         <i className="fa-solid fa-moon"></i>

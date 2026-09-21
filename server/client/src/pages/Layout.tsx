@@ -8,7 +8,7 @@ import "../style/topbar.css";
 const NAV_ITEMS = [
   { path: "/", icon: "fa-house", label: "Accueil" },
   { path: "/shopping", icon: "fa-cart-shopping", label: "Courses" },
-  { path: "/reminders", icon: "fa-list-check", label: "Taches" },
+  { path: "/reminders", icon: "fa-list-check", label: "Tâches" },
   { path: "/taco", icon: "fa-dog", label: "Taco" },
   { path: "/nono", icon: "fa-baby", label: "Nono" },
 ];
@@ -26,7 +26,10 @@ const Layout = () => {
   return (
     <>
       <header className="topbar-shell">
-        <nav className="topbar-nav">
+        <nav className="topbar-nav" aria-label="Navigation principale">
+          <Link to="/" className="topbar-brand" aria-label="Davin Home — Accueil">
+            <span className="topbar-brand-icon"><Icon imageName="DavinIcon.png" /></span>
+          </Link>
           <div className="topbar-groups">
             <div className="topbar-main">
               {NAV_ITEMS.map((item) => (
@@ -38,7 +41,8 @@ const Layout = () => {
                   className={`topbar-button ${isSelected(item.path) ? "is-active" : ""}`}
                   aria-current={isSelected(item.path) ? "page" : undefined}
                 >
-                  <i className={`fa-solid ${item.icon} nav-icon`}></i>
+                  <i className={`fa-solid ${item.icon} nav-icon`} aria-hidden="true"></i>
+                  <span className="topbar-label">{item.label}</span>
                 </Link>
               ))}
             </div>
@@ -83,9 +87,6 @@ const Layout = () => {
                   </Link>
                 </>
               )}
-              <span className="topbar-brand-icon">
-                <Icon imageName={"DavinIcon.png"} />
-              </span>
             </div>
           </div>
         </nav>

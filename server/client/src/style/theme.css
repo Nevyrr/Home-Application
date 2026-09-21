@@ -1,62 +1,72 @@
-@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap");
 
 :root {
   --main-font: "Manrope", "Segoe UI", sans-serif;
-  --display-font: "Fraunces", Georgia, serif;
+  --display-font: var(--main-font);
   --code-font: "SF Mono", "Fira Code", monospace;
 
-  --primary: #146c94;
-  --secondary: #1f8a70;
-  --accent: #f28c52;
+  /* Brand palette shared with PortFolio/src/_variables.scss. */
+  --primary: #4f46e5;
+  --secondary: #6c63ff;
+  --accent: #9f8cff;
+  --text-link: #4f46e5;
   --success: #1f8a70;
   --warning: #e09f3e;
   --danger: #d65a31;
 
-  --btn-bg: linear-gradient(135deg, #146c94 0%, #1f8a70 100%);
-  --btn-border: #0f5370;
-  --btn-hover-bg: linear-gradient(135deg, #115d80 0%, #18705b 100%);
-  --btn-hover-border: #0c4359;
+  --btn-bg: #4f46e5;
+  --btn-border: #4338ca;
+  --btn-hover-bg: #4338ca;
+  --btn-hover-border: #3730a3;
 
-  --bg: #f4f1ea;
-  --bg-header: rgba(253, 250, 244, 0.85);
-  --bg-panel: rgba(255, 255, 255, 0.84);
-  --bg-soft: rgba(255, 255, 255, 0.58);
-  --bg-surface-elevated: rgba(255, 255, 255, 0.9);
-  --border: rgba(20, 108, 148, 0.18);
-  --hover: rgba(20, 108, 148, 0.08);
+  --bg: #f5f7ff;
+  --bg-header: #edf0fd;
+  --bg-panel: #ffffff;
+  --bg-soft: #f0f2fc;
+  --bg-surface-elevated: #ffffff;
+  --border: #dfe4f4;
+  --border-strong: #a2c1ff;
+  --hover: #e0e7ff;
+  --focus-ring: color-mix(in srgb, var(--primary) 22%, transparent);
+  --radius-sm: 0.75rem;
+  --radius-md: 1rem;
+  --radius-lg: 1.5rem;
 
-  --shadow-xs: 0 10px 18px rgba(14, 50, 66, 0.05);
-  --shadow-sm: 0 14px 32px rgba(14, 50, 66, 0.08);
-  --shadow-md: 0 24px 48px rgba(14, 50, 66, 0.12);
-  --shadow-lg: 0 32px 60px rgba(14, 50, 66, 0.18);
-  --shadow-xl: 0 40px 80px rgba(14, 50, 66, 0.24);
+  --shadow-xs: 0 2px 6px rgba(10, 25, 47, 0.03);
+  --shadow-sm: 0 4px 16px rgba(10, 25, 47, 0.05);
+  --shadow-md: 0 12px 32px rgba(10, 25, 47, 0.06);
+  --shadow-lg: 0 20px 48px rgba(10, 25, 47, 0.1);
+  --shadow-xl: 0 32px 72px rgba(10, 25, 47, 0.16);
 
-  --text-main: #17313b;
-  --text-heading: #0f252e;
-  --text-subheading: #36505a;
-  --text-muted: #6b7c83;
+  --text-main: #0a192f;
+  --text-heading: #111827;
+  --text-subheading: #374151;
+  --text-muted: #6b7280;
+  color-scheme: light;
 }
 
 [data-theme="dark"] {
-  --primary: #4cb7d8;
-  --secondary: #57c5a0;
-  --accent: #ffb36b;
+  --primary: #6c63ff;
+  --secondary: #9f8cff;
+  --accent: #bbaaff;
+  --text-link: #bbaaff;
   --success: #57c5a0;
   --warning: #ffbf69;
   --danger: #ff7a59;
 
-  --btn-bg: linear-gradient(135deg, #185f7c 0%, #1b6a56 100%);
-  --btn-border: rgba(76, 183, 216, 0.3);
-  --btn-hover-bg: linear-gradient(135deg, #1f7395 0%, #237560 100%);
-  --btn-hover-border: rgba(87, 197, 160, 0.35);
+  --btn-bg: #584de0;
+  --btn-border: #6c63ff;
+  --btn-hover-bg: #483cc4;
+  --btn-hover-border: #9f8cff;
 
-  --bg: #0f1a21;
-  --bg-header: rgba(18, 29, 36, 0.82);
-  --bg-panel: rgba(23, 35, 43, 0.82);
-  --bg-soft: rgba(17, 28, 35, 0.65);
-  --bg-surface-elevated: rgba(23, 35, 43, 0.9);
-  --border: rgba(76, 183, 216, 0.16);
-  --hover: rgba(76, 183, 216, 0.08);
+  --bg: #05070c;
+  --bg-header: #0b101c;
+  --bg-panel: #101724;
+  --bg-soft: #0c121e;
+  --bg-surface-elevated: #151e2d;
+  --border: #263247;
+  --border-strong: #3a4b69;
+  --hover: #182235;
 
   --shadow-xs: 0 10px 18px rgba(0, 0, 0, 0.18);
   --shadow-sm: 0 16px 36px rgba(0, 0, 0, 0.24);
@@ -64,14 +74,25 @@
   --shadow-lg: 0 32px 60px rgba(0, 0, 0, 0.38);
   --shadow-xl: 0 40px 80px rgba(0, 0, 0, 0.42);
 
-  --text-main: #e8f2f4;
-  --text-heading: #f4fafb;
-  --text-subheading: #bfd0d5;
-  --text-muted: #89a0a9;
+  --text-main: #e6f1ff;
+  --text-heading: #f8fafc;
+  --text-subheading: #cbd5e1;
+  --text-muted: #a8b6cb;
+  color-scheme: dark;
 }
 
-* {
-  transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+:where(a, button, input, select, textarea):focus-visible {
+  outline: 2px solid var(--text-link);
+  outline-offset: 4px;
+}
+
+::selection {
+  background: var(--primary);
+  color: #fff;
 }
 
 html {
@@ -81,10 +102,10 @@ html {
 body {
   font-family: var(--main-font);
   background:
-    radial-gradient(circle at top left, rgba(31, 138, 112, 0.12), transparent 34%),
-    radial-gradient(circle at top right, rgba(242, 140, 82, 0.14), transparent 28%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.45), transparent 35%),
+    radial-gradient(ellipse at 85% 0%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 42rem),
     var(--bg);
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.6;
   color: var(--text-main);
   margin: 0;
   padding: 0;
@@ -138,4 +159,19 @@ body {
 
 .shadow-theme-lg {
   box-shadow: var(--shadow-lg);
+}
+
+[data-theme="dark"] body {
+  background:
+    radial-gradient(ellipse at 82% -8%, color-mix(in srgb, var(--primary) 9%, transparent), transparent 36rem),
+    linear-gradient(180deg, #070a11 0%, var(--bg) 28rem);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

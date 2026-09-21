@@ -1,193 +1,70 @@
+/* Shared navigation: labelled on desktop, thumb-friendly tabs on mobile. */
 .topbar-shell {
   position: sticky;
   top: 0;
   z-index: 60;
-  padding: 1rem 1.2rem 0;
+  padding: 1rem 1.5rem 0;
 }
-
 .topbar-nav {
-  max-width: 90rem;
+  max-width: 87rem;
   margin: 0 auto;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.95rem 1rem;
-  border-radius: 1.85rem;
+  gap: 2rem;
+  padding: 0.75rem 1.25rem;
   border: 1px solid var(--border);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.22), transparent 58%),
-    var(--bg-surface-elevated);
-  box-shadow: var(--shadow-md);
-  backdrop-filter: blur(18px);
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--bg-panel) 94%, transparent);
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(20px);
 }
-
 .topbar-brand {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  width: 4.25rem;
-  height: 4.25rem;
-  border-radius: 1.45rem;
-  border: 1px solid rgba(20, 108, 148, 0.18);
-  background:
-    radial-gradient(circle at top left, rgba(20, 108, 148, 0.18), transparent 70%),
-    color-mix(in srgb, var(--bg-panel) 88%, transparent);
-  box-shadow: var(--shadow-sm);
-}
-
-.topbar-brand-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-}
-
-.topbar-brand-icon img {
-  display: block;
-  width: 3rem;
-  height: 3rem;
-  object-fit: contain;
-}
-
-.topbar-groups {
-  min-width: 0;
-  display: flex;
-  justify-content: space-between;
-  flex: 1;
-  align-items: center;
-  gap: 0.4rem;
-}
-
-.topbar-main {
-  display: flex;
-  flex: 1;
-  margin: 0 1rem 0 1rem;
-  gap: 0.6rem;
-  min-width: 0;
-}
-
-.topbar-utility {
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: 3.4rem;
-  gap: 0.7rem;
-  justify-content: end;
-}
-
-.topbar-button {
-  width: 100%;
-  height: 3.4rem;
-  min-width: 3.4rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 1.15rem;
-  border: 1px solid var(--border);
-  background: color-mix(in srgb, var(--bg-panel) 82%, transparent);
-  color: var(--text-main) !important;
+  gap: 0.65rem;
+  flex-shrink: 0;
+  color: var(--text-heading);
   text-decoration: none;
-  box-shadow: var(--shadow-xs);
-  transition:
-    transform 0.2s ease,
-    border-color 0.2s ease,
-    background 0.2s ease,
-    box-shadow 0.2s ease,
-    color 0.2s ease;
 }
-
-.topbar-button .nav-icon,
-.topbar-theme-toggle i {
-  font-size: 1rem;
-}
-
-.topbar-button:hover,
-.topbar-theme-toggle:hover {
-  transform: translateY(-1px);
-  border-color: rgba(20, 108, 148, 0.28);
-  background: color-mix(in srgb, var(--hover) 78%, transparent);
-  color: var(--primary) !important;
-  box-shadow: var(--shadow-sm);
-}
-
-.topbar-button.is-active {
-  border-color: rgba(20, 108, 148, 0.3);
-  background:
-    linear-gradient(135deg, rgba(20, 108, 148, 0.18), rgba(31, 138, 112, 0.14)),
-    color-mix(in srgb, var(--bg-panel) 86%, transparent);
-  color: var(--text-heading) !important;
-  box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.28),
-    var(--shadow-sm);
-}
-
-.topbar-theme-toggle {
+.topbar-brand-icon { display: inline-flex; }
+.topbar-brand-icon img { width: 2.5rem; height: 2.5rem; object-fit: contain; }
+.topbar-groups { min-width: 0; display: flex; flex: 1; align-items: center; justify-content: space-between; gap: 1rem; }
+.topbar-main, .topbar-utility { display: flex; align-items: center; gap: 0.35rem; }
+.topbar-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  min-width: 2.75rem;
+  height: 2.75rem;
+  padding: 0 0.9rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-muted) !important;
+  text-decoration: none;
   cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
-
+.topbar-label { font-size: 0.82rem; font-weight: 700; }
+.topbar-button .nav-icon, .topbar-theme-toggle i { font-size: 1rem; }
+.topbar-button:hover { color: var(--text-link) !important; background: var(--bg-soft); }
+.topbar-button.is-active { color: var(--text-link) !important; background: color-mix(in srgb, var(--primary) 10%, var(--bg-panel)); border-color: color-mix(in srgb, var(--primary) 18%, var(--border)); }
+.topbar-utility { padding-left: 1rem; border-left: 1px solid var(--border); }
+.topbar-utility .topbar-button { padding: 0; }
+.bottom-tab-bar { display: none; }
+@media (min-width: 901px) and (max-width: 1100px) {
+  .topbar-nav { gap: 1rem; padding-inline: 0.9rem; }
+  .topbar-button { padding-inline: 0.65rem; }
+  .topbar-main { gap: 0.1rem; }
+}
 @media (max-width: 900px) {
-  .topbar-shell {
-    padding: 0.75rem 0.75rem 0;
-  }
-
-  .topbar-groups{
-    flex-direction: column;
-  }
-
-  .topbar-brand {
-    width: 3.7rem;
-    height: 3.7rem;
-  }
-
-  .topbar-brand-icon img {
-    width: 2.55rem;
-    height: 2.55rem;
-  }
-
-  /* La navigation principale vit desormais dans la bottom-tab-bar sur mobile */
-  .topbar-main {
-    display: none;
-  }
-
-  .topbar-utility {
-    overflow-x: auto;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-    justify-content: center;
-    width: 100%;
-  }
-
-  .topbar-utility::-webkit-scrollbar {
-    display: none;
-  }
-
-  .topbar-utility {
-    grid-auto-columns: 3.15rem;
-  }
-
-  .topbar-button {
-    height: 3.15rem;
-    min-width: 3.15rem;
-    border-radius: 1rem;
-  }
-}
-
-/* =========================
-   Bottom tab bar (mobile, style app native)
-   ========================= */
-.bottom-tab-bar {
-  display: none;
-}
-
-@media (max-width: 900px) {
-  .app-main {
-    /* !important : la regle de base .app-main (app.css) applique un shorthand
-       "padding: ... 2rem" une fois minifie, qui ecrase sinon ce padding-bottom
-       peu importe l'ordre des fichiers CSS dans le bundle final. */
-    padding-bottom: calc(7.5rem + env(safe-area-inset-bottom, 0px)) !important;
-  }
-
+  .topbar-shell { padding: 0.75rem 0.75rem 0; }
+  .topbar-nav { padding: 0.65rem 0.85rem; gap: 0.5rem; border-radius: 1.1rem; }
+  .topbar-groups { justify-content: flex-end; }
+  .topbar-main { display: none; }
+  .topbar-utility { padding-left: 0; border: 0; gap: 0.15rem; }
+  .app-main { padding-bottom: calc(7.5rem + env(safe-area-inset-bottom, 0px)) !important; }
   .bottom-tab-bar {
     position: fixed;
     left: 0.75rem;
@@ -196,18 +73,14 @@
     z-index: 70;
     display: flex;
     align-items: stretch;
-    justify-content: space-between;
     gap: 0.25rem;
-    padding: 0.5rem;
-    border-radius: 1.5rem;
+    padding: 0.45rem;
     border: 1px solid var(--border);
-    background:
-      linear-gradient(180deg, rgba(255, 255, 255, 0.22), transparent 58%),
-      var(--bg-surface-elevated);
+    border-radius: var(--radius-lg);
+    background: color-mix(in srgb, var(--bg-panel) 96%, transparent);
     box-shadow: var(--shadow-lg);
     backdrop-filter: blur(20px);
   }
-
   .bottom-tab-item {
     flex: 1;
     display: flex;
@@ -215,36 +88,13 @@
     align-items: center;
     justify-content: center;
     gap: 0.3rem;
-    padding: 0.5rem 0.25rem;
-    border-radius: 1.05rem;
+    min-height: 3.3rem;
+    padding: 0.4rem 0.2rem;
+    border-radius: var(--radius-md);
     color: var(--text-muted) !important;
     text-decoration: none;
-    transition: transform 0.2s ease, color 0.2s ease, background 0.2s ease;
   }
-
-  .bottom-tab-icon {
-    font-size: 1.15rem;
-  }
-
-  .bottom-tab-label {
-    font-size: 0.66rem;
-    font-weight: 700;
-    letter-spacing: 0.01em;
-  }
-
-  .bottom-tab-item:active {
-    transform: scale(0.94);
-  }
-
-  .bottom-tab-item.is-active {
-    color: var(--text-heading) !important;
-    background:
-      linear-gradient(135deg, rgba(20, 108, 148, 0.18), rgba(31, 138, 112, 0.14)),
-      color-mix(in srgb, var(--bg-panel) 86%, transparent);
-    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.28);
-  }
-
-  .bottom-tab-item.is-active .bottom-tab-icon {
-    color: var(--primary);
-  }
+  .bottom-tab-icon { font-size: 1.1rem; }
+  .bottom-tab-label { font-size: 0.65rem; font-weight: 700; }
+  .bottom-tab-item.is-active { color: var(--text-link) !important; background: color-mix(in srgb, var(--primary) 12%, var(--bg-panel)); }
 }

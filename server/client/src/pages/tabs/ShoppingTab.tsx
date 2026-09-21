@@ -289,28 +289,11 @@ const PRIORITY_OPTIONS = [
 
 const DEFAULT_QUICK_ADD = { title: "", count: 1, unit: "", priorityColor: 0 };
 
-const SHOPPING_ACCENTS = [
-  {
-    accent: "rgba(20, 108, 148, 0.92)",
-    soft: "rgba(20, 108, 148, 0.16)",
-    glow: "rgba(20, 108, 148, 0.28)",
-  },
-  {
-    accent: "rgba(31, 138, 112, 0.92)",
-    soft: "rgba(31, 138, 112, 0.16)",
-    glow: "rgba(31, 138, 112, 0.28)",
-  },
-  {
-    accent: "rgba(207, 106, 39, 0.92)",
-    soft: "rgba(207, 106, 39, 0.16)",
-    glow: "rgba(207, 106, 39, 0.28)",
-  },
-  {
-    accent: "rgba(188, 83, 85, 0.92)",
-    soft: "rgba(188, 83, 85, 0.16)",
-    glow: "rgba(188, 83, 85, 0.28)",
-  },
-];
+const SHOPPING_ACCENTS = ["primary", "secondary", "accent"].map((token) => ({
+  accent: `var(--${token})`,
+  soft: `color-mix(in srgb, var(--${token}) 16%, transparent)`,
+  glow: `color-mix(in srgb, var(--${token}) 28%, transparent)`,
+}));
 
 const ShoppingTab = () => {
   const { shoppingItems, setShoppingItems } = useApp();

@@ -64,7 +64,9 @@ const Login = () => {
         <div className="divider-label">ou avec ton email</div>
 
         <form onSubmit={handleLogin}>
+          <label className="auth-field-label" htmlFor="login-email">Adresse email</label>
           <input
+            id="login-email"
             type="email"
             placeholder="Adresse email"
             className="input"
@@ -73,7 +75,9 @@ const Login = () => {
             autoComplete="username"
             autoFocus
           />
+          <label className="auth-field-label" htmlFor="login-password">Mot de passe</label>
           <input
+            id="login-password"
             type="password"
             placeholder="Mot de passe"
             className="input"
@@ -85,11 +89,11 @@ const Login = () => {
         </form>
 
         <Link className="mt-3 block text-sm text-primary underline-offset-4 hover:underline" to="/forgot-password">
-          Mot de passe oublie ?
+          Mot de passe oublié ?
         </Link>
 
         <button className="ghost-button mt-3 w-full" onClick={() => navigate("/register")}>
-          Creer un compte
+          Créer un compte
         </button>
 
         {error && <p className="mt-4 text-sm text-red-500">{error}</p>}
